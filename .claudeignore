@@ -1,0 +1,72 @@
+# ================================================================
+# .claudeignore — OFICINA TS
+# Basado en análisis Graphify 2026-04-19
+# 228 nodos · 54 comunidades · nodo dios: useAuth() (8 edges)
+# ================================================================
+
+# ── 1. OUTPUTS COMPILADOS ─────────────────────────────────────────
+frontend/build/
+backend/dist/
+**/node_modules/
+*.tsbuildinfo
+
+# ── 2. CACHÉ Y COVERAGE ──────────────────────────────────────────
+**/.cache/
+frontend/coverage/
+.turbo/
+
+# ── 3. LOGS Y TRANSACCIONES ──────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+
+# ── 4. ASSETS BINARIOS Y ESTÁTICOS ───────────────────────────────
+# Community 0 (cohesion 0.1): imágenes y fuentes no aportan contexto
+**/*.png
+**/*.jpg
+**/*.jpeg
+**/*.gif
+**/*.ico
+**/*.webp
+**/*.svg
+**/*.woff
+**/*.woff2
+**/*.ttf
+**/*.eot
+**/*.mp4
+**/*.mp3
+frontend/public/
+
+# ── 5. RUIDO DE LINTERS Y CONFIG AISLADO ─────────────────────────
+# Communities 40-41: craco y postcss no conectan con ningún nodo core
+frontend/craco.config.js
+frontend/postcss.config.js
+
+# ── 6. TESTS EXTERNOS AISLADOS ───────────────────────────────────
+# Community 43: App.test.tsx — nodo huérfano sin edges útiles
+# Community 46: setupTests.ts — nodo huérfano sin edges útiles
+frontend/src/App.test.tsx
+frontend/src/setupTests.ts
+
+# ── 7. BOILERPLATE CRA AISLADO ───────────────────────────────────
+# Community 22: reportWebVitals — sin conexión con lógica de negocio
+# Community 45: react-app-env — solo declaraciones de tipo CRA
+frontend/src/reportWebVitals.ts
+frontend/src/react-app-env.d.ts
+
+# ── 8. GRAPHIFY OUTPUT ───────────────────────────────────────────
+# Ya procesado — incluirlo solo suma tokens sin nuevo contexto
+graphify-out/
+
+# ── 9. ARCHIVOS INTERNOS DE CLAUDE ───────────────────────────────
+# Worktrees temporales (git status: ? .claude/worktrees/reverent-saha-ac0f14)
+.claude/worktrees/
+.claude/projects/
+
+# ── 10. LOCK FILES DE DEPENDENCIAS ───────────────────────────────
+# Ruido puro: miles de líneas de hashes sin valor para razonar código
+frontend/package-lock.json
+backend/package-lock.json
+yarn.lock
+pnpm-lock.yaml
