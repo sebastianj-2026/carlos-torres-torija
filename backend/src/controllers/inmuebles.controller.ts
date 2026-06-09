@@ -145,6 +145,11 @@ export const crearInquilinoCompleto = async (req: Request, res: Response): Promi
     if (!inmueble_id || !fecha_inicio || !fecha_fin || !monto_renta_mensual || !dia_corte_pago) {
       res.status(400).json({ mensaje: 'inmueble_id, fechas, monto_renta_mensual y dia_corte_pago son obligatorios.' }); return;
     }
+    if (deposito_items !== undefined && deposito_items !== null) {
+      if (!Array.isArray(deposito_items) || deposito_items.length > 50) {
+        res.status(400).json({ mensaje: 'deposito_items debe ser un array de máximo 50 elementos.' }); return;
+      }
+    }
 
     await client.query('BEGIN');
 
@@ -361,6 +366,10 @@ export const crearContrato = async (req: Request, res: Response): Promise<void> 
         res.status(400).json({ mensaje: 'detalles_servicios debe ser un array.' });
         return;
       }
+      if (detalles_servicios.length > 50) {
+        res.status(400).json({ mensaje: 'detalles_servicios excede el máximo de 50 elementos.' });
+        return;
+      }
       for (const item of detalles_servicios) {
         if (typeof item !== 'object' || item === null || !item.tipo || typeof item.tipo !== 'string') {
           res.status(400).json({ mensaje: 'detalles_servicios mal formado.' });
@@ -431,6 +440,10 @@ export const editarContrato = async (req: Request, res: Response): Promise<void>
     if (detalles_servicios !== undefined && detalles_servicios !== null) {
       if (!Array.isArray(detalles_servicios)) {
         res.status(400).json({ mensaje: 'detalles_servicios debe ser un array.' });
+        return;
+      }
+      if (detalles_servicios.length > 50) {
+        res.status(400).json({ mensaje: 'detalles_servicios excede el máximo de 50 elementos.' });
         return;
       }
       for (const item of detalles_servicios) {
