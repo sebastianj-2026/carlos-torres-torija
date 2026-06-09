@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Zap, Paperclip } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { IngresoDirecto, MetodoPago } from '../../../types/ingresos.types';
 import { crearIngresoDirecto, listarIngresosDirectos } from '../../../services/ingresosService';
 
@@ -42,7 +43,7 @@ const IngresosExtrasTab: React.FC = () => {
   const cargar = useCallback(() => {
     setLoading(true);
     listarIngresosDirectos({ unidad_negocio: 'ingreso_atipico' })
-      .then(setRegistros).catch(() => {}).finally(() => setLoading(false));
+      .then(setRegistros).catch(logError).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => { cargar(); }, [cargar]);

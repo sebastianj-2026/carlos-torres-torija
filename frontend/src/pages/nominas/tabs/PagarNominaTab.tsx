@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Calculator, CreditCard, AlertCircle } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { Empleado, PreCalculo, TipoHoraExtra } from '../../../types/nominas.types';
 import { listarEmpleados, getPreCalculo, pagarNomina } from '../../../services/nominasService';
 
@@ -61,7 +62,7 @@ const PagarNominaTab: React.FC = () => {
   const [ok,          setOk]          = useState('');
 
   useEffect(() => {
-    listarEmpleados().then(setEmpleados).catch(() => {});
+    listarEmpleados().then(setEmpleados).catch(logError);
   }, []);
 
   const set = (k: keyof PagoForm, v: string) => { setForm(f => ({ ...f, [k]: v })); setErr(''); setOk(''); };

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit2, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { Inquilino, Inmueble, DepositoItem } from '../../../types/inmuebles.types';
 import {
   listarInquilinos, editarInquilino,
@@ -95,7 +96,7 @@ const InquilinosTab: React.FC = () => {
     setCargando(true);
     Promise.all([listarInquilinos(), listarInmuebles()])
       .then(([i, m]) => { setInquilinos(i); setInmuebles(m); })
-      .catch(() => {})
+      .catch(logError)
       .finally(() => setCargando(false));
   };
 

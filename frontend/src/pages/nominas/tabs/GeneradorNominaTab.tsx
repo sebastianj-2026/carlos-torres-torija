@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { CheckCircle, Loader2, SlidersHorizontal, X } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { Empleado, NominaPagada, TipoHoraExtra } from '../../../types/nominas.types';
 import {
   listarEmpleados, pagarNomina, pagarBase, logIncidencias,
@@ -111,7 +112,7 @@ const GeneradorNominaTab: React.FC = () => {
     setLoading(true);
     listarEmpleados()
       .then(emps => setFilas(emps.filter(e => e.estatus !== 'Inactivo').map(buildFila)))
-      .catch(() => {})
+      .catch(logError)
       .finally(() => setLoading(false));
   }, []);
 
@@ -144,7 +145,7 @@ const GeneradorNominaTab: React.FC = () => {
     setLogCargando(true);
     logIncidencias(f.empleado_id)
       .then(setLog)
-      .catch(() => {})
+      .catch(logError)
       .finally(() => setLogCargando(false));
   };
 

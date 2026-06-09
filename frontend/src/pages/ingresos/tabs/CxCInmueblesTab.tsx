@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CheckCircle, Clock, AlertCircle, DollarSign, Building2, X } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { RentaMensual, RentasMensualResponse } from '../../../types/ingresos.types';
 import { getRentasMensual, registrarPagoRenta } from '../../../services/ingresosService';
 
@@ -219,7 +220,7 @@ const CxCInmueblesTab: React.FC<{ mes: number; anio: number }> = ({ mes, anio })
 
   const cargar = useCallback(() => {
     setC(true);
-    getRentasMensual(mes, anio).then(setDatos).catch(() => {}).finally(() => setC(false));
+    getRentasMensual(mes, anio).then(setDatos).catch(logError).finally(() => setC(false));
   }, [mes, anio]);
 
   useEffect(() => { cargar(); }, [cargar]);

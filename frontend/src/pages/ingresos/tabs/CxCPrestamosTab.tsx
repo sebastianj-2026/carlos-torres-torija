@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CheckCircle, DollarSign, Clock, Zap, RefreshCw } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { ProyeccionPrestamo, ProyeccionCxCResponse, EstatusProyeccion } from '../../../types/ingresos.types';
 import {
   getProyeccionCxCPrestamos,
@@ -198,7 +199,7 @@ const CxCPrestamosTab: React.FC<{ mes: number; anio: number }> = ({ mes, anio })
     setMsgGen('');
     getProyeccionCxCPrestamos(mes, anio)
       .then(setDatos)
-      .catch(() => {})
+      .catch(logError)
       .finally(() => setCargando(false));
   }, [mes, anio]);
 

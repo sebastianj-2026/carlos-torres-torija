@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { DollarSign, TrendingUp, Car, FileText } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { PendientesCxCResponse, PendienteCxC } from '../../../types/ingresos.types';
 import { DeudaOrigen } from '../../../types/pagos.types';
 import { pendientesCxC } from '../../../services/ingresosService';
@@ -135,7 +136,7 @@ const ConsolidadoCxCTab: React.FC = () => {
 
   const cargar = useCallback(() => {
     setC(true);
-    pendientesCxC(mes, anio).then(setDatos).catch(() => {}).finally(() => setC(false));
+    pendientesCxC(mes, anio).then(setDatos).catch(logError).finally(() => setC(false));
   }, [mes, anio]);
 
   useEffect(() => { cargar(); }, [cargar]);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Target, Banknote } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { CorteCancha } from '../../../types/ingresos.types';
 import { listarCortesCancha, crearCorteCancha } from '../../../services/ingresosService';
 
@@ -51,7 +52,7 @@ const CanchaTab: React.FC = () => {
 
   const cargar = useCallback(() => {
     setLoading(true);
-    listarCortesCancha().then(setCortes).catch(() => {}).finally(() => setLoading(false));
+    listarCortesCancha().then(setCortes).catch(logError).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => { cargar(); }, [cargar]);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Plus, X, Car, Banknote } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { PensionEstacionamiento, CorteEstacionamiento } from '../../../types/ingresos.types';
 import {
   listarPensiones, crearPension, editarPension,
@@ -83,13 +84,13 @@ const EstacionamientoTab: React.FC = () => {
 
   const cargarPensiones = useCallback(() => {
     setLoadingP(true);
-    listarPensiones().then(setPensiones).catch(() => {}).finally(() => setLoadingP(false));
+    listarPensiones().then(setPensiones).catch(logError).finally(() => setLoadingP(false));
   }, []);
 
   const cargarCortes = useCallback(() => {
     setLoadingC(true);
     listarCortesEstacionamiento()
-      .then(setCortes).catch(() => {}).finally(() => setLoadingC(false));
+      .then(setCortes).catch(logError).finally(() => setLoadingC(false));
   }, []);
 
   useEffect(() => { cargarPensiones(); }, [cargarPensiones]);

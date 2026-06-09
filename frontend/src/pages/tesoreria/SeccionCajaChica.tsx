@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { logError } from '../../utils/logError';
 import {
   Plus, X, ArrowDownLeft, ArrowUpRight, Eye, Upload,
   FileText, ChevronLeft, ChevronRight, Tag, Pencil, Trash2,
@@ -92,7 +93,7 @@ const SeccionCajaChica: React.FC = () => {
   useEffect(() => { cargarTodo(); }, [cargarTodo]);
 
   useEffect(() => {
-    listarUsuariosActivos().then(setUsuarios).catch(() => {});
+    listarUsuariosActivos().then(setUsuarios).catch(logError);
   }, []);
 
   const abrirModal = () => {

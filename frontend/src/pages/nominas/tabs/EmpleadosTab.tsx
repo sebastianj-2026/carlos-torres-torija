@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Pencil, X, Check, ShieldCheck, ShieldOff } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { Empleado, EstatusEmpleado } from '../../../types/nominas.types';
 import { listarEmpleados, crearEmpleado, editarEmpleado, EmpleadoUpdate } from '../../../services/nominasService';
 
@@ -65,7 +66,7 @@ const EmpleadosTab: React.FC = () => {
 
   const cargar = useCallback(() => {
     setLoading(true);
-    listarEmpleados().then(setEmpleados).catch(() => {}).finally(() => setLoading(false));
+    listarEmpleados().then(setEmpleados).catch(logError).finally(() => setLoading(false));
   }, []);
 
   useEffect(() => { cargar(); }, [cargar]);

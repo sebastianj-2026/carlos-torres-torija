@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, X, ChevronDown, ChevronUp, Building2, UserCircle, CalendarClock, Search } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { ContratoArrendamiento, DetalleServicio, EstatusContrato, Inmueble, Inquilino } from '../../../types/inmuebles.types';
 import { listarContratos, crearContrato, editarContrato, listarInmuebles, listarInquilinos } from '../../../services/inmueblesService';
 import FileDropZone from '../../../components/shared/FileDropZone';
@@ -165,7 +166,7 @@ const ContratosTab: React.FC = () => {
     setCargando(true);
     Promise.all([listarContratos(), listarInmuebles(), listarInquilinos()])
       .then(([c, i, iq]) => { setContratos(c); setInmuebles(i); setInquilinos(iq); })
-      .catch(() => {})
+      .catch(logError)
       .finally(() => setCargando(false));
   };
 

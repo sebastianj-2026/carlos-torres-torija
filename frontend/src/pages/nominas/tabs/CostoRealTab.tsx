@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { TrendingUp, Users, Clock, Gift, Umbrella, ShieldCheck } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { CostoRealResponse } from '../../../types/nominas.types';
 import { getCostoReal, historialNominas } from '../../../services/nominasService';
 import { NominaPagada } from '../../../types/nominas.types';
@@ -37,7 +38,7 @@ const CostoRealTab: React.FC = () => {
     ]).then(([cr, hist]) => {
       setData(cr);
       setNominas(hist);
-    }).catch(() => {}).finally(() => setLoading(false));
+    }).catch(logError).finally(() => setLoading(false));
   }, [mes, anio]);
 
   // Aggregate by employee for the selected month
