@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BarChart2, FileText, Building2, Target, Car, Zap, RefreshCw } from 'lucide-react';
+import { logError } from '../../utils/logError';
 import { alertasPensiones } from '../../services/ingresosService';
 import NavigadorTemporal  from '../../components/pagos/NavigadorTemporal';
 import DashboardCentralTab from './tabs/DashboardCentralTab';
@@ -31,7 +32,7 @@ const IngresosDashboard: React.FC = () => {
   const [refreshDash,  setRefreshDash] = useState(0);
 
   useEffect(() => {
-    alertasPensiones().then(a => setAlertasTotal(a.total)).catch(() => {});
+    alertasPensiones().then(a => setAlertasTotal(a.total)).catch(logError);
   }, []);
 
   return (

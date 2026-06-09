@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, AlertTriangle, CheckCircle, Clock, Zap } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import { AlertasContratos, ContratoArrendamiento, EstatusContrato, Inmueble } from '../../../types/inmuebles.types';
 import { listarInmuebles, listarContratos, generarRentas, generarServicios } from '../../../services/inmueblesService';
 
@@ -44,8 +45,8 @@ const DashboardInmueblesTab: React.FC<Props> = ({ alertas }) => {
   const [resultado, setResultado]       = useState<string | null>(null);
 
   useEffect(() => {
-    listarInmuebles().then(setInmuebles).catch(() => {});
-    listarContratos().then(setContratos).catch(() => {});
+    listarInmuebles().then(setInmuebles).catch(logError);
+    listarContratos().then(setContratos).catch(logError);
   }, []);
 
   const total      = inmuebles.length;

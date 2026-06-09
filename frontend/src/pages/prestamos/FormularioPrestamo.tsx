@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { logError } from '../../utils/logError';
 import {
   ArrowLeft, Save, FileText, Plus, X, TrendingDown,
   Building2, CheckCircle2, Upload, AlertCircle,
@@ -688,8 +689,8 @@ const FormularioPrestamo: React.FC = () => {
   const archivosCompletos = true;
 
   useEffect(() => {
-    listarClientes({ pagina: 1, limite: 200 }).then((r) => setClientes(r.clientes)).catch(() => {});
-    listarInversionistas({ pagina: 1, limite: 200 }).then((r) => setInversionistas(r.inversionistas)).catch(() => {});
+    listarClientes({ pagina: 1, limite: 200 }).then((r) => setClientes(r.clientes)).catch(logError);
+    listarInversionistas({ pagina: 1, limite: 200 }).then((r) => setInversionistas(r.inversionistas)).catch(logError);
   }, []);
 
   useEffect(() => {

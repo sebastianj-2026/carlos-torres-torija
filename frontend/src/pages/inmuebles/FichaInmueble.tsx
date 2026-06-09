@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { logError } from '../../utils/logError';
 import {
   ArrowLeft, TrendingUp, TrendingDown, DollarSign,
   CheckCircle, Clock, AlertTriangle,
@@ -36,7 +37,7 @@ const FichaInmueble: React.FC = () => {
       listarCobros({ inmueble_id: id }),
     ])
       .then(([r, c]) => { setRoi(r); setCobros(c); })
-      .catch(() => {})
+      .catch(logError)
       .finally(() => setCargando(false));
   };
 

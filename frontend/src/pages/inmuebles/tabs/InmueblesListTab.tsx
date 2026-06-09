@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
+import { logError } from '../../../utils/logError';
 import { Plus, ExternalLink, Edit2, X, Upload } from 'lucide-react';
 import { Inmueble, EstatusInmueble } from '../../../types/inmuebles.types';
 import { listarInmuebles, crearInmueble, editarInmueble } from '../../../services/inmueblesService';
@@ -111,7 +112,7 @@ const InmueblesListTab: React.FC = () => {
 
   const cargar = () => {
     setCargando(true);
-    listarInmuebles().then(setInmuebles).catch(() => {}).finally(() => setCargando(false));
+    listarInmuebles().then(setInmuebles).catch(logError).finally(() => setCargando(false));
   };
 
   useEffect(() => { cargar(); }, []); // eslint-disable-line react-hooks/exhaustive-deps

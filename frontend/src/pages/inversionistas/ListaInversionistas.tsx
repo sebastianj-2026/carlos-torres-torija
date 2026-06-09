@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { logError } from '../../utils/logError';
 import { Plus, Search, X, Users, UserPlus, DollarSign, TrendingUp, Upload } from 'lucide-react';
 import { PaginacionInversionistas, FiltrosInversionistas, StatsInversionistas } from '../../types/inversionista.types';
 import { listarInversionistas, obtenerStatsInversionistas } from '../../services/inversionistasService';
@@ -34,7 +35,7 @@ const ListaInversionistas: React.FC = () => {
   const [stats, setStats]                     = useState<StatsInversionistas | null>(null);
 
   useEffect(() => {
-    obtenerStatsInversionistas().then(setStats).catch(() => {});
+    obtenerStatsInversionistas().then(setStats).catch(logError);
   }, []);
 
   // Debounce del campo buscar (350ms)

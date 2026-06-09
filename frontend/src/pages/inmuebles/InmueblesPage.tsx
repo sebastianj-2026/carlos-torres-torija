@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Users, FileText, LayoutDashboard } from 'lucide-react';
+import { logError } from '../../utils/logError';
 import { alertasContratos } from '../../services/inmueblesService';
 import { AlertasContratos } from '../../types/inmuebles.types';
 import DashboardInmueblesTab from './tabs/DashboardInmueblesTab';
@@ -21,7 +22,7 @@ const InmueblesPage: React.FC = () => {
   const [alertas, setAlertas] = useState<AlertasContratos | null>(null);
 
   useEffect(() => {
-    alertasContratos().then(setAlertas).catch(() => {});
+    alertasContratos().then(setAlertas).catch(logError);
   }, []);
 
   return (

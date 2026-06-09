@@ -3,6 +3,7 @@ import {
   Plus, X, CheckCircle, Clock, FileText, Pencil,
   Timer, AlertTriangle, ListOrdered,
 } from 'lucide-react';
+import { logError } from '../../../utils/logError';
 import {
   CuentaPorPagar, CategoriaEgreso, EstatusCP, ProveedorBeneficiario, StatsEgresos,
 } from '../../../types/egresos.types';
@@ -137,8 +138,8 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
   useEffect(() => { cargarKpis(); }, [cargarKpis]);
   useEffect(() => { cargarStats(); }, [cargarStats]);
   useEffect(() => {
-    listarCategorias(centroCosto).then(setCategorias).catch(() => {});
-    listarProveedores().then(setProveedores).catch(() => {});
+    listarCategorias(centroCosto).then(setCategorias).catch(logError);
+    listarProveedores().then(setProveedores).catch(logError);
   }, [centroCosto]);
 
   const cambiarEstatus = async (id: string, estatus: EstatusCP) => {
@@ -235,7 +236,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
       setNuevaCat('');
       setNuevaCatColor('#94a3b8');
       setModalCat(false);
-    } catch {}
+    } catch (e) { logError(e); }
     finally { setGuardCat(false); }
   };
 
