@@ -27,19 +27,27 @@ const allowedOrigins = [
   'http://localhost:5173',
 ];
 
-const vercelPattern = /^https:\/\/financiera-sistema-[a-z0-9-]+\.vercel\.app$/;
-
 const envOrigins: string[] = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(',').map(u => u.trim().replace(/\/$/, ''))
   : [];
+
+// Previews de Vercel: opt-in y anclado al scope del equipo para evitar
+// typosquatting (p.ej. financiera-sistema-evil.vercel.app). Definir
+// VERCEL_PREVIEW_SUFFIX con el sufijo del equipo, p.ej.
+// "-mi-equipo.vercel.app". Sin esta env, NO se permite ningún preview.
+const previewSuffix = process.env.VERCEL_PREVIEW_SUFFIX?.trim();
+const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const vercelPreviewPattern = previewSuffix
+  ? new RegExp(`^https://financiera-sistema-[a-z0-9-]+${escapeRegex(previewSuffix)}$`)
+  : null;
 
 app.use(helmet());
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
     if (allowedOrigins.includes(origin)) return callback(null, true);
-    if (vercelPattern.test(origin)) return callback(null, true);
     if (envOrigins.includes(origin)) return callback(null, true);
+    if (vercelPreviewPattern?.test(origin)) return callback(null, true);
     console.error(`CORS bloqueó el origen: ${origin}`);
     callback(new Error('Not allowed by CORS'));
   },

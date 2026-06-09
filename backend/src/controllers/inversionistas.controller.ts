@@ -10,6 +10,9 @@ import {
   EstatusInversion,
 } from '../models/inversionista.model';
 
+// Escapa los wildcards de LIKE/ILIKE (% _ \) en entradas de búsqueda.
+const escapeLikeWildcards = (s: string): string => s.replace(/[\\%_]/g, '\\$&');
+
 // ================================================================
 // IMPORTACIÓN MASIVA
 // POST /api/inversionistas/importar
@@ -159,13 +162,13 @@ export const listarInversionistas = async (req: Request, res: Response): Promise
 
     if (buscar) {
       condiciones.push(`(
-        i.nombres           ILIKE $${indice}
-        OR i.apellido_paterno ILIKE $${indice}
-        OR i.apellido_materno ILIKE $${indice}
-        OR i.telefono         ILIKE $${indice}
-        OR i.correo           ILIKE $${indice}
+        i.nombres           ILIKE $${indice} ESCAPE '\\'
+        OR i.apellido_paterno ILIKE $${indice} ESCAPE '\\'
+        OR i.apellido_materno ILIKE $${indice} ESCAPE '\\'
+        OR i.telefono         ILIKE $${indice} ESCAPE '\\'
+        OR i.correo           ILIKE $${indice} ESCAPE '\\'
       )`);
-      valores.push(`%${buscar}%`);
+      valores.push(`%${escapeLikeWildcards(String(buscar))}%`);
       indice++;
     }
 
