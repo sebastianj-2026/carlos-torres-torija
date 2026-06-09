@@ -998,35 +998,42 @@ export const listarPagos = async (req: Request, res: Response): Promise<void> =>
 // POST /api/prestamos/:id/pagos
 // ----------------------------------------------------------------
 export const registrarPago = async (req: Request, res: Response): Promise<void> => {
+  const datos: RegistrarPagoDto = req.body;
+
+  // Validar antes de abrir la transacción
+  const tiposValidos = ['interes', 'capital', 'moratorio', 'interes_anticipado'];
+  if (!tiposValidos.includes(datos.tipo_pago)) {
+    res.status(400).json({ mensaje: 'Tipo de pago no válido.' });
+    return;
+  }
+  if (!datos.monto || datos.monto <= 0) {
+    res.status(400).json({ mensaje: 'El monto debe ser mayor a cero.' });
+    return;
+  }
+
+  const client = await pool.connect();
   try {
     const { id } = req.params;
     const registrado_por = req.usuario?.userId;
-    const datos: RegistrarPagoDto = req.body;
 
-    const prestamoResult = await pool.query(
-      'SELECT id, saldo_pendiente, tasa_interes_mensual, estatus FROM prestamos WHERE id = $1',
+    await client.query('BEGIN');
+
+    // FOR UPDATE bloquea la fila del préstamo hasta COMMIT/ROLLBACK:
+    // previene lost-update del saldo entre pagos concurrentes.
+    const prestamoResult = await client.query(
+      'SELECT id, saldo_pendiente, tasa_interes_mensual, estatus FROM prestamos WHERE id = $1 FOR UPDATE',
       [id]
     );
 
     if (prestamoResult.rowCount === 0) {
+      await client.query('ROLLBACK');
       res.status(404).json({ mensaje: 'Préstamo no encontrado.' });
       return;
     }
 
     const prestamo = prestamoResult.rows[0];
 
-    const tiposValidos = ['interes', 'capital', 'moratorio', 'interes_anticipado'];
-    if (!tiposValidos.includes(datos.tipo_pago)) {
-      res.status(400).json({ mensaje: 'Tipo de pago no válido.' });
-      return;
-    }
-
-    if (!datos.monto || datos.monto <= 0) {
-      res.status(400).json({ mensaje: 'El monto debe ser mayor a cero.' });
-      return;
-    }
-
-    const pagoResult = await pool.query(
+    const pagoResult = await client.query(
       `INSERT INTO historial_pagos_prestamo (
           prestamo_id, tipo_pago, monto, forma_pago,
           periodo_mes, periodo_anio, notas, url_evidencia, registrado_por
@@ -1051,15 +1058,17 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
       nuevoSaldo = parseFloat((nuevoSaldo - datos.monto).toFixed(2));
       if (nuevoSaldo < 0) nuevoSaldo = 0;
 
-      await pool.query(
+      await client.query(
         `UPDATE prestamos
          SET saldo_pendiente = $1,
-             estatus = CASE WHEN $1 = 0 THEN 'liquidado' ELSE estatus END,
+             estatus = CASE WHEN $1::numeric = 0 THEN 'liquidado' ELSE estatus END,
              fecha_actualizacion = NOW()
          WHERE id = $2`,
         [nuevoSaldo, id]
       );
     }
+
+    await client.query('COMMIT');
 
     const saldo  = parseFloat(prestamo.saldo_pendiente);
     const tasa   = parseFloat(prestamo.tasa_interes_mensual);
@@ -1072,8 +1081,11 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
       interes_mensual_calculado: interesCalculado,
     });
   } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
     console.error('Error al registrar pago:', error);
     res.status(500).json({ mensaje: 'Error interno al registrar el pago.' });
+  } finally {
+    client.release();
   }
 };
 
@@ -1189,16 +1201,22 @@ export const perdonarMoratorio = async (req: Request, res: Response): Promise<vo
       return;
     }
 
+    // WHERE perdonado = false evita doble-perdón en requests concurrentes
     const resultado = await pool.query(
       `UPDATE moratorios_prestamo
        SET perdonado      = true,
            monto_perdonado = monto_calculado,
            perdonado_por  = $1,
            fecha_perdon   = NOW()
-       WHERE id = $2
+       WHERE id = $2 AND perdonado = false
        RETURNING *`,
       [perdonado_por || null, id]
     );
+
+    if (resultado.rowCount === 0) {
+      res.status(409).json({ mensaje: 'Este moratorio ya fue perdonado.' });
+      return;
+    }
 
     res.json({
       mensaje: 'Moratorio perdonado correctamente.',
