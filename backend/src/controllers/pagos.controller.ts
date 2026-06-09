@@ -25,7 +25,7 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
     return;
   }
   const monto = parseFloat(monto_pagado);
-  if (isNaN(monto) || monto <= 0) {
+  if (!Number.isFinite(monto) || monto <= 0) {
     res.status(400).json({ mensaje: 'monto_pagado debe ser un número positivo.' });
     return;
   }

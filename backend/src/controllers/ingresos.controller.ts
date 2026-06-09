@@ -1,6 +1,22 @@
 import { Request, Response } from 'express';
 import pool from '../config/database';
 
+// Fallback for missing ingresos_hub objects (pensiones_estacionamiento,
+// ingresos_directos, metricas_cancha, movimientos_extras_pension,
+// marcar_pensiones_vencidas). Migration not applied — returns empty result
+// instead of crashing the request.
+const safeQuery = async (sql: string, params: any[] = []): Promise<{ rows: any[]; rowCount: number }> => {
+  try {
+    const r = await pool.query(sql, params);
+    return { rows: r.rows, rowCount: r.rowCount ?? 0 };
+  } catch (e: any) {
+    if (e?.code === '42P01' || e?.code === '42883') {
+      return { rows: [], rowCount: 0 };
+    }
+    throw e;
+  }
+};
+
 // ================================================================
 // CxC UNIFICADO
 // GET /ingresos/pendientes?mes=4&anio=2026
@@ -12,7 +28,7 @@ export const pendientesCxC = async (req: Request, res: Response): Promise<void> 
     const anio = parseInt(req.query.anio as string) || hoy.getFullYear();
 
     // Marcar pensiones vencidas antes de responder
-    await pool.query(`SELECT marcar_pensiones_vencidas()`);
+    await safeQuery(`SELECT marcar_pensiones_vencidas()`);
 
     const [prestamosRes, rentasRes, pensionesRes] = await Promise.all([
       pool.query(`
@@ -44,7 +60,7 @@ export const pendientesCxC = async (req: Request, res: Response): Promise<void> 
         ORDER BY cpc.fecha_limite_cobro ASC
       `),
 
-      pool.query(`
+      safeQuery(`
         SELECT id, cliente_nombre, vehiculo_placas, monto_mensual, fecha_fin,
                (fecha_fin - CURRENT_DATE)::INTEGER AS dias_para_vencer
         FROM pensiones_estacionamiento
@@ -114,8 +130,8 @@ export const pendientesCxC = async (req: Request, res: Response): Promise<void> 
 // ================================================================
 export const listarPensiones = async (_req: Request, res: Response): Promise<void> => {
   try {
-    await pool.query(`SELECT marcar_pensiones_vencidas()`);
-    const r = await pool.query(`
+    await safeQuery(`SELECT marcar_pensiones_vencidas()`);
+    const r = await safeQuery(`
       SELECT *,
              (fecha_fin - CURRENT_DATE)::INTEGER AS dias_para_vencer
       FROM pensiones_estacionamiento
@@ -195,8 +211,8 @@ export const editarPension = async (req: Request, res: Response): Promise<void> 
 
 export const alertasPensiones = async (_req: Request, res: Response): Promise<void> => {
   try {
-    await pool.query(`SELECT marcar_pensiones_vencidas()`);
-    const r = await pool.query(`
+    await safeQuery(`SELECT marcar_pensiones_vencidas()`);
+    const r = await safeQuery(`
       SELECT *,
              (fecha_fin - CURRENT_DATE)::INTEGER AS dias_para_vencer
       FROM pensiones_estacionamiento
@@ -214,7 +230,7 @@ export const alertasPensiones = async (_req: Request, res: Response): Promise<vo
 // Movimientos extras de pensión
 export const listarMovimientosExtra = async (req: Request, res: Response): Promise<void> => {
   try {
-    const r = await pool.query(
+    const r = await safeQuery(
       `SELECT * FROM movimientos_extras_pension WHERE pension_id = $1 ORDER BY fecha DESC`,
       [req.params.id]
     );
@@ -260,7 +276,7 @@ export const listarIngresosDirectos = async (req: Request, res: Response): Promi
 
     const where = conds.length ? `WHERE ${conds.join(' AND ')}` : '';
 
-    const r = await pool.query(
+    const r = await safeQuery(
       `SELECT id.*,
               mc.cantidad_rentas
        FROM ingresos_directos id
@@ -388,7 +404,7 @@ export const statsIngresos = async (req: Request, res: Response): Promise<void> 
     const semanas = parseInt(req.query.semanas as string) || 6;
 
     const [porSemana, porUnidad, porMetodo] = await Promise.all([
-      pool.query(`
+      safeQuery(`
         SELECT DATE_TRUNC('week', semana_corte)::DATE AS semana,
                unidad_negocio,
                SUM(monto_ingresado)::NUMERIC AS total,
@@ -399,7 +415,7 @@ export const statsIngresos = async (req: Request, res: Response): Promise<void> 
         ORDER BY semana DESC, unidad_negocio
       `, [semanas]),
 
-      pool.query(`
+      safeQuery(`
         SELECT unidad_negocio,
                SUM(monto_ingresado)::NUMERIC AS total,
                COUNT(*)::INTEGER AS registros
@@ -409,7 +425,7 @@ export const statsIngresos = async (req: Request, res: Response): Promise<void> 
         ORDER BY total DESC
       `, [semanas]),
 
-      pool.query(`
+      safeQuery(`
         SELECT metodo_pago,
                SUM(monto_ingresado)::NUMERIC AS total
         FROM ingresos_directos
@@ -492,7 +508,7 @@ export const dashboardCentral = async (req: Request, res: Response): Promise<voi
         WHERE periodo_mes = $1 AND periodo_anio = $2
       `, [mes, anio]),
 
-      pool.query(`
+      safeQuery(`
         SELECT
           COUNT(*)::INT AS total,
           COUNT(*) FILTER (WHERE estatus = 'activa')::INT  AS activas,
@@ -503,7 +519,7 @@ export const dashboardCentral = async (req: Request, res: Response): Promise<voi
         FROM pensiones_estacionamiento
       `),
 
-      pool.query(`
+      safeQuery(`
         SELECT
           hic.id, hic.origen, hic.fecha_cobro,
           (hic.monto_utilidad + hic.monto_capital_recuperado)::NUMERIC AS monto,
@@ -533,7 +549,7 @@ export const dashboardCentral = async (req: Request, res: Response): Promise<voi
         LIMIT 15
       `, [mes, anio]),
 
-      pool.query(`
+      safeQuery(`
         SELECT COALESCE(pr.metodo_pago,'efectivo') AS metodo,
                COALESCE(pr.cuenta_destino,'')      AS cuenta,
                COALESCE(SUM(hic.monto_utilidad), 0)::NUMERIC AS monto

@@ -172,23 +172,23 @@ const ImportarInversionistas: React.FC = () => {
               <p className="text-sm font-semibold text-slate-700">{filas.length} inversionistas listos para importar</p>
               <p className="text-xs text-slate-400">Haz clic en <Pencil size={11} className="inline" /> para corregir nombres</p>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto -mx-3 sm:mx-0">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
                   <tr>
-                    <th className="px-4 py-3 text-left">Nombres</th>
-                    <th className="px-4 py-3 text-left">Apellido paterno</th>
-                    <th className="px-4 py-3 text-right">Capital</th>
-                    <th className="px-4 py-3 text-right">Pago mens.</th>
-                    <th className="px-4 py-3 text-right">Tasa</th>
-                    <th className="px-4 py-3 text-center">Día pago</th>
-                    <th className="px-4 py-3 text-center w-8" />
+                    <th className="px-4 py-3 text-left text-xs sm:text-sm">Nombres</th>
+                    <th className="px-4 py-3 text-left text-xs sm:text-sm">Apellido paterno</th>
+                    <th className="px-4 py-3 text-right text-xs sm:text-sm">Capital</th>
+                    <th className="px-4 py-3 text-right text-xs sm:text-sm">Pago mens.</th>
+                    <th className="px-4 py-3 text-right text-xs sm:text-sm">Tasa</th>
+                    <th className="px-4 py-3 text-center text-xs sm:text-sm">Día pago</th>
+                    <th className="px-4 py-3 text-center w-8 text-xs sm:text-sm" />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filas.map((f, i) => (
                     <tr key={i} className={`hover:bg-slate-50 ${editando === i ? 'bg-orange-50' : ''}`}>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2 text-xs sm:text-sm">
                         {editando === i
                           ? <input
                               autoFocus
@@ -199,7 +199,7 @@ const ImportarInversionistas: React.FC = () => {
                           : <span className="font-medium text-slate-800">{f.nombres}</span>
                         }
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2 text-xs sm:text-sm">
                         {editando === i
                           ? <input
                               value={f.apellido_paterno}
@@ -209,15 +209,15 @@ const ImportarInversionistas: React.FC = () => {
                           : <span className="text-slate-700">{f.apellido_paterno}</span>
                         }
                       </td>
-                      <td className="px-4 py-2 text-right font-semibold text-slate-800">{fmt(f.capital)}</td>
-                      <td className="px-4 py-2 text-right text-slate-500">{fmt(f.pago_mensual)}</td>
-                      <td className="px-4 py-2 text-right">
+                      <td className="px-4 py-2 text-right font-semibold text-slate-800 text-xs sm:text-sm">{fmt(f.capital)}</td>
+                      <td className="px-4 py-2 text-right text-slate-500 text-xs sm:text-sm">{fmt(f.pago_mensual)}</td>
+                      <td className="px-4 py-2 text-right text-xs sm:text-sm">
                         {f.tasa > 0
                           ? <span className="font-semibold text-orange-600">{f.tasa.toFixed(2)}%</span>
                           : <span className="text-slate-300">—</span>
                         }
                       </td>
-                      <td className="px-4 py-2 text-center">
+                      <td className="px-4 py-2 text-center text-xs sm:text-sm">
                         {f.dia_pago
                           ? <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
                               {f.dia_pago}
@@ -225,7 +225,7 @@ const ImportarInversionistas: React.FC = () => {
                           : <span className="text-slate-300">—</span>
                         }
                       </td>
-                      <td className="px-4 py-2 text-center">
+                      <td className="px-4 py-2 text-center text-xs sm:text-sm">
                         <button
                           onClick={() => setEditando(editando === i ? null : i)}
                           className="p-1 rounded text-slate-400 hover:text-orange-600 hover:bg-orange-50 transition-colors"

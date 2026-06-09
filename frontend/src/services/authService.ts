@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import { LoginRespuesta, Usuario } from '../types/auth.types';
 
 // URL base de la API del backend
@@ -7,6 +7,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:4000/api';
 // Crear instancia de axios con configuración base
 const apiClient = axios.create({
   baseURL: API_URL,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -60,8 +61,8 @@ export const cerrarSesion = async (): Promise<void> => {
 };
 
 // Obtener datos actualizados del usuario autenticado
-export const obtenerPerfil = async (): Promise<Usuario> => {
-  const respuesta = await apiClient.get<Usuario>('/auth/me');
+export const obtenerPerfil = async (config?: AxiosRequestConfig): Promise<Usuario> => {
+  const respuesta = await apiClient.get<Usuario>('/auth/me', config);
   return respuesta.data;
 };
 

@@ -41,7 +41,7 @@ const PanelDeudaCliente: React.FC<PanelDeudaClienteProps> = ({ clienteId, nombre
       historialPorCliente(clienteId),
     ])
       .then(([d, h]) => { setDeuda(d); setHistorial(h); })
-      .catch(() => {})
+      .catch((err) => { console.error(err); })
       .finally(() => setCargando(false));
   }, [clienteId]);
 
@@ -118,13 +118,13 @@ const PanelDeudaCliente: React.FC<PanelDeudaClienteProps> = ({ clienteId, nombre
         {!deuda?.prestamos.length ? (
           <p className="text-sm text-slate-400 py-4 text-center">Sin préstamos activos.</p>
         ) : (
-          <div className="rounded-xl border border-slate-100 overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-3 sm:mx-0 rounded-xl border border-slate-100">
+            <table className="w-full text-xs sm:text-sm">
               <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
                 <tr>
                   <th className="px-4 py-2.5 text-left">Folio</th>
                   <th className="px-4 py-2.5 text-right">Saldo pendiente</th>
-                  <th className="px-4 py-2.5 text-center">Próximo pago</th>
+                  <th className="px-4 py-2.5 text-center hidden sm:table-cell">Próximo pago</th>
                   <th className="px-4 py-2.5 text-center">Estatus</th>
                   <th className="px-4 py-2.5 text-center">Acción</th>
                 </tr>
@@ -134,7 +134,7 @@ const PanelDeudaCliente: React.FC<PanelDeudaClienteProps> = ({ clienteId, nombre
                   <tr key={p.id} className="hover:bg-slate-50">
                     <td className="px-4 py-3 font-mono text-slate-700">{p.folio}</td>
                     <td className="px-4 py-3 text-right font-bold text-slate-800">{fmt(p.saldo_pendiente)}</td>
-                    <td className="px-4 py-3 text-center text-slate-500">
+                    <td className="px-4 py-3 text-center text-slate-500 hidden sm:table-cell">
                       {p.fecha_proximo_pago ? fmtFecha(p.fecha_proximo_pago) : '—'}
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -167,14 +167,14 @@ const PanelDeudaCliente: React.FC<PanelDeudaClienteProps> = ({ clienteId, nombre
         {!historial.length ? (
           <p className="text-sm text-slate-400 py-4 text-center">Sin pagos registrados aún.</p>
         ) : (
-          <div className="rounded-xl border border-slate-100 overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-3 sm:mx-0 rounded-xl border border-slate-100">
+            <table className="w-full text-xs sm:text-sm">
               <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
                 <tr>
                   <th className="px-4 py-2.5 text-left">Módulo</th>
                   <th className="px-4 py-2.5 text-left">Fecha</th>
                   <th className="px-4 py-2.5 text-right">Monto</th>
-                  <th className="px-4 py-2.5 text-left">Notas</th>
+                  <th className="px-4 py-2.5 text-left hidden sm:table-cell">Notas</th>
                   <th className="px-4 py-2.5 text-center">Recibo</th>
                 </tr>
               </thead>
@@ -188,7 +188,7 @@ const PanelDeudaCliente: React.FC<PanelDeudaClienteProps> = ({ clienteId, nombre
                     </td>
                     <td className="px-4 py-3 text-slate-500">{fmtFecha(pago.fecha_pago)}</td>
                     <td className="px-4 py-3 text-right font-bold text-emerald-700">{fmt(pago.monto_pagado)}</td>
-                    <td className="px-4 py-3 text-slate-500 text-xs max-w-[160px] truncate">{pago.notas ?? '—'}</td>
+                    <td className="px-4 py-3 text-slate-500 text-xs max-w-[160px] truncate hidden sm:table-cell">{pago.notas ?? '—'}</td>
                     <td className="px-4 py-3 text-center">
                       {pago.url_recibo ? (
                         <a

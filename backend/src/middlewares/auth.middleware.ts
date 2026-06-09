@@ -34,7 +34,7 @@ export const authMiddleware = (
     const token = authHeader.split(' ')[1];
     const secreto = process.env.JWT_SECRET as string;
 
-    const payload = jwt.verify(token, secreto) as UsuarioAutenticado;
+    const payload = jwt.verify(token, secreto, { algorithms: ['HS256'] }) as UsuarioAutenticado;
     req.usuario = payload;
 
     next();

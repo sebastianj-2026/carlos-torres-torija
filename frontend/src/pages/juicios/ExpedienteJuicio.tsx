@@ -300,14 +300,14 @@ const TabGastos: React.FC<{
       {gastos.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-8">Sin gastos legales registrados.</p>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-200">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-3 sm:mx-0 rounded-xl border border-slate-200">
+          <table className="w-full text-xs sm:text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
               <tr>
                 <th className="px-4 py-2.5 text-left">Fecha</th>
                 <th className="px-4 py-2.5 text-left">Concepto</th>
                 <th className="px-4 py-2.5 text-right">Monto</th>
-                <th className="px-4 py-2.5 text-left">Notas</th>
+                <th className="px-4 py-2.5 text-left hidden sm:table-cell">Notas</th>
                 <th className="px-4 py-2.5" />
               </tr>
             </thead>
@@ -317,7 +317,7 @@ const TabGastos: React.FC<{
                   <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{fmtFecha(g.fecha)}</td>
                   <td className="px-4 py-3 font-medium text-slate-700">{g.concepto}</td>
                   <td className="px-4 py-3 text-right font-semibold text-orange-600">{fmt(g.monto)}</td>
-                  <td className="px-4 py-3 text-slate-400 text-xs">{g.notas ?? '—'}</td>
+                  <td className="px-4 py-3 text-slate-400 text-xs hidden sm:table-cell">{g.notas ?? '—'}</td>
                   <td className="px-4 py-3 text-right">
                     <button
                       onClick={() => handleEliminar(g.id)}
@@ -483,13 +483,13 @@ const TabArchivero: React.FC<{
       {documentos.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-8">Sin documentos judiciales cargados.</p>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-slate-200">
-          <table className="w-full text-sm">
+        <div className="overflow-x-auto -mx-3 sm:mx-0 rounded-xl border border-slate-200">
+          <table className="w-full text-xs sm:text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500 uppercase tracking-wide">
               <tr>
                 <th className="px-4 py-2.5 text-left">Documento</th>
-                <th className="px-4 py-2.5 text-left">Archivo original</th>
-                <th className="px-4 py-2.5 text-right">Tamaño</th>
+                <th className="px-4 py-2.5 text-left hidden sm:table-cell">Archivo original</th>
+                <th className="px-4 py-2.5 text-right hidden sm:table-cell">Tamaño</th>
                 <th className="px-4 py-2.5 text-left">Fecha</th>
                 <th className="px-4 py-2.5" />
               </tr>
@@ -498,8 +498,8 @@ const TabArchivero: React.FC<{
               {documentos.map((d) => (
                 <tr key={d.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-4 py-3 font-medium text-slate-700">{d.nombre_documento}</td>
-                  <td className="px-4 py-3 text-slate-400 text-xs font-mono">{d.nombre_original ?? '—'}</td>
-                  <td className="px-4 py-3 text-right text-slate-400 text-xs">
+                  <td className="px-4 py-3 text-slate-400 text-xs font-mono hidden sm:table-cell">{d.nombre_original ?? '—'}</td>
+                  <td className="px-4 py-3 text-right text-slate-400 text-xs hidden sm:table-cell">
                     {d.tamano_bytes ? `${(d.tamano_bytes / 1024).toFixed(0)} KB` : '—'}
                   </td>
                   <td className="px-4 py-3 text-slate-500 whitespace-nowrap text-xs">
@@ -594,9 +594,9 @@ const TabBitacora: React.FC<{
       {bitacora.length === 0 ? (
         <p className="text-sm text-slate-400 text-center py-8">Sin entradas en la bitácora.</p>
       ) : (
-        <ol className="relative border-l border-slate-200 space-y-6 ml-3">
+        <ol className="relative border-l border-slate-200 space-y-6 ml-2 sm:ml-3">
           {bitacora.map((entrada) => (
-            <li key={entrada.id} className="ml-6">
+            <li key={entrada.id} className="ml-4 sm:ml-6">
               <span className="absolute -left-2.5 w-5 h-5 bg-orange-100 rounded-full border-2
                                border-orange-400 flex items-center justify-center">
                 <span className="w-1.5 h-1.5 bg-orange-500 rounded-full" />
@@ -687,7 +687,7 @@ const ExpedienteJuicio: React.FC = () => {
       {/* Header card */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-6 pt-6 pb-4 border-b border-slate-100">
-          <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="flex flex-col sm:flex-row flex-wrap items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className={`inline-flex items-center gap-1.5 text-xs font-semibold
@@ -699,7 +699,7 @@ const ExpedienteJuicio: React.FC = () => {
                   <span className="text-xs font-mono text-slate-400">{juicio.folio}</span>
                 )}
               </div>
-              <h1 className="text-2xl font-bold text-slate-800">{juicio.cliente_nombre}</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-slate-800">{juicio.cliente_nombre}</h1>
               {juicio.cliente_telefono && (
                 <p className="text-sm text-slate-400 mt-0.5">{juicio.cliente_telefono}</p>
               )}
@@ -726,13 +726,13 @@ const ExpedienteJuicio: React.FC = () => {
 
         {/* Financial strip */}
         <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-slate-100">
-          <div className="px-5 py-4">
+          <div className="px-3 sm:px-5 py-4">
             <p className="text-xs text-slate-400 flex items-center gap-1 mb-1">
               <DollarSign size={11} /> Deuda total
             </p>
-            <p className="text-xl font-black text-red-600">{fmt(juicio.deuda_total)}</p>
+            <p className="text-lg sm:text-xl font-black text-red-600">{fmt(juicio.deuda_total)}</p>
           </div>
-          <div className="px-5 py-4">
+          <div className="px-3 sm:px-5 py-4">
             <p className="text-xs text-slate-400 flex items-center gap-1 mb-1">
               <Building2 size={11} /> Valor propiedad
             </p>
@@ -740,7 +740,7 @@ const ExpedienteJuicio: React.FC = () => {
               {juicio.valor_propiedad ? fmt(juicio.valor_propiedad) : '—'}
             </p>
           </div>
-          <div className="px-5 py-4">
+          <div className="px-3 sm:px-5 py-4">
             <p className="text-xs text-slate-400 flex items-center gap-1 mb-1">
               <User size={11} /> Abogado asignado
             </p>
@@ -751,7 +751,7 @@ const ExpedienteJuicio: React.FC = () => {
               <p className="text-xs text-slate-400">{fmtFecha(juicio.fecha_asignacion_abogado)}</p>
             )}
           </div>
-          <div className="px-5 py-4">
+          <div className="px-3 sm:px-5 py-4">
             <p className="text-xs text-slate-400 flex items-center gap-1 mb-1">
               <Clock size={11} /> Último pago
             </p>
@@ -765,12 +765,12 @@ const ExpedienteJuicio: React.FC = () => {
 
       {/* Tabs */}
       <div>
-        <div className="flex gap-1 bg-slate-100 rounded-xl p-1 w-fit mb-6">
+        <div className="flex flex-nowrap overflow-x-auto scrollbar-hide gap-1 bg-slate-100 rounded-xl p-1 mb-6 max-w-full">
           {TABS.map(({ id: tid, label, Icono }) => (
             <button
               key={tid}
               onClick={() => setTab(tid)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap shrink-0 ${
                 tab === tid
                   ? 'bg-white text-slate-800 shadow-sm'
                   : 'text-slate-500 hover:text-slate-700'

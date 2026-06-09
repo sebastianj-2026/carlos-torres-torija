@@ -263,8 +263,8 @@ export const listarCuentasPorPagar = async (req: Request, res: Response): Promis
     const estatus      = (req.query.estatus      as string) || '';
     const categoria    = (req.query.categoria    as string) || '';
     const centro_costo = (req.query.centro_costo as string) || '';
-    const mes          = parseInt(req.query.mes  as string) || (hoy.getMonth() + 1);
-    const anio         = parseInt(req.query.anio as string) || hoy.getFullYear();
+    const mes          = parseInt(req.query.mes  as string, 10) || (hoy.getMonth() + 1);
+    const anio         = parseInt(req.query.anio as string, 10) || hoy.getFullYear();
     const desde        = (req.query.desde        as string) || '';
     const hasta        = (req.query.hasta        as string) || '';
     const pagina       = Math.max(1, parseInt(req.query.pagina as string) || 1);
@@ -544,30 +544,46 @@ export const obtenerStats = async (req: Request, res: Response): Promise<void> =
   try {
     const hoy          = new Date();
     const centro_costo = (req.query.centro_costo as string) || '';
-    const mes          = parseInt(req.query.mes  as string) || (hoy.getMonth() + 1);
-    const anio         = parseInt(req.query.anio as string) || hoy.getFullYear();
+    const mes          = parseInt(req.query.mes  as string, 10) || (hoy.getMonth() + 1);
+    const anio         = parseInt(req.query.anio as string, 10) || hoy.getFullYear();
     const CENTROS_VALIDOS = ['Oficina', 'Abril', 'Inversionistas', 'Bancos'];
-    const cFilter = centro_costo && CENTROS_VALIDOS.includes(centro_costo)
-      ? `AND cpp.centro_costo = '${centro_costo}'` : '';
-    const mFilter = `AND EXTRACT(MONTH FROM cpp.fecha_limite_pago) = ${mes}
-                     AND EXTRACT(YEAR  FROM cpp.fecha_limite_pago) = ${anio}`;
+    const mesSafe  = Number.isFinite(mes)  && mes  >= 1 && mes  <= 12   ? mes  : (hoy.getMonth() + 1);
+    const anioSafe = Number.isFinite(anio) && anio >= 1900 && anio <= 9999 ? anio : hoy.getFullYear();
+
+    // Build parameterized filters for categoria/proveedor queries (uses cpp.* aliased)
+    const paramsCpp: any[] = [mesSafe, anioSafe];
+    let cFilterCpp = '';
+    if (centro_costo && CENTROS_VALIDOS.includes(centro_costo)) {
+      paramsCpp.push(centro_costo);
+      cFilterCpp = `AND cpp.centro_costo = $${paramsCpp.length}`;
+    }
+    const mFilterCpp = `AND EXTRACT(MONTH FROM cpp.fecha_limite_pago) = $1
+                        AND EXTRACT(YEAR  FROM cpp.fecha_limite_pago) = $2`;
+
+    // Build parameterized filter for the mensual query (no cpp. alias)
+    const paramsMensual: any[] = [];
+    let cFilterMensual = '';
+    if (centro_costo && CENTROS_VALIDOS.includes(centro_costo)) {
+      paramsMensual.push(centro_costo);
+      cFilterMensual = `AND centro_costo = $${paramsMensual.length}`;
+    }
 
     const [porCategoria, porProveedor, proximos30, totalMes] = await Promise.all([
       pool.query(`
         SELECT c.nombre AS categoria, c.color, COALESCE(SUM(cpp.monto_total), 0) AS total
         FROM cuentas_por_pagar cpp
         JOIN categorias_egresos c ON c.id = cpp.categoria_id
-        WHERE cpp.estatus = 'pagado' ${cFilter} ${mFilter}
+        WHERE cpp.estatus = 'pagado' ${cFilterCpp} ${mFilterCpp}
         GROUP BY c.nombre, c.color ORDER BY SUM(cpp.monto_total) DESC
-      `),
+      `, paramsCpp),
       pool.query(`
         SELECT COALESCE(p.nombre_razon_social, 'Sin proveedor') AS proveedor,
                COALESCE(SUM(cpp.monto_total), 0) AS total
         FROM cuentas_por_pagar cpp
         LEFT JOIN proveedores_beneficiarios p ON p.id = cpp.proveedor_id
-        WHERE cpp.estatus = 'pagado' ${cFilter} ${mFilter}
+        WHERE cpp.estatus = 'pagado' ${cFilterCpp} ${mFilterCpp}
         GROUP BY proveedor ORDER BY total DESC LIMIT 10
-      `),
+      `, paramsCpp),
       pool.query(`
         SELECT COALESCE(SUM(monto_total), 0) AS total, COUNT(*) AS cantidad
         FROM cuentas_por_pagar
@@ -580,9 +596,9 @@ export const obtenerStats = async (req: Request, res: Response): Promise<void> =
         FROM cuentas_por_pagar
         WHERE estatus = 'pagado'
           AND fecha_pago_real >= NOW() - INTERVAL '6 months'
-          ${cFilter.replace('cpp.', '')}
+          ${cFilterMensual}
         GROUP BY mes ORDER BY mes ASC
-      `),
+      `, paramsMensual),
     ]);
 
     res.json({

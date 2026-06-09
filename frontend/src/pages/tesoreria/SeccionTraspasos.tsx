@@ -117,7 +117,7 @@ const SeccionTraspasos: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
         <p className="text-sm text-slate-500">
           {total} traspaso{total !== 1 ? 's' : ''} registrado{total !== 1 ? 's' : ''}
         </p>
@@ -148,7 +148,8 @@ const SeccionTraspasos: React.FC = () => {
         </div>
       ) : (
         <div className="bg-white rounded-2xl border border-slate-100 overflow-hidden">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-3 sm:mx-0">
+          <table className="w-full text-sm min-w-[640px]">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-100">
                 <th className="text-left px-4 py-3 text-xs font-semibold text-slate-400 uppercase tracking-wide">Fecha</th>
@@ -190,6 +191,7 @@ const SeccionTraspasos: React.FC = () => {
               ))}
             </tbody>
           </table>
+          </div>
 
           {/* Pagination */}
           {totalPaginas > 1 && (

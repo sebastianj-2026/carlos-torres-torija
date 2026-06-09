@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import clientesRoutes from './routes/clientes.routes';
@@ -26,12 +27,13 @@ const allowedOrigins = [
   'http://localhost:5173',
 ];
 
-const vercelPattern = /^https:\/\/financiera-sistema[-a-z0-9]*\.vercel\.app$/;
+const vercelPattern = /^https:\/\/financiera-sistema-[a-z0-9-]+\.vercel\.app$/;
 
 const envOrigins: string[] = process.env.FRONTEND_URL
   ? process.env.FRONTEND_URL.split(',').map(u => u.trim().replace(/\/$/, ''))
   : [];
 
+app.use(helmet());
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
@@ -73,6 +75,15 @@ app.use('/api/dashboard', dashboardRoutes);
 // Ruta de health check
 app.get('/', (_req, res) => {
   res.json({ mensaje: 'API Financiera OFICINA TS funcionando ✅' });
+});
+
+app.use((err: Error, _req: any, res: any, _next: any) => {
+  console.error('[unhandled]', err);
+  const isProd = process.env.NODE_ENV === 'production';
+  res.status(500).json({
+    mensaje: 'Error interno del servidor.',
+    ...(isProd ? {} : { error: err.message }),
+  });
 });
 
 app.listen(PORT, () => {

@@ -74,7 +74,7 @@ const BankCard: React.FC<{
             <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/60">
               {c.banco}
             </p>
-            <p className="text-sm font-bold truncate max-w-[180px] mt-0.5">{c.alias}</p>
+            <p className="text-xs sm:text-sm font-bold truncate max-w-[180px] mt-0.5">{c.alias}</p>
           </div>
           <CreditCard size={20} className="text-white/35 shrink-0" />
         </div>
@@ -265,7 +265,7 @@ const SeccionCuentas: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Encabezado */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
         <p className="text-sm text-slate-500">
           {cuentas.length} cuenta{cuentas.length !== 1 ? 's' : ''}
           {cuentas.length > 0 && (

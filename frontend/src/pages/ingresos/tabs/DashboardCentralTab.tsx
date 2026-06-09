@@ -33,7 +33,7 @@ const KpiCard: React.FC<{
   Icono: React.FC<{ size?: number; className?: string }>;
   badge?: { label: string; valor: number };
 }> = ({ label, sub, valor, color, bg, Icono, badge }) => (
-  <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm flex flex-col gap-2">
+  <div className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-5 shadow-sm flex flex-col gap-2">
     <div className="flex items-center gap-3">
       <div className={`w-10 h-10 rounded-xl ${bg} flex items-center justify-center shrink-0`}>
         <Icono size={18} className={color} />
@@ -62,7 +62,7 @@ const EstadoBloque: React.FC<{
       <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center`}>
         <Icono size={15} className={color} />
       </div>
-      <p className="text-sm font-semibold text-slate-700">{titulo}</p>
+      <p className="text-xs sm:text-sm font-semibold text-slate-700">{titulo}</p>
       {estado.count_atrasados > 0 && (
         <span className="ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-100">
           {estado.count_atrasados} atrasado{estado.count_atrasados > 1 ? 's' : ''}
@@ -146,7 +146,7 @@ const DashboardCentralTab: React.FC<{ mes: number; anio: number; refreshKey?: nu
     <div className="space-y-5">
 
       {/* ── Row 1: KPIs principales ── */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
         <KpiCard
           label="Total en Caja" sub="Utilidad + Capital"
           valor={d?.cobrado.total ?? 0}
@@ -290,7 +290,7 @@ const DashboardCentralTab: React.FC<{ mes: number; anio: number; refreshKey?: nu
             <Target size={14} className="inline mr-1.5 text-orange-500" />
             Mejor día del mes
           </p>
-          <div className="flex flex-wrap gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-orange-50 rounded-xl px-4 py-3">
               <p className="text-xs text-orange-400 mb-0.5">Total global</p>
               <p className="text-lg font-bold text-orange-600">{fmt(d.mejor_dia.global.monto)}</p>
@@ -337,34 +337,34 @@ const DashboardCentralTab: React.FC<{ mes: number; anio: number; refreshKey?: nu
         {logFiltrado.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-10">Sin movimientos{filtroOrigen !== 'Todos' ? ` de ${filtroOrigen}` : ''} en {MESES[mes]} {anio}.</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-3 sm:mx-0">
+            <table className="w-full text-xs sm:text-sm">
               <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
                 <tr>
                   <th className="px-4 py-2 text-left">Fecha</th>
                   <th className="px-4 py-2 text-left">Origen</th>
                   <th className="px-4 py-2 text-left">Descripción</th>
                   <th className="px-4 py-2 text-right">Monto</th>
-                  <th className="px-4 py-2 text-right">Capital</th>
-                  <th className="px-4 py-2 text-left">Método</th>
+                  <th className="px-4 py-2 text-right hidden sm:table-cell">Capital</th>
+                  <th className="px-4 py-2 text-left hidden sm:table-cell">Método</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
                 {logFiltrado.map(p => (
                   <tr key={p.id} className="hover:bg-slate-50">
-                    <td className="px-4 py-2.5 text-slate-500 whitespace-nowrap">{fmtFecha(p.fecha)}</td>
+                    <td className="px-4 py-2.5 text-slate-500 whitespace-nowrap text-xs sm:text-sm">{fmtFecha(p.fecha)}</td>
                     <td className="px-4 py-2.5">
                       <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold text-white"
                         style={{ background: colorOrigen(p.origen) }}>
                         {p.origen}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-slate-600 max-w-[220px] truncate">{p.descripcion}</td>
-                    <td className="px-4 py-2.5 text-right font-semibold text-slate-700">{fmt(p.monto)}</td>
-                    <td className="px-4 py-2.5 text-right text-blue-500 text-xs">
+                    <td className="px-4 py-2.5 text-slate-600 max-w-[220px] truncate text-xs sm:text-sm">{p.descripcion}</td>
+                    <td className="px-4 py-2.5 text-right font-semibold text-slate-700 text-xs sm:text-sm">{fmt(p.monto)}</td>
+                    <td className="px-4 py-2.5 text-right text-blue-500 text-xs hidden sm:table-cell">
                       {p.capital > 0 ? fmt(p.capital) : '—'}
                     </td>
-                    <td className="px-4 py-2.5 text-slate-400 text-xs capitalize">{p.metodo_pago}</td>
+                    <td className="px-4 py-2.5 text-slate-400 text-xs capitalize hidden sm:table-cell">{p.metodo_pago}</td>
                   </tr>
                 ))}
               </tbody>

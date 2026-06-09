@@ -2,6 +2,8 @@ import { Router } from 'express';
 import multer from 'multer';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { roleMiddleware } from '../middlewares/role.middleware';
+import { validateUuid } from '../middlewares/validateUuid.middleware';
+import { validateMagicBytes } from '../middlewares/magicBytes.middleware';
 import {
   auditoriaCapital,
   estadisticasPrestamos,
@@ -47,39 +49,43 @@ prestamosRouter.get('/auditoria', auditoriaCapital);
 prestamosRouter.get('/stats', estadisticasPrestamos);
 prestamosRouter.post('/sincronizar-estatus', sincronizarEstatus);
 prestamosRouter.get('/', listarPrestamos);
-prestamosRouter.get('/:id', obtenerPrestamo);
+prestamosRouter.get('/:id', validateUuid('id'), obtenerPrestamo);
 prestamosRouter.post('/', crearPrestamo);
-prestamosRouter.put('/:id', editarPrestamo);
+prestamosRouter.put('/:id', validateUuid('id'), editarPrestamo);
 
 prestamosRouter.patch(
   '/:id/estatus',
   roleMiddleware('administrador'),
+  validateUuid('id'),
   cambiarEstatusPrestamo
 );
 
 prestamosRouter.post(
   '/:id/renovar',
   roleMiddleware('administrador'),
+  validateUuid('id'),
   renovarPrestamo
 );
 
 // ── Pagos ──────────────────────────────────────────────────────
-prestamosRouter.get('/:id/pagos', listarPagos);
-prestamosRouter.post('/:id/pagos', registrarPago);
+prestamosRouter.get('/:id/pagos', validateUuid('id'), listarPagos);
+prestamosRouter.post('/:id/pagos', validateUuid('id'), registrarPago);
 
 // ── Moratorios ─────────────────────────────────────────────────
-prestamosRouter.get('/:id/moratorios', listarMoratorios);
-prestamosRouter.post('/:id/moratorios/calcular', calcularMoratorio);
+prestamosRouter.get('/:id/moratorios', validateUuid('id'), listarMoratorios);
+prestamosRouter.post('/:id/moratorios/calcular', validateUuid('id'), calcularMoratorio);
 
 // ── Documentos (checklist) ─────────────────────────────────────
-prestamosRouter.put('/:id/documentos', actualizarDocumentos);
+prestamosRouter.put('/:id/documentos', validateUuid('id'), actualizarDocumentos);
 
 // ── Archivos binarios PDF ──────────────────────────────────────
-prestamosRouter.get('/:id/archivos', listarArchivos);
-prestamosRouter.get('/:id/archivos/:tipo', descargarArchivo);
+prestamosRouter.get('/:id/archivos', validateUuid('id'), listarArchivos);
+prestamosRouter.get('/:id/archivos/:tipo', validateUuid('id'), descargarArchivo);
 prestamosRouter.post(
   '/:id/archivos/:tipo',
+  validateUuid('id'),
   upload.single('archivo'),
+  validateMagicBytes,
   subirArchivo
 );
 
@@ -93,5 +99,6 @@ moratoriosRouter.use(authMiddleware);
 moratoriosRouter.patch(
   '/:id/perdonar',
   roleMiddleware('administrador'),
+  validateUuid('id'),
   perdonarMoratorio
 );

@@ -63,23 +63,23 @@ const SeccionFlujoCaja: React.FC = () => {
         <>
           {/* KPIs */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="border border-emerald-200 bg-emerald-50 rounded-xl p-4">
+            <div className="border border-emerald-200 bg-emerald-50 rounded-xl p-3 sm:p-4">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp size={15} className="text-emerald-600"/>
                 <span className="text-xs text-slate-500">Total entradas</span>
               </div>
-              <p className="text-xl font-bold text-emerald-700">{fmt(data.total_entradas)}</p>
+              <p className="text-lg sm:text-xl font-bold text-emerald-700 break-words">{fmt(data.total_entradas)}</p>
             </div>
 
-            <div className="border border-red-200 bg-red-50 rounded-xl p-4">
+            <div className="border border-red-200 bg-red-50 rounded-xl p-3 sm:p-4">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingDown size={15} className="text-red-500"/>
                 <span className="text-xs text-slate-500">Total salidas</span>
               </div>
-              <p className="text-xl font-bold text-red-700">{fmt(data.total_salidas)}</p>
+              <p className="text-lg sm:text-xl font-bold text-red-700 break-words">{fmt(data.total_salidas)}</p>
             </div>
 
-            <div className={`border rounded-xl p-4 ${
+            <div className={`border rounded-xl p-3 sm:p-4 ${
               data.flujo_neto >= 0
                 ? 'border-emerald-200 bg-emerald-50'
                 : 'border-red-200 bg-red-50'
@@ -90,7 +90,7 @@ const SeccionFlujoCaja: React.FC = () => {
                                        <Minus size={15} className="text-slate-400"/>}
                 <span className="text-xs text-slate-500">Flujo neto</span>
               </div>
-              <p className={`text-xl font-bold ${data.flujo_neto >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+              <p className={`text-lg sm:text-xl font-bold break-words ${data.flujo_neto >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
                 {fmt(data.flujo_neto)}
               </p>
               <p className="text-xs text-slate-400 mt-0.5">{data.total_movimientos} movimientos</p>

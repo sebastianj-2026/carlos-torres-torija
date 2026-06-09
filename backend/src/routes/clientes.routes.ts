@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { roleMiddleware } from '../middlewares/role.middleware';
+import { validateUuid } from '../middlewares/validateUuid.middleware';
 import {
   estadisticasClientes,
   listarClientes,
@@ -31,29 +32,31 @@ router.get('/stats', estadisticasClientes);
 router.get('/', listarClientes);
 
 // Obtener expediente completo
-router.get('/:id', obtenerCliente);
+router.get('/:id', validateUuid('id'), obtenerCliente);
 
 // Crear nuevo cliente
 router.post('/', crearCliente);
 
 // Editar datos del cliente
-router.put('/:id', editarCliente);
+router.put('/:id', validateUuid('id'), editarCliente);
 
 // Cambiar estatus del cliente
-router.patch('/:id/estatus', cambiarEstatus);
+router.patch('/:id/estatus', validateUuid('id'), cambiarEstatus);
 
 // Documentos del expediente
-router.get('/:id/documentos', listarDocumentos);
-router.put('/:id/documentos', actualizarDocumentos);
+router.get('/:id/documentos', validateUuid('id'), listarDocumentos);
+router.put('/:id/documentos', validateUuid('id'), actualizarDocumentos);
 
 // Referencias personales
-router.get('/:id/referencias', listarReferencias);
-router.post('/:id/referencias', agregarReferencia);
+router.get('/:id/referencias', validateUuid('id'), listarReferencias);
+router.post('/:id/referencias', validateUuid('id'), agregarReferencia);
 
 // Eliminar referencia — solo administrador
 router.delete(
   '/:id/referencias/:refId',
   roleMiddleware('administrador'),
+  validateUuid('id'),
+  validateUuid('refId'),
   eliminarReferencia
 );
 

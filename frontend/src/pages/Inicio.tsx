@@ -52,7 +52,7 @@ const Inicio: React.FC = () => {
           ].map((modulo) => (
             <div
               key={modulo.nombre}
-              className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm
+              className="bg-white rounded-xl p-3 sm:p-5 border border-slate-100 shadow-sm
                          flex items-center justify-between opacity-60 cursor-not-allowed"
             >
               <div>

@@ -5,6 +5,7 @@ import pool from '../config/database';
 
 // Mapa en memoria para rastrear intentos fallidos de login
 // Estructura: { correo: { intentos: number, bloqueadoHasta: Date | null } }
+// TODO: migrar a Redis para persistencia entre reinicios
 const intentosFallidos: Map<string, { intentos: number; bloqueadoHasta: Date | null }> = new Map();
 
 const MAX_INTENTOS = 5;
@@ -25,11 +26,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     if (registroIntentos?.bloqueadoHasta) {
       const ahora = new Date();
       if (ahora < registroIntentos.bloqueadoHasta) {
-        const minutosRestantes = Math.ceil(
-          (registroIntentos.bloqueadoHasta.getTime() - ahora.getTime()) / 60000
-        );
         res.status(429).json({
-          mensaje: `Cuenta bloqueada temporalmente. Intente de nuevo en ${minutosRestantes} minuto(s).`,
+          mensaje: 'Credenciales incorrectas o cuenta temporalmente bloqueada. Intente más tarde.',
           bloqueado: true,
         });
         return;
@@ -72,7 +70,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
       if (intentosRestantes <= 0) {
         res.status(401).json({
-          mensaje: `Credenciales incorrectas, intente de nuevo. Cuenta bloqueada por 15 minutos.`,
+          mensaje: 'Credenciales incorrectas o cuenta temporalmente bloqueada. Intente más tarde.',
         });
       } else {
         res.status(401).json({ mensaje: mensajeError });
@@ -177,8 +175,12 @@ export const obtenerUsuarioActual = async (req: Request, res: Response): Promise
 };
 
 // GET /api/auth/usuarios
-export const listarUsuarios = async (_req: Request, res: Response): Promise<void> => {
+export const listarUsuarios = async (req: Request, res: Response): Promise<void> => {
   try {
+    if (req.usuario?.rol !== 'administrador') {
+      res.status(403).json({ mensaje: 'Acceso denegado.' });
+      return;
+    }
     const resultado = await pool.query(
       'SELECT id, nombre_completo FROM usuarios WHERE activo = true ORDER BY nombre_completo'
     );

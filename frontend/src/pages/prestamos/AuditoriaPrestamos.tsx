@@ -403,6 +403,7 @@ const AuditoriaPrestamos: React.FC = () => {
             )}
           </div>
 
+          <div className="overflow-x-auto -mx-3 sm:mx-0">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
               <tr>
@@ -514,6 +515,7 @@ const AuditoriaPrestamos: React.FC = () => {
               })}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

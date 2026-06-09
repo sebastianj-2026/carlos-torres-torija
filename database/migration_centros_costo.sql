@@ -28,4 +28,4 @@ CREATE INDEX IF NOT EXISTS idx_cpp_centro_costo
   ON cuentas_por_pagar (centro_costo);
 
 CREATE INDEX IF NOT EXISTS idx_cpp_mes
-  ON cuentas_por_pagar (DATE_TRUNC('month', fecha_limite_pago));
+  ON cuentas_por_pagar (fecha_limite_pago);

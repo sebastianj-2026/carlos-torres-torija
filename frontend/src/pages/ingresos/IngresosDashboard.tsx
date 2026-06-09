@@ -35,7 +35,7 @@ const IngresosDashboard: React.FC = () => {
   }, []);
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-3 sm:p-6 lg:p-8">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-slate-800">Hub de Ingresos</h2>
         <p className="text-slate-500 mt-0.5 text-sm">
@@ -43,12 +43,12 @@ const IngresosDashboard: React.FC = () => {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-1 mb-4 bg-slate-100 p-1 rounded-2xl w-fit">
+      <div className="flex flex-nowrap overflow-x-auto scrollbar-hide gap-1 mb-4 bg-slate-100 p-1 rounded-2xl w-fit max-w-full">
         {TABS.map(({ id, label, Icono }) => (
           <button
             key={id}
             onClick={() => setTab(id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all relative
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all relative whitespace-nowrap shrink-0
               ${tab === id ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
           >
             <Icono size={15} />

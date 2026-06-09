@@ -355,6 +355,20 @@ export const crearContrato = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
+    // Valida shape de detalles_servicios si viene presente.
+    if (detalles_servicios !== undefined && detalles_servicios !== null) {
+      if (!Array.isArray(detalles_servicios)) {
+        res.status(400).json({ mensaje: 'detalles_servicios debe ser un array.' });
+        return;
+      }
+      for (const item of detalles_servicios) {
+        if (typeof item !== 'object' || item === null || !item.tipo || typeof item.tipo !== 'string') {
+          res.status(400).json({ mensaje: 'detalles_servicios mal formado.' });
+          return;
+        }
+      }
+    }
+
     await client.query('BEGIN');
 
     if (num_local) {
@@ -412,6 +426,20 @@ export const editarContrato = async (req: Request, res: Response): Promise<void>
       url_contrato_pdf, url_pagare_pdf, url_llaves_entrega, url_inventario_pdf, url_id_inquilino,
       incluye_servicios, detalles_servicios, estatus, notas, comision_oficina_pct, num_local,
     } = req.body;
+
+    // Valida shape de detalles_servicios si viene presente.
+    if (detalles_servicios !== undefined && detalles_servicios !== null) {
+      if (!Array.isArray(detalles_servicios)) {
+        res.status(400).json({ mensaje: 'detalles_servicios debe ser un array.' });
+        return;
+      }
+      for (const item of detalles_servicios) {
+        if (typeof item !== 'object' || item === null || !item.tipo || typeof item.tipo !== 'string') {
+          res.status(400).json({ mensaje: 'detalles_servicios mal formado.' });
+          return;
+        }
+      }
+    }
 
     const r = await pool.query(
       `UPDATE contratos_arrendamiento SET

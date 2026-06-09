@@ -268,11 +268,11 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
       )}
 
       {/* ── Cabecera tabla ── */}
-      <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
+      <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center mb-5">
         <p className="text-sm text-slate-500">
           {cargando ? 'Cargando…' : `${total} ${total === 1 ? 'registro' : 'registros'}`}
         </p>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => { setFormSerie({ ...VACÍO_SERIE }); setErrorSerie(''); setModalSerie(true); }}
             className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium rounded-xl shadow-sm"
@@ -295,10 +295,10 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
             <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
               <tr>
                 <th className="px-4 py-3 text-left">Concepto</th>
-                <th className="px-4 py-3 text-left">Categoría</th>
-                <th className="px-4 py-3 text-left">Proveedor</th>
+                <th className="px-4 py-3 text-left hidden sm:table-cell">Categoría</th>
+                <th className="px-4 py-3 text-left hidden sm:table-cell">Proveedor</th>
                 <th className="px-4 py-3 text-right">Monto</th>
-                <th className="px-4 py-3 text-left">Fecha Pago</th>
+                <th className="px-4 py-3 text-left hidden sm:table-cell">Fecha Pago</th>
                 <th className="px-4 py-3 text-center">Estatus</th>
                 <th className="px-4 py-3 text-center">Acciones</th>
               </tr>
@@ -338,7 +338,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   </td>
 
                   {/* Categoría — colored badge */}
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 hidden sm:table-cell">
                     <span
                       className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold text-white whitespace-nowrap"
                       style={{ background: c.categoria_color ?? '#94a3b8' }}
@@ -348,13 +348,13 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   </td>
 
                   {/* Proveedor */}
-                  <td className="px-4 py-3 text-slate-500 max-w-[140px] truncate">{c.proveedor_nombre ?? '—'}</td>
+                  <td className="px-4 py-3 text-slate-500 max-w-[140px] truncate hidden sm:table-cell">{c.proveedor_nombre ?? '—'}</td>
 
                   {/* Monto */}
                   <td className="px-4 py-3 font-semibold text-slate-700 whitespace-nowrap text-right">{fmt(c.monto_total)}</td>
 
                   {/* Fecha Pago */}
-                  <td className="px-4 py-3 whitespace-nowrap">
+                  <td className="px-4 py-3 whitespace-nowrap hidden sm:table-cell">
                     {c.estatus === 'pagado' && c.fecha_pago_real
                       ? <span className="text-emerald-600">{fmtFecha(c.fecha_pago_real)}</span>
                       : <span className="text-slate-500">{fmtFecha(c.fecha_limite_pago)}</span>}
@@ -424,7 +424,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   onChange={e => setForm(f => ({ ...f, concepto: e.target.value }))}
                   className={INPUT} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500">Categoría *</label>
                   <div className="flex gap-1 mt-1">
@@ -451,7 +451,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500">Monto total *</label>
                   <input type="number" value={form.monto_total}
@@ -478,7 +478,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   </select>
                 </div>
               )}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {(['monto_capital', 'monto_interes', 'monto_iva'] as const).map(k => (
                   <div key={k}>
                     <label className="text-xs text-slate-500">
@@ -528,7 +528,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   onChange={e => setFormSerie(f => ({ ...f, concepto: e.target.value }))}
                   placeholder="Ej. Pago préstamo Banorte" className={INPUT} />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500">Categoría *</label>
                   <div className="flex gap-1 mt-1">
@@ -550,7 +550,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="text-xs text-slate-500">Monto por cuota *</label>
                   <input type="number" value={formSerie.monto_por_cuota}

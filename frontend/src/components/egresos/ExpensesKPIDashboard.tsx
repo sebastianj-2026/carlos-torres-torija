@@ -14,7 +14,7 @@ const ExpensesKPIDashboard: React.FC<Props> = ({ data, cargando }) => {
   const topGasto = data?.top_gastos?.[0];
 
   return (
-    <div className={`grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6 ${cargando ? 'opacity-60' : ''}`}>
+    <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 ${cargando ? 'opacity-60' : ''}`}>
       {/* Total gastado */}
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
         <div className="flex items-center gap-3">

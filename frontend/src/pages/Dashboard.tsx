@@ -272,9 +272,9 @@ const Dashboard: React.FC = () => {
           {/* Ingresos */}
           <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
             <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1">Ingresos del Mes</p>
-            <p className="text-3xl font-bold text-green-600 tabular-nums mb-4">{fmtDec(bb.total)}</p>
-            <div className="flex gap-4">
-              <div className="w-36 h-36 flex-shrink-0">
+            <p className="text-xl sm:text-3xl font-bold text-green-600 tabular-nums mb-4">{fmtDec(bb.total)}</p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="w-24 h-24 sm:w-36 sm:h-36 flex-shrink-0">
                 <DonutChart slices={ingresosSlices.filter(s => s.value > 0)} total={bb.total} />
               </div>
               <div className="flex-1 pt-1">
@@ -297,9 +297,9 @@ const Dashboard: React.FC = () => {
           {/* Egresos */}
           <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
             <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1">Egresos del Mes</p>
-            <p className="text-3xl font-bold text-red-500 tabular-nums mb-4">{fmtDec(bc.total)}</p>
-            <div className="flex gap-4">
-              <div className="w-36 h-36 flex-shrink-0">
+            <p className="text-xl sm:text-3xl font-bold text-red-500 tabular-nums mb-4">{fmtDec(bc.total)}</p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="w-24 h-24 sm:w-36 sm:h-36 flex-shrink-0">
                 <DonutChart slices={egresosSlices.filter(s => s.value > 0)} total={bc.total} />
               </div>
               <div className="flex-1 pt-1">
@@ -388,25 +388,25 @@ const Dashboard: React.FC = () => {
                 <span className="text-xs text-red-500 ml-2">— Capital congelado: {fmtDec(bf.capital_atorado)}</span>
               </div>
             </div>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto -mx-3 sm:mx-0">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-red-100 text-red-700 text-[11px] uppercase tracking-wide">
                     <th className="px-4 py-2 text-left font-semibold">Cliente</th>
-                    <th className="px-4 py-2 text-left font-semibold">Etapa</th>
+                    <th className="px-4 py-2 text-left font-semibold hidden sm:table-cell">Etapa</th>
                     <th className="px-4 py-2 text-right font-semibold">Saldo</th>
-                    <th className="px-4 py-2 text-left font-semibold">Notas</th>
+                    <th className="px-4 py-2 text-left font-semibold hidden sm:table-cell">Notas</th>
                   </tr>
                 </thead>
                 <tbody>
                   {bf.casos.map((c, i) => (
                     <tr key={c.id} className={i % 2 === 0 ? 'bg-white' : 'bg-red-50/40'}>
                       <td className="px-4 py-2.5 font-medium text-slate-700">{c.cliente_nombre}</td>
-                      <td className="px-4 py-2.5 text-slate-500">{c.etapa_procesal ?? '—'}</td>
+                      <td className="px-4 py-2.5 text-slate-500 hidden sm:table-cell">{c.etapa_procesal ?? '—'}</td>
                       <td className="px-4 py-2.5 text-right tabular-nums text-red-700 font-semibold">
                         {fmtDec(c.saldo_pendiente)}
                       </td>
-                      <td className="px-4 py-2.5 text-slate-400 text-xs max-w-xs truncate">{c.notas ?? '—'}</td>
+                      <td className="px-4 py-2.5 text-slate-400 text-xs max-w-xs truncate hidden sm:table-cell">{c.notas ?? '—'}</td>
                     </tr>
                   ))}
                 </tbody>

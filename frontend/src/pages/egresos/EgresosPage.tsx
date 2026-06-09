@@ -51,7 +51,7 @@ const EgresosPage: React.FC = () => {
       </div>
 
       {/* 3. Selector global de periodo */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex flex-wrap items-center gap-2 mb-6">
         <NavigadorTemporal
           mes={mes}
           anio={anio}

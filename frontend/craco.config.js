@@ -13,4 +13,12 @@ module.exports = {
       },
     },
   },
+  webpack: {
+    configure: (webpackConfig, { env }) => {
+      if (env === 'production') {
+        webpackConfig.devtool = false;
+      }
+      return webpackConfig;
+    },
+  },
 };

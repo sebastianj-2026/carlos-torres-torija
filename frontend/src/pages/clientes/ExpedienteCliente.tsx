@@ -201,7 +201,7 @@ const ExpedienteCliente: React.FC = () => {
         {/* Encabezado del expediente */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 mb-6">
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-4 w-full sm:w-auto">
               {/* Avatar */}
               <div className="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center shrink-0">
                 <span className="text-orange-600 font-black text-xl uppercase">

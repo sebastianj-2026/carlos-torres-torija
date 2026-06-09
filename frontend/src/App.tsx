@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/shared/ProtectedRoute';
 import RoleGuard from './components/shared/RoleGuard';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
 import Layout from './components/layout/Layout';
 
 // Páginas públicas
@@ -53,6 +54,7 @@ import NominasPage from './pages/nominas/NominasPage';
 
 const App: React.FC = () => {
   return (
+    <ErrorBoundary>
     <BrowserRouter>
       <AuthProvider>
         <Routes>
@@ -348,6 +350,7 @@ const App: React.FC = () => {
         </Routes>
       </AuthProvider>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 };
 

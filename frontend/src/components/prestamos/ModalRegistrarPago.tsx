@@ -94,8 +94,8 @@ const ModalRegistrarPago: React.FC<ModalRegistrarPagoProps> = ({ prestamo, onCer
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-[90vw] sm:max-w-md max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 shrink-0">
           <h2 className="text-lg font-bold text-slate-800">Registrar Pago</h2>
@@ -175,7 +175,7 @@ const ModalRegistrarPago: React.FC<ModalRegistrarPagoProps> = ({ prestamo, onCer
           </div>
 
           {/* Periodo */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">Mes</label>
               <select

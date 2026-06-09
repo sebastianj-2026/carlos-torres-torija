@@ -2,6 +2,8 @@ import { Router } from 'express';
 import multer from 'multer';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { roleMiddleware } from '../middlewares/role.middleware';
+import { validateUuid } from '../middlewares/validateUuid.middleware';
+import { validateMagicBytes } from '../middlewares/magicBytes.middleware';
 import {
   listarJuicios,
   obtenerJuicio,
@@ -35,20 +37,20 @@ juiciosRouter.use(authMiddleware);
 juiciosRouter.use(roleMiddleware('administrador'));
 
 juiciosRouter.get('/',                            listarJuicios);
-juiciosRouter.get('/prestamo/:prestamoId',        obtenerJuicioPorPrestamo);
-juiciosRouter.get('/:id',                         obtenerJuicio);
-juiciosRouter.put('/:id',                         actualizarJuicio);
+juiciosRouter.get('/prestamo/:prestamoId',        validateUuid('prestamoId'), obtenerJuicioPorPrestamo);
+juiciosRouter.get('/:id',                         validateUuid('id'), obtenerJuicio);
+juiciosRouter.put('/:id',                         validateUuid('id'), actualizarJuicio);
 
 // Gastos legales
-juiciosRouter.post('/:id/gastos',                 agregarGastoLegal);
-juiciosRouter.delete('/:id/gastos/:gastoId',      eliminarGastoLegal);
+juiciosRouter.post('/:id/gastos',                 validateUuid('id'), agregarGastoLegal);
+juiciosRouter.delete('/:id/gastos/:gastoId',      validateUuid('id'), validateUuid('gastoId'), eliminarGastoLegal);
 
 // Archivero judicial
-juiciosRouter.get('/:id/documentos',              listarDocumentosJuicio);
-juiciosRouter.post('/:id/documentos',             upload.single('archivo'), subirDocumentoJuicio);
-juiciosRouter.get('/:id/documentos/:docId',       descargarDocumentoJuicio);
-juiciosRouter.delete('/:id/documentos/:docId',    eliminarDocumentoJuicio);
+juiciosRouter.get('/:id/documentos',              validateUuid('id'), listarDocumentosJuicio);
+juiciosRouter.post('/:id/documentos',             validateUuid('id'), upload.single('archivo'), validateMagicBytes, subirDocumentoJuicio);
+juiciosRouter.get('/:id/documentos/:docId',       validateUuid('id'), validateUuid('docId'), descargarDocumentoJuicio);
+juiciosRouter.delete('/:id/documentos/:docId',    validateUuid('id'), validateUuid('docId'), eliminarDocumentoJuicio);
 
 // Bitácora
-juiciosRouter.get('/:id/bitacora',                listarBitacora);
-juiciosRouter.post('/:id/bitacora',               agregarBitacora);
+juiciosRouter.get('/:id/bitacora',                validateUuid('id'), listarBitacora);
+juiciosRouter.post('/:id/bitacora',               validateUuid('id'), agregarBitacora);

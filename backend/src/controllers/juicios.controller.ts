@@ -7,6 +7,9 @@ import {
   EtapaProcesal,
 } from '../models/juicio.model';
 
+// Escapa los wildcards de LIKE/ILIKE (% _ \) en entradas de búsqueda.
+const escapeLikeWildcards = (s: string): string => s.replace(/[\\%_]/g, '\\$&');
+
 const ETIQUETAS_ETAPA: Record<EtapaProcesal, string> = {
   demanda:       'Demanda',
   emplazamiento: 'Emplazamiento',
@@ -66,8 +69,8 @@ const queryResumenJuicio = `
 export const listarJuicios = async (req: Request, res: Response): Promise<void> => {
   try {
     const buscar = (req.query.buscar as string) || '';
-    const pagina = Math.max(1, parseInt(req.query.pagina as string) || 1);
-    const limite = Math.min(50, Math.max(1, parseInt(req.query.limite as string) || 20));
+    const pagina = Math.max(1, parseInt(req.query.pagina as string, 10) || 1);
+    const limite = Math.min(50, Math.max(1, parseInt(req.query.limite as string, 10) || 20));
     const offset = (pagina - 1) * limite;
 
     const condiciones: string[] = ['j.activo = true'];
@@ -76,11 +79,11 @@ export const listarJuicios = async (req: Request, res: Response): Promise<void> 
 
     if (buscar) {
       condiciones.push(`(
-        CONCAT(c.nombres, ' ', c.apellido_paterno) ILIKE $${idx}
-        OR p.folio ILIKE $${idx}
-        OR j.abogado_nombre ILIKE $${idx}
+        CONCAT(c.nombres, ' ', c.apellido_paterno) ILIKE $${idx} ESCAPE '\\'
+        OR p.folio ILIKE $${idx} ESCAPE '\\'
+        OR j.abogado_nombre ILIKE $${idx} ESCAPE '\\'
       )`);
-      valores.push(`%${buscar}%`);
+      valores.push(`%${escapeLikeWildcards(String(buscar))}%`);
       idx++;
     }
 

@@ -79,7 +79,7 @@ const FileDropZone: React.FC<Props> = ({ label, value, folder, onChange }) => {
         onDragOver={e => { e.preventDefault(); setDragging(true); }}
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
-        className={`flex flex-col items-center justify-center gap-1.5 h-20 rounded-xl border-2 border-dashed cursor-pointer transition-colors
+        className={`flex flex-col items-center justify-center gap-1.5 h-24 sm:h-20 rounded-xl border-2 border-dashed cursor-pointer transition-colors
           ${subiendo ? 'border-orange-300 bg-orange-50 cursor-wait' :
             dragging ? 'border-orange-400 bg-orange-50' :
             'border-slate-200 hover:border-orange-300 hover:bg-slate-50'}`}
@@ -88,8 +88,13 @@ const FileDropZone: React.FC<Props> = ({ label, value, folder, onChange }) => {
           ? <Loader size={18} className="text-orange-400 animate-spin" />
           : <Upload size={18} className={dragging ? 'text-orange-400' : 'text-slate-300'} />
         }
-        <span className="text-xs text-slate-400">
-          {subiendo ? 'Subiendo…' : 'Arrastra o haz clic · PDF / JPG / PNG'}
+        <span className="text-xs text-slate-400 text-center px-2">
+          {subiendo ? 'Subiendo…' : (
+            <>
+              <span className="hidden sm:inline">Arrastra o haz clic · PDF / JPG / PNG</span>
+              <span className="sm:hidden">Seleccionar archivo</span>
+            </>
+          )}
         </span>
       </div>
       {errorMsg && <p className="mt-1 text-[11px] text-red-500">{errorMsg}</p>}

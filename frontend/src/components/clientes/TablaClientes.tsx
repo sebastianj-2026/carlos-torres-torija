@@ -59,18 +59,18 @@ const TablaClientes: React.FC<TablaClientesProps> = ({ datos, cargando, onCambia
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
         <table className="w-full text-sm text-left">
           <thead>
             <tr className="bg-slate-50 border-b border-slate-100">
               <th className="px-3 py-3 font-medium text-slate-500">Nombre</th>
-              <th className="w-32 px-3 py-3 font-medium text-slate-500">RFC</th>
-              <th className="w-32 px-3 py-3 font-medium text-slate-500">Teléfono</th>
+              <th className="hidden sm:table-cell w-32 px-3 py-3 font-medium text-slate-500">RFC</th>
+              <th className="hidden sm:table-cell w-32 px-3 py-3 font-medium text-slate-500">Teléfono</th>
               <th className="w-28 px-3 py-3 font-medium text-slate-500 text-center">Estatus</th>
-              <th className="w-28 px-3 py-3 font-medium text-slate-500 text-center">Meses sin pago</th>
+              <th className="hidden sm:table-cell w-28 px-3 py-3 font-medium text-slate-500 text-center">Meses sin pago</th>
               <th className="w-32 px-3 py-3 font-medium text-slate-500 text-right">Deuda total</th>
-              <th className="w-32 px-3 py-3 font-medium text-slate-500 text-right">Interés mensual</th>
-              <th className="w-24 px-3 py-3 font-medium text-slate-500 text-center">Préstamos</th>
+              <th className="hidden sm:table-cell w-32 px-3 py-3 font-medium text-slate-500 text-right">Interés mensual</th>
+              <th className="hidden sm:table-cell w-24 px-3 py-3 font-medium text-slate-500 text-center">Préstamos</th>
               <th className="w-24 px-3 py-3 font-medium text-slate-500 text-center">Acciones</th>
             </tr>
           </thead>
@@ -82,20 +82,20 @@ const TablaClientes: React.FC<TablaClientesProps> = ({ datos, cargando, onCambia
                 onClick={() => navigate(`/clientes/${cliente.id}`)}
               >
                 <td className="px-3 py-3 font-medium truncate max-w-0">
-                  <span className={(cliente.meses_sin_pago ?? 0) > 0 ? 'text-amber-600' : 'text-slate-800'}>
+                  <span title={nombreCompleto(cliente)} className={(cliente.meses_sin_pago ?? 0) > 0 ? 'text-amber-600' : 'text-slate-800'}>
                     {nombreCompleto(cliente)}
                   </span>
                 </td>
-                <td className="w-32 px-3 py-3 text-slate-500 font-mono text-xs truncate">
+                <td className="hidden sm:table-cell w-32 px-3 py-3 text-slate-500 font-mono text-xs truncate">
                   {cliente.rfc || <span className="text-slate-300">—</span>}
                 </td>
-                <td className="w-32 px-3 py-3 text-slate-500 whitespace-nowrap">
+                <td className="hidden sm:table-cell w-32 px-3 py-3 text-slate-500 whitespace-nowrap">
                   {cliente.telefono_celular || <span className="text-slate-300">—</span>}
                 </td>
                 <td className="w-28 px-3 py-3 text-center">
                   <BadgeEstatus estatus={cliente.estatus} />
                 </td>
-                <td className="w-28 px-3 py-3 text-center">
+                <td className="hidden sm:table-cell w-28 px-3 py-3 text-center">
                   {(cliente.meses_sin_pago ?? 0) > 0
                     ? <span className="font-semibold text-red-600">{cliente.meses_sin_pago}</span>
                     : <span className="text-slate-300">—</span>}
@@ -103,10 +103,10 @@ const TablaClientes: React.FC<TablaClientesProps> = ({ datos, cargando, onCambia
                 <td className="w-32 px-3 py-3 text-slate-700 text-right whitespace-nowrap">
                   {formatCurrency(cliente.deuda_total ?? 0)}
                 </td>
-                <td className="w-32 px-3 py-3 text-slate-700 text-right whitespace-nowrap">
+                <td className="hidden sm:table-cell w-32 px-3 py-3 text-slate-700 text-right whitespace-nowrap">
                   {formatCurrency(cliente.interes_mensual ?? 0)}
                 </td>
-                <td className="w-24 px-3 py-3 text-slate-600 text-center">
+                <td className="hidden sm:table-cell w-24 px-3 py-3 text-slate-600 text-center">
                   {cliente.num_prestamos ?? 0}
                 </td>
                 <td className="w-24 px-3 py-3 text-center">

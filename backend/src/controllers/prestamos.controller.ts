@@ -12,6 +12,10 @@ import {
   ParticipanteDto,
 } from '../models/prestamo.model';
 
+const DIRECCIONES_VALIDAS = ['ASC', 'DESC'] as const;
+
+const escapeLikeWildcards = (s: string): string => s.replace(/[\\%_]/g, '\\$&');
+
 const TIPOS_ARCHIVO_VALIDOS: TipoArchivoPrestamo[] = [
   'avaluo', 'gastos_notariales', 'escritura', 'contrato_firmado',
   'pagare_firmado', 'documento_propiedad', 'contrato_terminos',
@@ -261,11 +265,14 @@ export const listarPrestamos = async (req: Request, res: Response): Promise<void
   try {
     const buscar     = (req.query.buscar     as string) || '';
     const estatus    = (req.query.estatus    as string) || '';
-    const pagina     = Math.max(1, parseInt(req.query.pagina as string) || 1);
-    const limite     = Math.min(100, Math.max(1, parseInt(req.query.limite as string) || 20));
+    const pagina     = Math.max(1, parseInt(req.query.pagina as string, 10) || 1);
+    const limite     = Math.min(100, Math.max(1, parseInt(req.query.limite as string, 10) || 20));
     const offset     = (pagina - 1) * limite;
     const ordenarPor = (req.query.ordenarPor as string) || 'cliente_nombre';
-    const direccion  = (req.query.direccion  as string) === 'desc' ? 'DESC' : 'ASC';
+    const direccionRaw = (req.query.direccion as string)?.toUpperCase();
+    const direccion  = DIRECCIONES_VALIDAS.includes(direccionRaw as typeof DIRECCIONES_VALIDAS[number])
+      ? direccionRaw
+      : 'DESC';
     const columna    = COLUMNAS_ORDEN[ordenarPor] ?? 'cliente_nombre';
 
     const condiciones: string[] = [];
@@ -274,11 +281,11 @@ export const listarPrestamos = async (req: Request, res: Response): Promise<void
 
     if (buscar) {
       condiciones.push(`(
-        p.folio ILIKE $${indice}
-        OR CONCAT(c.nombres, ' ', c.apellido_paterno, ' ', c.apellido_materno) ILIKE $${indice}
-        OR c.apellido_paterno ILIKE $${indice}
+        p.folio ILIKE $${indice} ESCAPE '\\'
+        OR CONCAT(c.nombres, ' ', c.apellido_paterno, ' ', c.apellido_materno) ILIKE $${indice} ESCAPE '\\'
+        OR c.apellido_paterno ILIKE $${indice} ESCAPE '\\'
       )`);
-      valores.push(`%${buscar}%`);
+      valores.push(`%${escapeLikeWildcards(String(buscar))}%`);
       indice++;
     }
 
@@ -421,6 +428,7 @@ export const obtenerPrestamo = async (req: Request, res: Response): Promise<void
 // POST /api/prestamos
 // ----------------------------------------------------------------
 export const crearPrestamo = async (req: Request, res: Response): Promise<void> => {
+  const client = await pool.connect();
   try {
     const registrado_por = req.usuario?.userId;
     const datos: CrearPrestamoDto = req.body;
@@ -446,9 +454,12 @@ export const crearPrestamo = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
+    await client.query('BEGIN');
+
     // Verificar que el cliente exista
-    const clienteExiste = await pool.query('SELECT id FROM clientes WHERE id = $1', [datos.cliente_id]);
+    const clienteExiste = await client.query('SELECT id FROM clientes WHERE id = $1', [datos.cliente_id]);
     if (clienteExiste.rowCount === 0) {
+      await client.query('ROLLBACK');
       res.status(404).json({ mensaje: 'Cliente no encontrado.' });
       return;
     }
@@ -457,18 +468,21 @@ export const crearPrestamo = async (req: Request, res: Response): Promise<void> 
     const participantes: ParticipanteDto[] = datos.participantes ?? [];
 
     // Validar capital disponible de cada inversionista antes de crear el préstamo
+    // FOR UPDATE bloquea las filas hasta el COMMIT/ROLLBACK para prevenir race conditions
     const invConWallet = participantes.filter((p) => !p.es_oficina && p.inversionista_id);
     for (const part of invConWallet) {
-      const wRes = await pool.query(
-        'SELECT capital_disponible FROM inversionistas WHERE id = $1',
+      const wRes = await client.query(
+        'SELECT capital_disponible FROM inversionistas WHERE id = $1 FOR UPDATE',
         [part.inversionista_id]
       );
       if (wRes.rowCount === 0) {
+        await client.query('ROLLBACK');
         res.status(404).json({ mensaje: `Inversionista ${part.inversionista_id} no encontrado.` });
         return;
       }
       const disponible = parseFloat(wRes.rows[0].capital_disponible);
       if (part.monto_aportado > disponible + 0.009) {
+        await client.query('ROLLBACK');
         res.status(400).json({
           mensaje: `Capital insuficiente: el inversionista solo tiene $${disponible.toFixed(2)} disponible y se intentan asignar $${part.monto_aportado.toFixed(2)}.`,
         });
@@ -500,7 +514,7 @@ export const crearPrestamo = async (req: Request, res: Response): Promise<void> 
 
     const comisionGestionPct = datos.comision_gestion_pct ?? 0;
 
-    const resultado = await pool.query(
+    const resultado = await client.query(
       `INSERT INTO prestamos (
           cliente_id, folio,
           tipo_garantia,
@@ -564,7 +578,7 @@ export const crearPrestamo = async (req: Request, res: Response): Promise<void> 
       const interesMensual = parseFloat(
         (part.monto_aportado * (part.tasa_rendimiento / 100)).toFixed(2)
       );
-      await pool.query(
+      await client.query(
         `INSERT INTO participantes_prestamo
            (prestamo_id, inversionista_id, es_oficina, monto_aportado, tasa_rendimiento, interes_mensual, registrado_por)
          VALUES ($1, $2, $3, $4, $5, $6, $7)`,
@@ -582,13 +596,13 @@ export const crearPrestamo = async (req: Request, res: Response): Promise<void> 
 
     // Descontar capital disponible de cada inversionista y registrar movimiento salida
     for (const part of invConWallet) {
-      await pool.query(
+      await client.query(
         `UPDATE inversionistas
          SET capital_disponible = capital_disponible - $1, fecha_actualizacion = NOW()
          WHERE id = $2`,
         [part.monto_aportado, part.inversionista_id]
       );
-      await pool.query(
+      await client.query(
         `INSERT INTO movimientos_inversionistas
            (inversionista_id, tipo, monto, concepto, prestamo_id, registrado_por)
          VALUES ($1, 'salida', $2, $3, $4, $5)`,
@@ -603,20 +617,25 @@ export const crearPrestamo = async (req: Request, res: Response): Promise<void> 
     }
 
     // Registrar el interés anticipado como primer pago automático
-    await pool.query(
+    await client.query(
       `INSERT INTO historial_pagos_prestamo
          (prestamo_id, tipo_pago, monto, notas, registrado_por)
        VALUES ($1, 'interes_anticipado', $2, 'Interés anticipado del primer mes', $3)`,
       [prestamo.id, interesAnticipado, registrado_por || null]
     );
 
+    await client.query('COMMIT');
+
     res.status(201).json({
       mensaje: 'Préstamo registrado correctamente.',
       prestamo,
     });
   } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
     console.error('Error al crear préstamo:', error);
     res.status(500).json({ mensaje: 'Error interno al registrar el préstamo.' });
+  } finally {
+    client.release();
   }
 };
 
@@ -625,16 +644,20 @@ export const crearPrestamo = async (req: Request, res: Response): Promise<void> 
 // PUT /api/prestamos/:id
 // ----------------------------------------------------------------
 export const editarPrestamo = async (req: Request, res: Response): Promise<void> => {
+  const client = await pool.connect();
   try {
     const { id }         = req.params;
     const registrado_por = req.usuario?.userId;
     const datos: EditarPrestamoDto = req.body;
 
-    const existe = await pool.query(
+    await client.query('BEGIN');
+
+    const existe = await client.query(
       'SELECT id, monto_prestado, tasa_interes_mensual, fecha_inicio, plazo_meses FROM prestamos WHERE id = $1',
       [id]
     );
     if (existe.rowCount === 0) {
+      await client.query('ROLLBACK');
       res.status(404).json({ mensaje: 'Préstamo no encontrado.' });
       return;
     }
@@ -656,7 +679,7 @@ export const editarPrestamo = async (req: Request, res: Response): Promise<void>
 
     const tipoGarantiaFinal = tipoGarantia ?? 'hipotecaria';
 
-    const resultado = await pool.query(
+    const resultado = await client.query(
       `UPDATE prestamos SET
           tipo_garantia          = COALESCE($1, tipo_garantia),
           valor_propiedad        = $2,
@@ -717,34 +740,36 @@ export const editarPrestamo = async (req: Request, res: Response): Promise<void>
       ];
 
       // 1. Restaurar capital de inversionistas anteriores
-      const prevParts = await pool.query(
+      const prevParts = await client.query(
         `SELECT inversionista_id, monto_aportado FROM participantes_prestamo
          WHERE prestamo_id = $1 AND es_oficina = false AND inversionista_id IS NOT NULL`,
         [id]
       );
       for (const prev of prevParts.rows) {
-        await pool.query(
+        await client.query(
           `UPDATE inversionistas
            SET capital_disponible = capital_disponible + $1, fecha_actualizacion = NOW()
            WHERE id = $2`,
           [prev.monto_aportado, prev.inversionista_id]
         );
       }
-      await pool.query(
+      await client.query(
         `DELETE FROM movimientos_inversionistas WHERE prestamo_id = $1 AND tipo = 'salida'`,
         [id]
       );
 
       // 2. Validar capital disponible de los nuevos inversionistas
+      // FOR UPDATE bloquea las filas hasta el COMMIT/ROLLBACK para prevenir race conditions
       const nuevosInvConWallet = soloInv.filter((p) => p.inversionista_id);
       for (const part of nuevosInvConWallet) {
-        const wRes = await pool.query(
-          'SELECT capital_disponible FROM inversionistas WHERE id = $1',
+        const wRes = await client.query(
+          'SELECT capital_disponible FROM inversionistas WHERE id = $1 FOR UPDATE',
           [part.inversionista_id]
         );
         if (!wRes.rows[0]) continue;
         const disponible = parseFloat(wRes.rows[0].capital_disponible);
         if (part.monto_aportado > disponible + 0.009) {
+          await client.query('ROLLBACK');
           res.status(400).json({
             mensaje: `Capital insuficiente: el inversionista solo tiene $${disponible.toFixed(2)} disponible y se intentan asignar $${part.monto_aportado.toFixed(2)}.`,
           });
@@ -752,12 +777,12 @@ export const editarPrestamo = async (req: Request, res: Response): Promise<void>
         }
       }
 
-      await pool.query('DELETE FROM participantes_prestamo WHERE prestamo_id = $1', [id]);
+      await client.query('DELETE FROM participantes_prestamo WHERE prestamo_id = $1', [id]);
       for (const part of participantesEdit) {
         const interesMensual = parseFloat(
           (part.monto_aportado * (part.tasa_rendimiento / 100)).toFixed(2)
         );
-        await pool.query(
+        await client.query(
           `INSERT INTO participantes_prestamo
              (prestamo_id, inversionista_id, es_oficina, monto_aportado, tasa_rendimiento, interes_mensual, registrado_por)
            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
@@ -768,13 +793,13 @@ export const editarPrestamo = async (req: Request, res: Response): Promise<void>
       // 3. Descontar capital de los nuevos inversionistas y registrar movimientos
       const prestamoFolio = resultado.rows[0].folio;
       for (const part of nuevosInvConWallet) {
-        await pool.query(
+        await client.query(
           `UPDATE inversionistas
            SET capital_disponible = capital_disponible - $1, fecha_actualizacion = NOW()
            WHERE id = $2`,
           [part.monto_aportado, part.inversionista_id]
         );
-        await pool.query(
+        await client.query(
           `INSERT INTO movimientos_inversionistas
              (inversionista_id, tipo, monto, concepto, prestamo_id, registrado_por)
            VALUES ($1, 'salida', $2, $3, $4, $5)`,
@@ -789,13 +814,18 @@ export const editarPrestamo = async (req: Request, res: Response): Promise<void>
       }
     }
 
+    await client.query('COMMIT');
+
     res.json({
       mensaje: 'Préstamo actualizado correctamente.',
       prestamo: resultado.rows[0],
     });
   } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
     console.error('Error al editar préstamo:', error);
     res.status(500).json({ mensaje: 'Error interno al actualizar el préstamo.' });
+  } finally {
+    client.release();
   }
 };
 
@@ -839,16 +869,20 @@ export const cambiarEstatusPrestamo = async (req: Request, res: Response): Promi
 // POST /api/prestamos/:id/renovar
 // ----------------------------------------------------------------
 export const renovarPrestamo = async (req: Request, res: Response): Promise<void> => {
+  const client = await pool.connect();
   try {
     const { id } = req.params;
     const registrado_por = req.usuario?.userId;
     const datos: RenovarPrestamoDto = req.body;
 
-    const prestamoAnterior = await pool.query(
+    await client.query('BEGIN');
+
+    const prestamoAnterior = await client.query(
       'SELECT * FROM prestamos WHERE id = $1',
       [id]
     );
     if (prestamoAnterior.rowCount === 0) {
+      await client.query('ROLLBACK');
       res.status(404).json({ mensaje: 'Préstamo no encontrado.' });
       return;
     }
@@ -871,7 +905,7 @@ export const renovarPrestamo = async (req: Request, res: Response): Promise<void
     const folio = await generarFolio();
 
     // Crear nuevo préstamo con referencia al anterior
-    const nuevoPrestamo = await pool.query(
+    const nuevoPrestamo = await client.query(
       `INSERT INTO prestamos (
           cliente_id, folio,
           monto_prestado, saldo_pendiente, valor_propiedad,
@@ -903,7 +937,7 @@ export const renovarPrestamo = async (req: Request, res: Response): Promise<void
     );
 
     // Marcar el anterior como liquidado
-    await pool.query(
+    await client.query(
       `UPDATE prestamos
        SET estatus = 'liquidado', fecha_actualizacion = NOW()
        WHERE id = $1`,
@@ -911,20 +945,25 @@ export const renovarPrestamo = async (req: Request, res: Response): Promise<void
     );
 
     // Registrar interés anticipado del nuevo préstamo
-    await pool.query(
+    await client.query(
       `INSERT INTO historial_pagos_prestamo
          (prestamo_id, tipo_pago, monto, notas, registrado_por)
        VALUES ($1, 'interes_anticipado', $2, 'Interés anticipado — renovación', $3)`,
       [nuevoPrestamo.rows[0].id, interesAnticipado, registrado_por || null]
     );
 
+    await client.query('COMMIT');
+
     res.status(201).json({
       mensaje: 'Préstamo renovado correctamente.',
       prestamo: nuevoPrestamo.rows[0],
     });
   } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
     console.error('Error al renovar préstamo:', error);
     res.status(500).json({ mensaje: 'Error interno al renovar el préstamo.' });
+  } finally {
+    client.release();
   }
 };
 

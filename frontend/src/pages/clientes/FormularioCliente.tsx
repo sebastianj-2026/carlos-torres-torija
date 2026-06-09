@@ -356,7 +356,7 @@ const FormularioCliente: React.FC = () => {
           {paso === 1 && (
             <div className="space-y-4">
               <h3 className="text-base font-semibold text-slate-700 mb-5">Datos personales</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                 <Campo label="Nombres" name="nombres" value={datos.nombres} onChange={handleCampo} requerido placeholder="Ej: Juan Carlos" />
                 <Campo label="Apellido paterno" name="apellido_paterno" value={datos.apellido_paterno} onChange={handleCampo} requerido placeholder="Ej: García" />
                 <Campo label="Apellido materno" name="apellido_materno" value={datos.apellido_materno} onChange={handleCampo} placeholder="Ej: López" />

@@ -48,7 +48,7 @@ const ListaClientes: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    obtenerStatsClientes().then(setStats).catch(() => null);
+    obtenerStatsClientes().then(setStats).catch((err) => { console.error(err); });
   }, []);
 
   // Debounce para la búsqueda en tiempo real

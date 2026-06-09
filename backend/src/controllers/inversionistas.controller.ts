@@ -66,7 +66,8 @@ export const importarInversionistas = async (req: Request, res: Response): Promi
 
         resultados.push({ ok: true, nombre: `${fila.nombres} ${fila.apellido_paterno}`, inv_id: invId });
       } catch (e: unknown) {
-        resultados.push({ ok: false, nombre: `${fila.nombres} ${fila.apellido_paterno}`, error: String(e) });
+        console.error('Error al importar inversionista:', e);
+        resultados.push({ ok: false, nombre: `${fila.nombres} ${fila.apellido_paterno}`, error: 'Error al procesar registro.' });
       }
     }
 

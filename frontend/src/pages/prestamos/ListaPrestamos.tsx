@@ -193,7 +193,7 @@ const ListaPrestamos: React.FC = () => {
         </div>
 
         {/* Filtro visual por estatus */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
           {FILTROS_ESTATUS.map((op) => (
             <button
               key={op.valor}

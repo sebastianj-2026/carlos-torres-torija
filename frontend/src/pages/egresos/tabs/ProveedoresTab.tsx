@@ -57,12 +57,19 @@ const ProveedoresTab: React.FC = () => {
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto -mx-3 sm:mx-0">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50">
-                {['Nombre / Razón Social','RFC','Banco','CLABE','Moneda','Acciones'].map(h => (
-                  <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide">{h}</th>
+                {[
+                  { label: 'Nombre / Razón Social', cls: '' },
+                  { label: 'RFC',                   cls: 'hidden sm:table-cell' },
+                  { label: 'Banco',                 cls: '' },
+                  { label: 'CLABE',                 cls: 'hidden sm:table-cell' },
+                  { label: 'Moneda',                cls: 'hidden sm:table-cell' },
+                  { label: 'Acciones',              cls: '' },
+                ].map(h => (
+                  <th key={h.label} className={`text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wide ${h.cls}`}>{h.label}</th>
                 ))}
               </tr>
             </thead>
@@ -74,10 +81,10 @@ const ProveedoresTab: React.FC = () => {
               ) : lista.map(p => (
                 <tr key={p.id} className="hover:bg-slate-50/60 transition-colors">
                   <td className="px-4 py-3 font-medium text-slate-700">{p.nombre_razon_social}</td>
-                  <td className="px-4 py-3 text-slate-500">{p.rfc ?? '—'}</td>
+                  <td className="px-4 py-3 text-slate-500 hidden sm:table-cell">{p.rfc ?? '—'}</td>
                   <td className="px-4 py-3 text-slate-500">{p.banco ?? '—'}</td>
-                  <td className="px-4 py-3 text-slate-500 font-mono text-xs">{p.clabe ?? '—'}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-slate-500 font-mono text-xs hidden sm:table-cell">{p.clabe ?? '—'}</td>
+                  <td className="px-4 py-3 hidden sm:table-cell">
                     <span className="px-2 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-600">{p.moneda_defecto}</span>
                   </td>
                   <td className="px-4 py-3">

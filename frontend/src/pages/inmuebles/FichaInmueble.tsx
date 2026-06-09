@@ -114,7 +114,7 @@ const FichaInmueble: React.FC = () => {
 
       {/* Mini dashboard financiero */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center">
               <TrendingUp size={18} className="text-green-500" />
@@ -125,7 +125,7 @@ const FichaInmueble: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
+        <div className="bg-white rounded-2xl border border-slate-100 p-4 sm:p-5 shadow-sm">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center">
               <TrendingDown size={18} className="text-red-500" />
@@ -136,7 +136,7 @@ const FichaInmueble: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className={`rounded-2xl border p-5 shadow-sm ${utilidad >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+        <div className={`rounded-2xl border p-4 sm:p-5 shadow-sm ${utilidad >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
           <div className="flex items-center gap-3">
             <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${utilidad >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
               <DollarSign size={18} className={utilidad >= 0 ? 'text-green-600' : 'text-red-600'} />
@@ -206,13 +206,13 @@ const FichaInmueble: React.FC = () => {
             <CheckCircle size={15} className="text-green-500" />
             <h3 className="text-sm font-semibold text-slate-700">Historial de Rentas Cobradas</h3>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto -mx-3 sm:mx-0">
             <table className="w-full text-sm">
               <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
                 <tr>
                   <th className="px-4 py-3 text-left">Concepto</th>
-                  <th className="px-4 py-3 text-left">Período</th>
-                  <th className="px-4 py-3 text-left">Cobrado</th>
+                  <th className="hidden sm:table-cell px-4 py-3 text-left">Período</th>
+                  <th className="hidden sm:table-cell px-4 py-3 text-left">Cobrado</th>
                   <th className="px-4 py-3 text-right">Monto</th>
                   <th className="px-4 py-3 text-center">Estatus</th>
                 </tr>
@@ -221,8 +221,8 @@ const FichaInmueble: React.FC = () => {
                 {cobros.map(c => (
                   <tr key={c.id} className="hover:bg-slate-50">
                     <td className="px-4 py-3 text-slate-800">{c.concepto}</td>
-                    <td className="px-4 py-3 text-slate-500">{c.periodo_mes}/{c.periodo_anio}</td>
-                    <td className="px-4 py-3 text-slate-500">{c.fecha_cobro_real ?? '—'}</td>
+                    <td className="hidden sm:table-cell px-4 py-3 text-slate-500">{c.periodo_mes}/{c.periodo_anio}</td>
+                    <td className="hidden sm:table-cell px-4 py-3 text-slate-500">{c.fecha_cobro_real ?? '—'}</td>
                     <td className="px-4 py-3 text-right font-medium text-green-600">{fmt(parseFloat(c.monto))}</td>
                     <td className="px-4 py-3 text-center">
                       <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${ESTATUS_BADGE[c.estatus]}`}>

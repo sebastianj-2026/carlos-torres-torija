@@ -238,7 +238,7 @@ const ContratosTab: React.FC = () => {
         </div>
 
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-slate-500 mb-1">Inmueble *</label>
               <select value={form.inmueble_id}
@@ -281,7 +281,7 @@ const ContratosTab: React.FC = () => {
             );
           })()}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs text-slate-500 mb-1">Fecha inicio *</label>
               <input type="date" value={form.fecha_inicio} onChange={e => set('fecha_inicio', e.target.value)}
@@ -342,31 +342,31 @@ const ContratosTab: React.FC = () => {
               <div className="space-y-2 pt-1">
                 {servicios.length === 0 && <p className="text-xs text-slate-400">Sin servicios agregados.</p>}
                 {servicios.map((s, i) => (
-                  <div key={i} className="grid grid-cols-12 gap-2 items-center bg-slate-50 rounded-xl p-2">
-                    <div className="col-span-3">
+                  <div key={i} className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center bg-slate-50 rounded-xl p-2">
+                    <div className="sm:col-span-3">
                       <select value={s.tipo} onChange={e => updateServicio(i, 'tipo', e.target.value)}
                         className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-orange-300">
                         {TIPOS_SERVICIO.map(t => <option key={t} value={t}>{t}</option>)}
                       </select>
                     </div>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <input placeholder="No. cuenta/medidor" value={s.cuenta ?? ''}
                         onChange={e => updateServicio(i, 'cuenta', e.target.value || null as any)}
                         className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-orange-300" />
                     </div>
-                    <div className="col-span-2">
+                    <div className="sm:col-span-2">
                       <input type="number" min={1} max={31} placeholder="Día pago" value={s.dia_pago}
                         onChange={e => updateServicio(i, 'dia_pago', Number(e.target.value))}
                         className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-orange-300" />
                     </div>
-                    <div className="col-span-3">
+                    <div className="sm:col-span-3">
                       <select value={s.frecuencia} onChange={e => updateServicio(i, 'frecuencia', e.target.value)}
                         className="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-orange-300">
                         <option value="mensual">Mensual</option>
                         <option value="bimestral">Bimestral</option>
                       </select>
                     </div>
-                    <div className="col-span-1 flex justify-center">
+                    <div className="sm:col-span-1 flex justify-center">
                       <button onClick={() => removeServicio(i)}
                         className="p-1 text-slate-400 hover:text-red-500 rounded transition-colors">
                         <X size={13} />

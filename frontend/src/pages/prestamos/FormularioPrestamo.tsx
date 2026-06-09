@@ -1037,7 +1037,7 @@ const FormularioPrestamo: React.FC = () => {
             {/* Deducciones del neto */}
             <div className="border-t border-slate-100 pt-4 space-y-3">
               <h4 className="text-sm font-semibold text-slate-700">Deducciones al neto del cliente</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
                 <CampoMoneda
                   label="Apertura"
                   valor={datos.apertura}

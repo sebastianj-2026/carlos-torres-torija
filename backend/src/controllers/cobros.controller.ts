@@ -7,8 +7,8 @@ import pool from '../config/database';
 export const obtenerCalendario = async (req: Request, res: Response): Promise<void> => {
   try {
     const hoy    = new Date();
-    const mes    = parseInt(req.query.mes  as string) || (hoy.getMonth() + 1);
-    const anio   = parseInt(req.query.anio as string) || hoy.getFullYear();
+    const mes    = parseInt(req.query.mes  as string, 10) || (hoy.getMonth() + 1);
+    const anio   = parseInt(req.query.anio as string, 10) || hoy.getFullYear();
     const diahoy = hoy.getDate();
 
     // Is the requested period the current month?
@@ -133,8 +133,11 @@ export const registrarCobro = async (req: Request, res: Response): Promise<void>
     const interesPagado  = parseFloat(interes_pagado ?? '0');
     const abonoCapital   = parseFloat(abono_capital  ?? '0') || 0;
 
-    if (interesPagado < 0) {
-      res.status(400).json({ mensaje: 'El monto de interés no puede ser negativo.' }); return;
+    if (!Number.isFinite(interesPagado) || interesPagado < 0) {
+      res.status(400).json({ mensaje: 'El monto de interés es inválido.' }); return;
+    }
+    if (!Number.isFinite(abonoCapital) || abonoCapital < 0) {
+      res.status(400).json({ mensaje: 'El abono a capital es inválido.' }); return;
     }
     if (!periodo_mes || !periodo_anio) {
       res.status(400).json({ mensaje: 'El período (mes y año) es obligatorio.' }); return;
@@ -203,7 +206,7 @@ export const registrarCobro = async (req: Request, res: Response): Promise<void>
          VALUES ('Prestamo', $1, $2, $3, $4, $5, $6, $7, $8)`,
         [
           id, montoTotalCobro, interesPagado, abonoCapital,
-          parseInt(periodo_mes), parseInt(periodo_anio),
+          parseInt(periodo_mes, 10), parseInt(periodo_anio, 10),
           notas || null, registrado_por || null,
         ]
       );
@@ -227,8 +230,8 @@ export const registrarCobro = async (req: Request, res: Response): Promise<void>
         interes_proximo_mes: interesProximoMes,
         forma_pago:         forma_pago || 'efectivo',
         tipo_cobro:         tipoCobro,
-        periodo_mes:        parseInt(periodo_mes),
-        periodo_anio:       parseInt(periodo_anio),
+        periodo_mes:        parseInt(periodo_mes, 10),
+        periodo_anio:       parseInt(periodo_anio, 10),
       },
     });
   } catch (error) {

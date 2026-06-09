@@ -49,31 +49,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const tokenGuardado = localStorage.getItem('token');
     const usuarioGuardado = localStorage.getItem('usuario');
 
-    if (tokenGuardado && usuarioGuardado) {
-      try {
-        const usuarioParsed: Usuario = JSON.parse(usuarioGuardado);
-        setToken(tokenGuardado);
-        setUsuario(usuarioParsed);
+    if (!tokenGuardado || !usuarioGuardado) {
+      setCargando(false);
+      return;
+    }
 
-        // Verificar que el token siga siendo válido en el backend
-        obtenerPerfil()
-          .then((perfil) => {
-            setUsuario(perfil);
-          })
-          .catch(() => {
-            // Token expirado o inválido: limpiar sesión
-            setToken(null);
-            setUsuario(null);
-            localStorage.removeItem('token');
-            localStorage.removeItem('usuario');
-          })
-          .finally(() => setCargando(false));
-      } catch {
+    let usuarioParsed: Usuario | null = null;
+    try {
+      usuarioParsed = JSON.parse(usuarioGuardado);
+    } catch (e) {
+      console.error('[AuthContext] usuario corrupto en localStorage, limpiando sesión.', e);
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuario');
+      setCargando(false);
+      return;
+    }
+
+    setToken(tokenGuardado);
+    setUsuario(usuarioParsed);
+
+    const controller = new AbortController();
+    const cargar = async () => {
+      try {
+        const perfil = await obtenerPerfil({ signal: controller.signal });
+        setUsuario(perfil);
+      } catch (e: any) {
+        if (e?.name === 'CanceledError' || e?.name === 'AbortError') return;
+        console.error(e);
+        // Token expirado o inválido: limpiar sesión
+        setToken(null);
+        setUsuario(null);
+        localStorage.removeItem('token');
+        localStorage.removeItem('usuario');
+      } finally {
         setCargando(false);
       }
-    } else {
-      setCargando(false);
-    }
+    };
+    cargar();
+    return () => controller.abort();
   }, []);
 
   // Función de login: llama al servicio y persiste en localStorage

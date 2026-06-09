@@ -69,7 +69,7 @@ const Login: React.FC = () => {
           {/* Franja superior naranja */}
           <div className="h-1.5 bg-gradient-to-r from-orange-500 to-orange-400" />
 
-          <div className="px-8 py-10">
+          <div className="px-4 sm:px-8 py-6 sm:py-10">
             {/* Logo */}
             <div className="mb-8">
               <Logo />

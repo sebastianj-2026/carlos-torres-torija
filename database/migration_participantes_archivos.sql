@@ -69,18 +69,27 @@ CREATE INDEX IF NOT EXISTS idx_archivos_prestamo
 -- ----------------------------------------------------------------
 -- 4. Migrar inversionista_id existente → participantes_prestamo
 --    Solo para préstamos que ya tenían inversionista asignado
+--    (skip si la columna ya no existe — DB creada desde cero)
 -- ----------------------------------------------------------------
-INSERT INTO participantes_prestamo
-  (prestamo_id, inversionista_id, es_oficina, monto_aportado, tasa_rendimiento)
-SELECT
-  p.id,
-  p.inversionista_id,
-  false,
-  p.monto_prestado,
-  p.tasa_interes_mensual
-FROM prestamos p
-WHERE p.inversionista_id IS NOT NULL
-ON CONFLICT DO NOTHING;
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'prestamos' AND column_name = 'inversionista_id'
+  ) THEN
+    INSERT INTO participantes_prestamo
+      (prestamo_id, inversionista_id, es_oficina, monto_aportado, tasa_rendimiento)
+    SELECT
+      p.id,
+      p.inversionista_id,
+      false,
+      p.monto_prestado,
+      p.tasa_interes_mensual
+    FROM prestamos p
+    WHERE p.inversionista_id IS NOT NULL
+    ON CONFLICT DO NOTHING;
+  END IF;
+END $$;
 
 -- ----------------------------------------------------------------
 -- 5. Registrar la oficina como participante en préstamos sin

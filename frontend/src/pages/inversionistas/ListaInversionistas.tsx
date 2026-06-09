@@ -110,7 +110,7 @@ const ListaInversionistas: React.FC = () => {
       {/* Cards de estadísticas */}
       {stats && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3 shadow-sm">
+          <div className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-4 flex items-center gap-3 shadow-sm">
             <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center shrink-0">
               <Users size={18} className="text-slate-600" />
             </div>
@@ -120,7 +120,7 @@ const ListaInversionistas: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3 shadow-sm">
+          <div className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-4 flex items-center gap-3 shadow-sm">
             <div className="w-10 h-10 rounded-xl bg-green-50 flex items-center justify-center shrink-0">
               <UserPlus size={18} className="text-green-500" />
             </div>
@@ -130,7 +130,7 @@ const ListaInversionistas: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3 shadow-sm">
+          <div className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-4 flex items-center gap-3 shadow-sm">
             <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
               <DollarSign size={18} className="text-orange-500" />
             </div>
@@ -140,7 +140,7 @@ const ListaInversionistas: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3 shadow-sm">
+          <div className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-4 flex items-center gap-3 shadow-sm">
             <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
               <TrendingUp size={18} className="text-purple-500" />
             </div>

@@ -5,7 +5,8 @@ dotenv.config();
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false },
+  // Strict en prod; lax en dev para self-signed certs
+  ssl: { rejectUnauthorized: process.env.NODE_ENV === 'production' },
   // Neon serverless pooler recycles connections aggressively;
   // keep pool small and timeouts short to avoid stale-connection crashes.
   max: 5,

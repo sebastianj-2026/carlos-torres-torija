@@ -66,7 +66,7 @@ const CardInversion: React.FC<CardInversionProps> = ({
       </div>
 
       {/* Datos de la inversión */}
-      <div className="px-5 py-4 grid grid-cols-2 gap-3">
+      <div className="px-5 py-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Tasa de interés */}
         <div className="flex items-start gap-2">
           <TrendingUp size={15} className="text-orange-400 mt-0.5 shrink-0" />

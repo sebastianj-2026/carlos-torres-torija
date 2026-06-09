@@ -33,18 +33,19 @@ interface ColHeader {
   label: string;
   campo?: CampoOrden;
   align?: 'left' | 'right' | 'center';
+  hideOnMobile?: boolean;
 }
 
 const COLUMNAS: ColHeader[] = [
-  { label: 'No.',      align: 'center' },
+  { label: 'No.',      align: 'center', hideOnMobile: true },
   { label: 'Cliente',  campo: 'cliente_nombre',       align: 'left'   },
   { label: 'Monto',    campo: 'monto_prestado',        align: 'right'  },
-  { label: 'Tasa',     campo: 'tasa_interes_mensual',  align: 'center' },
-  { label: 'Int. Mensual',                             align: 'right'  },
+  { label: 'Tasa',     campo: 'tasa_interes_mensual',  align: 'center', hideOnMobile: true },
+  { label: 'Int. Mensual',                             align: 'right', hideOnMobile: true  },
   { label: 'Int. Vencido',                             align: 'right'  },
-  { label: 'Día Pago', campo: 'dia_pago',              align: 'center' },
-  { label: 'Inicio',                                   align: 'center' },
-  { label: 'Progreso', campo: 'progreso',              align: 'left'   },
+  { label: 'Día Pago', campo: 'dia_pago',              align: 'center', hideOnMobile: true },
+  { label: 'Inicio',                                   align: 'center', hideOnMobile: true },
+  { label: 'Progreso', campo: 'progreso',              align: 'left', hideOnMobile: true   },
   { label: 'Estatus',                                  align: 'center' },
   { label: '',                                         align: 'center' },
 ];
@@ -85,7 +86,7 @@ const TablaPrestamos: React.FC<TablaPrestamosProps> = ({
 
   return (
     <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto -mx-3 sm:mx-0">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50/60">
@@ -94,6 +95,7 @@ const TablaPrestamos: React.FC<TablaPrestamosProps> = ({
                   key={i}
                   className={`px-3 py-3 font-semibold text-slate-500 text-xs uppercase tracking-wide whitespace-nowrap
                     ${alignClass(col.align)}
+                    ${col.hideOnMobile ? 'hidden sm:table-cell' : ''}
                     ${col.campo ? 'cursor-pointer select-none hover:text-slate-700' : ''}`}
                   onClick={col.campo ? () => onOrdenar(col.campo!) : undefined}
                 >
@@ -123,12 +125,12 @@ const TablaPrestamos: React.FC<TablaPrestamosProps> = ({
                       className="hover:bg-slate-50 cursor-pointer transition-colors"
                     >
                       {/* No. */}
-                      <td className="px-3 py-3 text-center text-xs text-slate-400 font-mono">
+                      <td className="hidden sm:table-cell px-3 py-3 text-center text-xs text-slate-400 font-mono">
                         {numero}
                       </td>
 
                       {/* Cliente */}
-                      <td className="px-3 py-3 font-medium text-slate-800 max-w-[160px] truncate">
+                      <td className="px-3 py-3 font-medium text-slate-800 max-w-[160px] truncate" title={p.cliente_nombre}>
                         {p.cliente_nombre}
                       </td>
 
@@ -138,12 +140,12 @@ const TablaPrestamos: React.FC<TablaPrestamosProps> = ({
                       </td>
 
                       {/* Tasa */}
-                      <td className="px-3 py-3 text-center text-slate-600 whitespace-nowrap">
+                      <td className="hidden sm:table-cell px-3 py-3 text-center text-slate-600 whitespace-nowrap">
                         {parseFloat(p.tasa_interes_mensual)}%
                       </td>
 
                       {/* Interés mensual */}
-                      <td className="px-3 py-3 text-right font-semibold text-green-700 whitespace-nowrap">
+                      <td className="hidden sm:table-cell px-3 py-3 text-right font-semibold text-green-700 whitespace-nowrap">
                         {fmt(p.interes_mensual)}
                       </td>
 
@@ -155,19 +157,19 @@ const TablaPrestamos: React.FC<TablaPrestamosProps> = ({
                       </td>
 
                       {/* Día de pago */}
-                      <td className="px-3 py-3 text-center whitespace-nowrap">
+                      <td className="hidden sm:table-cell px-3 py-3 text-center whitespace-nowrap">
                         <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-50 text-orange-600 text-xs font-bold">
                           {p.dia_pago}
                         </span>
                       </td>
 
                       {/* Fecha inicio */}
-                      <td className="px-3 py-3 text-center text-slate-500 text-xs whitespace-nowrap">
+                      <td className="hidden sm:table-cell px-3 py-3 text-center text-slate-500 text-xs whitespace-nowrap">
                         {fmtFecha(p.fecha_inicio)}
                       </td>
 
                       {/* Progreso */}
-                      <td className="px-3 py-3 whitespace-nowrap min-w-[100px]">
+                      <td className="hidden sm:table-cell px-3 py-3 whitespace-nowrap min-w-[100px]">
                         <div className="flex items-center gap-1.5">
                           <div className="flex-1 bg-slate-100 rounded-full h-1.5 min-w-[48px]">
                             <div

@@ -70,7 +70,7 @@ const ModalCobroPrestamo: React.FC<ModalCobroProps> = ({ prestamo, mes, anio, on
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md mx-4 overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-[90vw] sm:max-w-md mx-0 overflow-hidden">
         <div className="bg-blue-600 px-6 py-4">
           <h3 className="text-white font-bold text-lg">Registrar Pago</h3>
           <p className="text-blue-100 text-sm mt-0.5">{prestamo.cliente_nombre} · Folio {prestamo.folio}</p>
@@ -96,7 +96,7 @@ const ModalCobroPrestamo: React.FC<ModalCobroProps> = ({ prestamo, mes, anio, on
             <input
               type="number" step="0.01" min="0" value={interes}
               onChange={e => setInteres(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
           <div>
@@ -106,7 +106,7 @@ const ModalCobroPrestamo: React.FC<ModalCobroProps> = ({ prestamo, mes, anio, on
             <input
               type="number" step="0.01" min="0" value={capital}
               onChange={e => setCapital(e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
           <div>
@@ -157,12 +157,12 @@ interface FilaProps {
 
 const FilaPrestamo: React.FC<FilaProps> = ({ prestamo: p, onCobrar }) => (
   <tr className={`hover:bg-slate-50 ${p.estatus_proyeccion === 'Cobrado' ? 'opacity-50' : ''}`}>
-    <td className="px-4 py-3 text-sm text-center font-mono text-slate-500 w-14">{p.dia_pago}</td>
+    <td className="px-4 py-3 text-sm text-center font-mono text-slate-500 w-14 hidden sm:table-cell">{p.dia_pago}</td>
     <td className="px-4 py-3 text-sm">
       <p className="text-slate-800 font-medium">{p.cliente_nombre}</p>
       <p className="text-xs text-slate-400">Folio {p.folio} · {p.tasa_interes_mensual}% mensual</p>
     </td>
-    <td className="px-4 py-3 text-right text-sm text-blue-700 font-semibold">{fmt(p.capital_prestado)}</td>
+    <td className="px-4 py-3 text-right text-sm text-blue-700 font-semibold hidden sm:table-cell">{fmt(p.capital_prestado)}</td>
     <td className="px-4 py-3 text-right text-sm font-bold text-orange-600">{fmt(p.monto_interes)}</td>
     <td className="px-4 py-3 text-center">
       <EstatusChip estatus={p.estatus_proyeccion} />
@@ -295,13 +295,13 @@ const CxCPrestamosTab: React.FC<{ mes: number; anio: number }> = ({ mes, anio })
               </span>
             </h3>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-3 sm:mx-0">
+            <table className="w-full text-xs sm:text-sm">
               <thead className="bg-slate-50 text-xs text-slate-500 uppercase">
                 <tr>
-                  <th className="px-4 py-3 text-center">Día</th>
+                  <th className="px-4 py-3 text-center hidden sm:table-cell">Día</th>
                   <th className="px-4 py-3 text-left">Cliente</th>
-                  <th className="px-4 py-3 text-right text-blue-600">Capital</th>
+                  <th className="px-4 py-3 text-right text-blue-600 hidden sm:table-cell">Capital</th>
                   <th className="px-4 py-3 text-right text-orange-500">Interés a Cobrar</th>
                   <th className="px-4 py-3 text-center">Estatus</th>
                   <th className="px-4 py-3 text-center">Acción</th>
@@ -316,7 +316,7 @@ const CxCPrestamosTab: React.FC<{ mes: number; anio: number }> = ({ mes, anio })
                 <tfoot className="bg-slate-50 border-t-2 border-slate-200">
                   <tr>
                     <td colSpan={2} className="px-4 py-3 text-sm font-semibold text-slate-600">Totales</td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-700">
+                    <td className="px-4 py-3 text-right text-sm font-bold text-blue-700 hidden sm:table-cell">
                       {fmt(datos.prestamos.reduce((s, p) => s + p.capital_prestado, 0))}
                     </td>
                     <td className="px-4 py-3 text-right text-sm font-bold text-orange-600">{fmt(t.total_esperado)}</td>

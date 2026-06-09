@@ -43,7 +43,7 @@ const Header: React.FC<HeaderProps> = ({ onAbrirMenuMobile }) => {
         {/* Botón cerrar sesión */}
         <button
           onClick={logout}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium
+          className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium
                      bg-orange-500 text-white hover:bg-orange-600
                      transition-colors duration-150 shrink-0"
         >

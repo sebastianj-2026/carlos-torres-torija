@@ -91,7 +91,7 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
               <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">
                 Nombre
               </th>
-              <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">
+              <th className="hidden sm:table-cell px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">
                 Teléfono
               </th>
               <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">
@@ -109,7 +109,7 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
               <th className="px-4 py-3 text-right font-semibold text-slate-500 text-xs uppercase tracking-wide">
                 Pago mensual
               </th>
-              <th className="px-4 py-3 text-center font-semibold text-slate-500 text-xs uppercase tracking-wide">
+              <th className="hidden sm:table-cell px-4 py-3 text-center font-semibold text-slate-500 text-xs uppercase tracking-wide">
                 <button
                   onClick={() => toggleOrden('dia_pago_asc', 'dia_pago_desc')}
                   className="flex items-center gap-1 mx-auto hover:text-slate-700 transition-colors"
@@ -118,7 +118,7 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
                   <SortIcon ascKey="dia_pago_asc" descKey="dia_pago_desc" />
                 </button>
               </th>
-              <th className="px-4 py-3 text-center font-semibold text-slate-500 text-xs uppercase tracking-wide">
+              <th className="hidden sm:table-cell px-4 py-3 text-center font-semibold text-slate-500 text-xs uppercase tracking-wide">
                 Inv. activas
               </th>
               <th className="px-4 py-3 text-right font-semibold text-slate-500 text-xs uppercase tracking-wide">
@@ -150,7 +150,7 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
                     </td>
 
                     {/* Teléfono */}
-                    <td className="px-4 py-3 text-slate-600">
+                    <td className="hidden sm:table-cell px-4 py-3 text-slate-600">
                       {inv.telefono ?? <span className="text-slate-400">—</span>}
                     </td>
 
@@ -168,7 +168,7 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
                     </td>
 
                     {/* Día pago */}
-                    <td className="px-4 py-3 text-center">
+                    <td className="hidden sm:table-cell px-4 py-3 text-center">
                       {inv.dias_pago
                         ? (() => {
                             const dias = inv.dias_pago.split(', ');
@@ -190,7 +190,7 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
                     </td>
 
                     {/* Inversiones activas */}
-                    <td className="px-4 py-3 text-center">
+                    <td className="hidden sm:table-cell px-4 py-3 text-center">
                       <span className="inline-flex items-center justify-center w-7 h-7 rounded-full
                                        bg-orange-100 text-orange-600 text-xs font-bold">
                         {inv.inversiones_activas}

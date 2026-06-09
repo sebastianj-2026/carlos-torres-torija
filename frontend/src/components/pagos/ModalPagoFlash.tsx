@@ -60,7 +60,7 @@ const ModalPagoFlash: React.FC<ModalPagoFlashProps> = ({ deuda, onCerrar, onExit
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md flex flex-col overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-[90vw] sm:max-w-md mx-0 flex flex-col overflow-hidden">
 
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
@@ -113,7 +113,7 @@ const ModalPagoFlash: React.FC<ModalPagoFlashProps> = ({ deuda, onCerrar, onExit
                   onChange={e => setMonto(e.target.value)}
                   placeholder="0.00"
                   required
-                  className="w-full pl-7 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                  className="w-full pl-7 pr-4 py-3 border border-slate-200 rounded-xl text-base text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-300"
                 />
               </div>
             </div>

@@ -9,6 +9,9 @@ import {
   TipoDocumento,
 } from '../models/cliente.model';
 
+// Escapa los wildcards de LIKE/ILIKE (% _ \) en entradas de búsqueda.
+const escapeLikeWildcards = (s: string): string => s.replace(/[\\%_]/g, '\\$&');
+
 // ----------------------------------------------------------------
 // Estadísticas rápidas para el dashboard
 // GET /api/clientes/stats
@@ -58,8 +61,8 @@ export const listarClientes = async (req: Request, res: Response): Promise<void>
   try {
     const buscar = (req.query.buscar as string) || '';
     const estatus = (req.query.estatus as string) || '';
-    const pagina = Math.max(1, parseInt(req.query.pagina as string) || 1);
-    const limite = Math.min(100, Math.max(1, parseInt(req.query.limite as string) || 20));
+    const pagina = Math.max(1, parseInt(req.query.pagina as string, 10) || 1);
+    const limite = Math.min(100, Math.max(1, parseInt(req.query.limite as string, 10) || 20));
     const offset = (pagina - 1) * limite;
 
     // Construir condiciones dinámicas
@@ -69,14 +72,14 @@ export const listarClientes = async (req: Request, res: Response): Promise<void>
 
     if (buscar) {
       condiciones.push(`(
-        nombres ILIKE $${indice}
-        OR apellido_paterno ILIKE $${indice}
-        OR apellido_materno ILIKE $${indice}
-        OR rfc ILIKE $${indice}
-        OR curp ILIKE $${indice}
-        OR telefono_celular ILIKE $${indice}
+        nombres ILIKE $${indice} ESCAPE '\\'
+        OR apellido_paterno ILIKE $${indice} ESCAPE '\\'
+        OR apellido_materno ILIKE $${indice} ESCAPE '\\'
+        OR rfc ILIKE $${indice} ESCAPE '\\'
+        OR curp ILIKE $${indice} ESCAPE '\\'
+        OR telefono_celular ILIKE $${indice} ESCAPE '\\'
       )`);
-      valores.push(`%${buscar}%`);
+      valores.push(`%${escapeLikeWildcards(String(buscar))}%`);
       indice++;
     }
 

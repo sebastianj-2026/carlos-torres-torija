@@ -63,7 +63,7 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileAbierto, onCerrarMobile }) => {
       )}
 
       <aside className={`
-        fixed top-0 left-0 h-full z-30 flex flex-col
+        fixed top-0 left-0 h-full max-h-screen overflow-y-auto z-30 flex flex-col
         bg-[#1E293B] transition-all duration-300 ease-in-out
         ${colapsado ? 'w-[68px]' : 'w-64'}
         ${mobileAbierto ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
