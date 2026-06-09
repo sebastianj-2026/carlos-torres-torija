@@ -28,7 +28,11 @@ const registrarLog = async (
         usuario?.correo  || null,
       ]
     );
-  } catch { /* non-blocking */ }
+  } catch (e) {
+    // non-blocking: un fallo de auditoría no debe romper la operación,
+    // pero lo registramos en dev para no perderlo en silencio.
+    if (process.env.NODE_ENV !== 'production') console.error('[audit tesoreria] fallo al registrar log:', e);
+  }
 };
 
 // ================================================================
