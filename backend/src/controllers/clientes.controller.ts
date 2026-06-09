@@ -290,14 +290,20 @@ export const crearCliente = async (req: Request, res: Response): Promise<void> =
 
     const clienteId = resultado.rows[0].id;
 
-    for (const tipo of tiposDocumento) {
-      await pool.query(
-        `INSERT INTO documentos_cliente (cliente_id, tipo, registrado_por)
-         VALUES ($1, $2, $3)
-         ON CONFLICT (cliente_id, tipo) DO NOTHING`,
-        [clienteId, tipo, registrado_por || null]
-      );
-    }
+    // Insertar el checklist inicial en un solo INSERT multi-fila (evita N+1)
+    const docsParams: (string | null)[] = [];
+    const docsValues = tiposDocumento
+      .map((tipo, i) => {
+        docsParams.push(clienteId, tipo, registrado_por || null);
+        return `($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`;
+      })
+      .join(', ');
+    await pool.query(
+      `INSERT INTO documentos_cliente (cliente_id, tipo, registrado_por)
+       VALUES ${docsValues}
+       ON CONFLICT (cliente_id, tipo) DO NOTHING`,
+      docsParams
+    );
 
     res.status(201).json({
       mensaje: 'Cliente registrado correctamente.',
@@ -468,26 +474,39 @@ export const actualizarDocumentos = async (req: Request, res: Response): Promise
       return;
     }
 
-    for (const doc of documentos) {
-      await pool.query(
-        `INSERT INTO documentos_cliente
-           (cliente_id, tipo, entregado, digitalizado, url_archivo, registrado_por)
-         VALUES ($1, $2, $3, $4, $5, $6)
-         ON CONFLICT (cliente_id, tipo)
-         DO UPDATE SET
-           entregado    = EXCLUDED.entregado,
-           digitalizado = EXCLUDED.digitalizado,
-           url_archivo  = COALESCE(EXCLUDED.url_archivo, documentos_cliente.url_archivo)`,
-        [
+    // Dedupe por tipo (último gana): ON CONFLICT no puede afectar la misma
+    // fila dos veces en un INSERT multi-fila.
+    const docsUnicos = Array.from(
+      new Map(documentos.map((d) => [d.tipo, d])).values()
+    );
+
+    // Upsert batched en un solo INSERT multi-fila (evita N+1)
+    const params: unknown[] = [];
+    const filas = docsUnicos
+      .map((doc, i) => {
+        const b = i * 6;
+        params.push(
           id,
           doc.tipo,
           doc.entregado ?? false,
           doc.digitalizado ?? false,
           doc.url_archivo || null,
           registrado_por || null,
-        ]
-      );
-    }
+        );
+        return `($${b + 1}, $${b + 2}, $${b + 3}, $${b + 4}, $${b + 5}, $${b + 6})`;
+      })
+      .join(', ');
+    await pool.query(
+      `INSERT INTO documentos_cliente
+         (cliente_id, tipo, entregado, digitalizado, url_archivo, registrado_por)
+       VALUES ${filas}
+       ON CONFLICT (cliente_id, tipo)
+       DO UPDATE SET
+         entregado    = EXCLUDED.entregado,
+         digitalizado = EXCLUDED.digitalizado,
+         url_archivo  = COALESCE(EXCLUDED.url_archivo, documentos_cliente.url_archivo)`,
+      params
+    );
 
     const resultado = await pool.query(
       'SELECT * FROM documentos_cliente WHERE cliente_id = $1 ORDER BY tipo ASC',
