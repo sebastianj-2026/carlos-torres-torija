@@ -4,14 +4,8 @@ require('dotenv').config({ path: require('path').join(__dirname, '../.env') });
 // Passwords are read from environment variables (never hardcoded).
 // Define them in backend/.env, e.g.:
 //   SEED_PWD_SEBASTIAN=...
-//   SEED_PWD_ABRIL=...
-//   SEED_PWD_LORENA=...
-//   SEED_PWD_MARVIN=...
 const usuarios = [
   { nombre: 'Sebastian', envVar: 'SEED_PWD_SEBASTIAN' },
-  { nombre: 'Abril', envVar: 'SEED_PWD_ABRIL' },
-  { nombre: 'Lorena', envVar: 'SEED_PWD_LORENA' },
-  { nombre: 'Marvin', envVar: 'SEED_PWD_MARVIN' },
 ];
 
 async function generarHashes() {

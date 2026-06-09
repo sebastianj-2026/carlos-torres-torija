@@ -56,33 +56,3 @@ VALUES (
   'administrador'
 )
 ON CONFLICT (correo) DO NOTHING;
-
--- Administrador 2 — Abril
-INSERT INTO usuarios (nombre_completo, correo, password_hash, rol)
-VALUES (
-  'Abril',
-  'abriltorres441@gmail.com',
-  'HASH_AQUI',
-  'administrador'
-)
-ON CONFLICT (correo) DO NOTHING;
-
--- Oficinista 1 — Lorena
-INSERT INTO usuarios (nombre_completo, correo, password_hash, rol)
-VALUES (
-  'Lorena',
-  'torres_simoni@hotmail.com',
-  'HASH_AQUI',
-  'oficinista'
-)
-ON CONFLICT (correo) DO NOTHING;
-
--- Oficinista 2 — Marvin (actualizar correo cuando esté disponible)
-INSERT INTO usuarios (nombre_completo, correo, password_hash, rol)
-VALUES (
-  'Marvin',
-  'correo_pendiente@gmail.com',
-  'HASH_AQUI',
-  'oficinista'
-)
-ON CONFLICT (correo) DO NOTHING;
