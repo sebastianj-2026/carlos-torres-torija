@@ -95,7 +95,7 @@ const IngresosExtrasTab: React.FC = () => {
               className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-slate-500 mb-1">Monto *</label>
               <input type="number" value={form.monto_ingresado} onChange={e => set('monto_ingresado', e.target.value)}
@@ -109,7 +109,7 @@ const IngresosExtrasTab: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-slate-500 mb-1">Método de pago *</label>
               <select value={form.metodo_pago} onChange={e => set('metodo_pago', e.target.value as MetodoPago)}

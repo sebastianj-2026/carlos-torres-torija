@@ -405,7 +405,7 @@ const DeudasTab: React.FC<{ mes: number; anio: number }> = ({ mes, anio }) => {
             {error && <p className="text-xs text-red-600 mb-3">{error}</p>}
 
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500">Banco *</label>
                   <input value={formCredito.banco}
@@ -427,7 +427,7 @@ const DeudasTab: React.FC<{ mes: number; anio: number }> = ({ mes, anio }) => {
                   placeholder="Ej. Crédito hipotecario casa cañada" className={INPUT} />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500">Monto original *</label>
                   <input type="text" inputMode="decimal" value={formCredito.monto_original}
@@ -442,7 +442,7 @@ const DeudasTab: React.FC<{ mes: number; anio: number }> = ({ mes, anio }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500">Tipo de tasa</label>
                   <select value={formCredito.tipo_tasa}
@@ -461,7 +461,7 @@ const DeudasTab: React.FC<{ mes: number; anio: number }> = ({ mes, anio }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500">Tasa anual (%)</label>
                   <input type="text" inputMode="decimal" value={formCredito.tasa_anual}

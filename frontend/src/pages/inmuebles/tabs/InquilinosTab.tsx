@@ -213,7 +213,7 @@ const InquilinosTab: React.FC = () => {
 
         {/* 1. Datos personales */}
         <Seccion titulo="1. Datos del inquilino">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-slate-500 mb-1">Nombre(s) *</label>
               <input value={form.nombres} onChange={e => set('nombres', e.target.value)}
@@ -234,7 +234,7 @@ const InquilinosTab: React.FC = () => {
 
         {/* 2. Aval */}
         <Seccion titulo="2. Aval">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="col-span-2">
               <label className="block text-xs text-slate-500 mb-1">Nombre del aval</label>
               <input value={form.aval_nombre} onChange={e => set('aval_nombre', e.target.value)}
@@ -253,7 +253,7 @@ const InquilinosTab: React.FC = () => {
 
         {/* 3. Contrato */}
         <Seccion titulo="3. Contrato">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="col-span-2">
               <label className="block text-xs text-slate-500 mb-1">Inmueble *</label>
               <select value={form.inmueble_id}
