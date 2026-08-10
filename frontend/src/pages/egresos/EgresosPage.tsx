@@ -1,14 +1,11 @@
 import React, { useState } from 'react';
-import { Building2, Calendar, CreditCard, TrendingUp } from 'lucide-react';
+import { Building2, TrendingUp } from 'lucide-react';
 import NavigadorTemporal       from '../../components/pagos/NavigadorTemporal';
 import CuentasPorPagarTab      from './tabs/CuentasPorPagarTab';
 import CuentasInversionistasTab from './tabs/CuentasInversionistasTab';
-import DeudasTab                from './tabs/DeudasTab';
 
 const TABS = [
   { id: 'oficina',        label: 'Gastos Oficina',    Icono: Building2,  centro: 'Oficina'       },
-  { id: 'abril',          label: 'Gastos Abril',       Icono: Calendar,   centro: 'Abril'         },
-  { id: 'deudas',         label: 'Deudas y Créditos',  Icono: CreditCard, centro: null            },
   { id: 'inversionistas', label: 'CxP Inversionistas', Icono: TrendingUp, centro: 'Inversionistas'},
 ] as const;
 
@@ -59,9 +56,8 @@ const EgresosPage: React.FC = () => {
         />
       </div>
 
-      {active.id === 'deudas'        && <DeudasTab mes={mes} anio={anio} />}
       {active.id === 'inversionistas' && <CuentasInversionistasTab mes={mes} anio={anio} />}
-      {(active.id === 'oficina' || active.id === 'abril') && (
+      {active.id === 'oficina' && (
         <CuentasPorPagarTab centroCosto={active.centro!} mes={mes} anio={anio} key={active.id} />
       )}
     </div>
