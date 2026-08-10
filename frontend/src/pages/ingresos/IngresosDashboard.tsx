@@ -1,46 +1,33 @@
-import React, { useState, useEffect } from 'react';
-import { BarChart2, FileText, Building2, Target, Car, Zap, RefreshCw } from 'lucide-react';
-import { logError } from '../../utils/logError';
-import { alertasPensiones } from '../../services/ingresosService';
+import React, { useState } from 'react';
+import { BarChart2, FileText, Zap, RefreshCw } from 'lucide-react';
 import NavigadorTemporal  from '../../components/pagos/NavigadorTemporal';
 import DashboardCentralTab from './tabs/DashboardCentralTab';
 import CxCPrestamosTab    from './tabs/CxCPrestamosTab';
-import CxCInmueblesTab    from './tabs/CxCInmueblesTab';
-import CanchaTab          from './tabs/CanchaTab';
-import EstacionamientoTab from './tabs/EstacionamientoTab';
 import IngresosExtrasTab  from './tabs/IngresosExtrasTab';
 
 const TABS = [
   { id: 'dashboard',   label: 'Dashboard Central',   Icono: BarChart2  },
   { id: 'prestamos',   label: 'CxC Préstamos',       Icono: FileText   },
-  { id: 'inmuebles',   label: 'CxC Inmuebles',       Icono: Building2  },
-  { id: 'cancha',      label: 'Cancha de Fútbol',    Icono: Target     },
-  { id: 'estacion',    label: 'Estacionamiento',     Icono: Car        },
   { id: 'extras',      label: 'Otros Ingresos',      Icono: Zap        },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
 
-const TABS_CON_PERIODO: TabId[] = ['dashboard', 'prestamos', 'inmuebles'];
+const TABS_CON_PERIODO: TabId[] = ['dashboard', 'prestamos'];
 
 const IngresosDashboard: React.FC = () => {
   const hoy = new Date();
   const [tab,          setTab]         = useState<TabId>('dashboard');
   const [mes,          setMes]         = useState(hoy.getMonth() + 1);
   const [anio,         setAnio]        = useState(hoy.getFullYear());
-  const [alertasTotal, setAlertasTotal] = useState(0);
   const [refreshDash,  setRefreshDash] = useState(0);
-
-  useEffect(() => {
-    alertasPensiones().then(a => setAlertasTotal(a.total)).catch(logError);
-  }, []);
 
   return (
     <div className="p-3 sm:p-6 lg:p-8">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-slate-800">Hub de Ingresos</h2>
         <p className="text-slate-500 mt-0.5 text-sm">
-          Rentabilidad real · Préstamos · Inmuebles · Cancha · Estacionamiento · Otros
+          Rentabilidad real · Préstamos · Otros
         </p>
       </div>
 
@@ -54,11 +41,6 @@ const IngresosDashboard: React.FC = () => {
           >
             <Icono size={15} />
             {label}
-            {id === 'estacion' && alertasTotal > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                {alertasTotal > 9 ? '9+' : alertasTotal}
-              </span>
-            )}
           </button>
         ))}
       </div>
@@ -79,9 +61,6 @@ const IngresosDashboard: React.FC = () => {
 
       {tab === 'dashboard' && <DashboardCentralTab mes={mes} anio={anio} refreshKey={refreshDash} />}
       {tab === 'prestamos' && <CxCPrestamosTab     mes={mes} anio={anio} />}
-      {tab === 'inmuebles' && <CxCInmueblesTab      mes={mes} anio={anio} />}
-      {tab === 'cancha'    && <CanchaTab />}
-      {tab === 'estacion'  && <EstacionamientoTab />}
       {tab === 'extras'    && <IngresosExtrasTab />}
     </div>
   );

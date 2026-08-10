@@ -41,10 +41,6 @@ import ExpedienteJuicio from './pages/juicios/ExpedienteJuicio';
 // Módulo egresos y deuda corporativa
 import EgresosPage from './pages/egresos/EgresosPage';
 
-// Módulo gestión inmobiliaria
-import InmueblesPage from './pages/inmuebles/InmueblesPage';
-import FichaInmueble from './pages/inmuebles/FichaInmueble';
-
 // Hub de ingresos
 import IngresosDashboard from './pages/ingresos/IngresosDashboard';
 
@@ -264,32 +260,6 @@ const App: React.FC = () => {
                 <Layout>
                   <EgresosPage />
                 </Layout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Gestión Inmobiliaria */}
-          <Route
-            path="/inmuebles"
-            element={
-              <ProtectedRoute>
-                <RoleGuard rolesPermitidos={['administrador', 'oficinista']}>
-                  <Layout>
-                    <InmueblesPage />
-                  </Layout>
-                </RoleGuard>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/inmuebles/:id"
-            element={
-              <ProtectedRoute>
-                <RoleGuard rolesPermitidos={['administrador', 'oficinista']}>
-                  <Layout>
-                    <FichaInmueble />
-                  </Layout>
-                </RoleGuard>
               </ProtectedRoute>
             }
           />

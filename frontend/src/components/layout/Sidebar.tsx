@@ -12,7 +12,6 @@ import {
   Menu,
   X,
   Receipt,
-  Building2,
   Banknote,
   HardHat,
 } from 'lucide-react';
@@ -32,9 +31,8 @@ const itemsMenu: ItemMenu[] = [
   { etiqueta: 'Clientes',           ruta: '/clientes',        Icono: Users                            },
   { etiqueta: 'Inversionistas',     ruta: '/inversionistas',  Icono: TrendingUp                       },
   { etiqueta: 'Préstamos',           ruta: '/prestamos',       Icono: FileText                         },
-  { etiqueta: 'Inmobiliaria',       ruta: '/inmuebles',       Icono: Building2                        },
   { etiqueta: 'Caja Chica y Bancos', ruta: '/caja',           Icono: Wallet                           },
-  { etiqueta: 'Créditos y Gastos',  ruta: '/egresos',         Icono: Receipt                          },
+  { etiqueta: 'Gastos',             ruta: '/egresos',         Icono: Receipt                          },
   { etiqueta: 'Hub de Ingresos',    ruta: '/ingresos',        Icono: Banknote                         },
   { etiqueta: 'Nóminas',            ruta: '/nominas',         Icono: HardHat                          },
   { etiqueta: 'Juicios',            ruta: '/juicios',         Icono: Gavel,           soloAdmin: true },

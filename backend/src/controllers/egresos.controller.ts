@@ -150,110 +150,6 @@ export const eliminarProveedor = async (req: Request, res: Response): Promise<vo
 };
 
 // ================================================================
-// DEUDAS BANCARIAS
-// ================================================================
-
-export const listarDeudas = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const hoy  = new Date();
-    const mes  = parseInt(req.query.mes  as string) || (hoy.getMonth() + 1);
-    const anio = parseInt(req.query.anio as string) || hoy.getFullYear();
-    const primerDia = `${anio}-${String(mes).padStart(2, '0')}-01`;
-
-    const r = await pool.query(
-      `SELECT *,
-         ROUND((1 - saldo_actual / NULLIF(saldo_inicial,0)) * 100, 2) AS porcentaje_pagado
-       FROM deudas_bancarias
-       WHERE activo = true
-         AND (fecha_vencimiento_final IS NULL OR fecha_vencimiento_final >= $1)
-       ORDER BY institucion ASC`,
-      [primerDia]
-    );
-    res.json({ deudas: r.rows, mes, anio });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ mensaje: 'Error al obtener deudas.' });
-  }
-};
-
-export const obtenerDeuda = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const r = await pool.query(
-      `SELECT *, ROUND((1 - saldo_actual / NULLIF(saldo_inicial,0)) * 100, 2) AS porcentaje_pagado
-       FROM deudas_bancarias WHERE id = $1`,
-      [id]
-    );
-    if (r.rowCount === 0) { res.status(404).json({ mensaje: 'Deuda no encontrada.' }); return; }
-    res.json(r.rows[0]);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ mensaje: 'Error al obtener deuda.' });
-  }
-};
-
-export const crearDeuda = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const registrado_por = req.usuario?.userId;
-    const {
-      tipo, institucion, alias_ubicacion, numero_referencia,
-      saldo_inicial, tasa_anual, cuota_mensual_total,
-      fecha_vencimiento_final, moneda = 'MXN', notas,
-    } = req.body;
-
-    if (!tipo || !institucion || !saldo_inicial || !tasa_anual) {
-      res.status(400).json({ mensaje: 'tipo, institucion, saldo_inicial y tasa_anual son obligatorios.' });
-      return;
-    }
-
-    const r = await pool.query(
-      `INSERT INTO deudas_bancarias
-         (tipo, institucion, alias_ubicacion, numero_referencia,
-          saldo_inicial, saldo_actual, tasa_anual, cuota_mensual_total,
-          fecha_vencimiento_final, moneda, notas, registrado_por)
-       VALUES ($1,$2,$3,$4,$5,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
-      [
-        tipo, institucion.trim(), alias_ubicacion || null, numero_referencia || null,
-        saldo_inicial, tasa_anual, cuota_mensual_total || null,
-        fecha_vencimiento_final || null, moneda, notas || null, registrado_por || null,
-      ]
-    );
-    res.status(201).json(r.rows[0]);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ mensaje: 'Error al crear deuda.' });
-  }
-};
-
-export const editarDeuda = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const {
-      alias_ubicacion, numero_referencia, tasa_anual,
-      cuota_mensual_total, fecha_vencimiento_final, notas,
-    } = req.body;
-    const r = await pool.query(
-      `UPDATE deudas_bancarias SET
-         alias_ubicacion         = COALESCE($1, alias_ubicacion),
-         numero_referencia       = COALESCE($2, numero_referencia),
-         tasa_anual              = COALESCE($3, tasa_anual),
-         cuota_mensual_total     = COALESCE($4, cuota_mensual_total),
-         fecha_vencimiento_final = COALESCE($5, fecha_vencimiento_final),
-         notas                   = COALESCE($6, notas),
-         fecha_actualizacion     = NOW()
-       WHERE id = $7 RETURNING *`,
-      [alias_ubicacion || null, numero_referencia || null, tasa_anual || null,
-       cuota_mensual_total || null, fecha_vencimiento_final || null, notas || null, id]
-    );
-    if (r.rowCount === 0) { res.status(404).json({ mensaje: 'Deuda no encontrada.' }); return; }
-    res.json(r.rows[0]);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ mensaje: 'Error al editar deuda.' });
-  }
-};
-
-// ================================================================
 // CUENTAS POR PAGAR
 // ================================================================
 
@@ -298,21 +194,10 @@ export const listarCuentasPorPagar = async (req: Request, res: Response): Promis
          p.nombre_razon_social  AS proveedor_nombre,
          c.nombre               AS categoria_nombre,
          c.color                AS categoria_color,
-         c.es_fijo              AS categoria_es_fijo,
-         d.institucion          AS deuda_institucion,
-         d.alias_ubicacion      AS deuda_alias,
-         imm.es_renta_externa   AS imm_es_renta_externa,
-         imm.total_locales      AS imm_total_locales,
-         imm.propietario_nombre AS imm_propietario_nombre,
-         (SELECT ca.comision_oficina_pct
-          FROM contratos_arrendamiento ca
-          WHERE ca.inmueble_id = cpp.inmueble_id AND ca.estatus = 'activo'
-          LIMIT 1)              AS imm_comision_pct
+         c.es_fijo              AS categoria_es_fijo
        FROM cuentas_por_pagar cpp
        LEFT JOIN proveedores_beneficiarios p ON p.id = cpp.proveedor_id
        LEFT JOIN categorias_egresos c        ON c.id = cpp.categoria_id
-       LEFT JOIN deudas_bancarias d          ON d.id = cpp.deuda_id
-       LEFT JOIN inmuebles imm               ON imm.id = cpp.inmueble_id
        ${where}
        ORDER BY cpp.fecha_limite_pago ASC
        LIMIT $${i} OFFSET $${i + 1}`,
@@ -332,12 +217,10 @@ export const obtenerCuentaPorPagar = async (req: Request, res: Response): Promis
     const r = await pool.query(
       `SELECT cpp.*,
          p.nombre_razon_social AS proveedor_nombre,
-         c.nombre              AS categoria_nombre,
-         d.institucion         AS deuda_institucion
+         c.nombre              AS categoria_nombre
        FROM cuentas_por_pagar cpp
        LEFT JOIN proveedores_beneficiarios p ON p.id = cpp.proveedor_id
        LEFT JOIN categorias_egresos c        ON c.id = cpp.categoria_id
-       LEFT JOIN deudas_bancarias d          ON d.id = cpp.deuda_id
        WHERE cpp.id = $1`,
       [id]
     );
@@ -485,7 +368,7 @@ export const cambiarEstatusCuenta = async (req: Request, res: Response): Promise
     await client.query('BEGIN');
 
     const cuentaRes = await client.query(
-      `SELECT id, deuda_id, monto_capital, estatus FROM cuentas_por_pagar WHERE id = $1 FOR UPDATE`,
+      `SELECT id, monto_capital, estatus FROM cuentas_por_pagar WHERE id = $1 FOR UPDATE`,
       [id]
     );
     if (cuentaRes.rowCount === 0) {
@@ -513,17 +396,6 @@ export const cambiarEstatusCuenta = async (req: Request, res: Response): Promise
        WHERE id = $4 RETURNING *`,
       [estatus, aprobado_por || null, url_comprobante_pago || null, id]
     );
-
-    // Amortización automática: si se marca como pagado y tiene deuda vinculada
-    if (estatus === 'pagado' && cuenta.deuda_id && parseFloat(cuenta.monto_capital) > 0) {
-      await client.query(
-        `UPDATE deudas_bancarias
-         SET saldo_actual        = GREATEST(0, saldo_actual - $1),
-             fecha_actualizacion = NOW()
-         WHERE id = $2`,
-        [cuenta.monto_capital, cuenta.deuda_id]
-      );
-    }
 
     await client.query('COMMIT');
     res.json({ mensaje: 'Estatus actualizado.', cuenta: r.rows[0] });
@@ -755,192 +627,6 @@ export const generarRendimientosInversionistas = async (req: Request, res: Respo
 };
 
 // ================================================================
-// CRÉDITOS BANCARIOS
-// ================================================================
-
-export const listarCreditos = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const hoy  = new Date();
-    const mes  = parseInt(req.query.mes  as string) || (hoy.getMonth() + 1);
-    const anio = parseInt(req.query.anio as string) || hoy.getFullYear();
-    const r = await pool.query(
-      `SELECT *,
-         ROUND((1 - saldo_actual / NULLIF(monto_original,0)) * 100, 2) AS porcentaje_pagado
-       FROM creditos_bancarios WHERE activo = true ORDER BY banco ASC`
-    );
-    res.json({ creditos: r.rows, mes, anio });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ mensaje: 'Error al obtener créditos.' });
-  }
-};
-
-export const crearCredito = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const registrado_por = req.usuario?.userId;
-    const {
-      banco, alias_credito, concepto, monto_original, saldo_actual,
-      tipo_tasa = 'Fija', esquema_pago = 'Pagos Fijos',
-      cuota_base_mensual, dia_corte, tasa_anual, fecha_fin, fecha_inicio,
-    } = req.body;
-
-    if (!banco?.trim() || !monto_original || saldo_actual === undefined) {
-      res.status(400).json({ mensaje: 'banco, monto_original y saldo_actual son obligatorios.' });
-      return;
-    }
-    const r = await pool.query(
-      `INSERT INTO creditos_bancarios
-         (banco, alias_credito, concepto, monto_original, saldo_actual,
-          tipo_tasa, esquema_pago, cuota_base_mensual, dia_corte,
-          tasa_anual, fecha_fin, fecha_inicio, registrado_por)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
-      [
-        banco.trim(), alias_credito || null, concepto || null, monto_original, saldo_actual,
-        tipo_tasa, esquema_pago,
-        cuota_base_mensual || null, dia_corte || null,
-        tasa_anual || 0, fecha_fin || null, fecha_inicio || null,
-        registrado_por || null,
-      ]
-    );
-    res.status(201).json(r.rows[0]);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ mensaje: 'Error al crear crédito.' });
-  }
-};
-
-export const editarCredito = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { id } = req.params;
-    const {
-      banco, alias_credito, concepto, monto_original, saldo_actual,
-      tipo_tasa, esquema_pago, cuota_base_mensual, dia_corte,
-      tasa_anual, fecha_fin,
-    } = req.body;
-    const r = await pool.query(
-      `UPDATE creditos_bancarios SET
-         banco               = COALESCE($1,  banco),
-         alias_credito       = COALESCE($2,  alias_credito),
-         concepto            = $3,
-         monto_original      = COALESCE($4,  monto_original),
-         saldo_actual        = COALESCE($5,  saldo_actual),
-         tipo_tasa           = COALESCE($6,  tipo_tasa),
-         esquema_pago        = COALESCE($7,  esquema_pago),
-         cuota_base_mensual  = $8,
-         dia_corte           = $9,
-         tasa_anual          = COALESCE($10, tasa_anual),
-         fecha_fin           = $11,
-         fecha_actualizacion = NOW()
-       WHERE id = $12 AND activo = true RETURNING *`,
-      [
-        banco?.trim() || null, alias_credito ?? null, concepto ?? null,
-        monto_original || null, saldo_actual || null,
-        tipo_tasa || null, esquema_pago || null,
-        cuota_base_mensual ?? null, dia_corte ?? null,
-        tasa_anual || null, fecha_fin || null,
-        id,
-      ]
-    );
-    if (r.rowCount === 0) { res.status(404).json({ mensaje: 'Crédito no encontrado.' }); return; }
-    res.json(r.rows[0]);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ mensaje: 'Error al editar crédito.' });
-  }
-};
-
-// Atomic: inserts cuentas_por_pagar entry + decrements saldo_actual by capital only.
-export const registrarPagoCredito = async (req: Request, res: Response): Promise<void> => {
-  const client = await pool.connect();
-  try {
-    const registrado_por = req.usuario?.userId;
-    const { credito_id, monto_capital, monto_interes, monto_iva, fecha_pago } = req.body;
-
-    if (!credito_id || monto_capital === undefined || monto_interes === undefined
-        || monto_iva === undefined || !fecha_pago) {
-      res.status(400).json({
-        mensaje: 'credito_id, monto_capital, monto_interes, monto_iva y fecha_pago son obligatorios.',
-      });
-      return;
-    }
-
-    const cap = parseFloat(monto_capital);
-    const int = parseFloat(monto_interes);
-    const iva = parseFloat(monto_iva);
-
-    if (cap < 0 || int < 0 || iva < 0) {
-      res.status(400).json({ mensaje: 'Los montos no pueden ser negativos.' });
-      return;
-    }
-
-    const total = parseFloat((cap + int + iva).toFixed(2));
-
-    await client.query('BEGIN');
-
-    const creditoRes = await client.query(
-      `SELECT * FROM creditos_bancarios WHERE id = $1 AND activo = true FOR UPDATE`,
-      [credito_id]
-    );
-    if ((creditoRes.rowCount ?? 0) === 0) {
-      await client.query('ROLLBACK');
-      res.status(404).json({ mensaje: 'Crédito no encontrado.' });
-      return;
-    }
-    const credito = creditoRes.rows[0];
-
-    const catRes = await client.query(
-      `SELECT id FROM categorias_egresos WHERE nombre = 'Crédito Bancario' AND activo = true LIMIT 1`
-    );
-    if ((catRes.rowCount ?? 0) === 0) {
-      await client.query('ROLLBACK');
-      res.status(400).json({
-        mensaje: "Categoría 'Crédito Bancario' no encontrada. Ejecuta migration_creditos_bancarios.sql.",
-      });
-      return;
-    }
-    const categoria_id = catRes.rows[0].id;
-
-    const concepto = `Pago crédito ${credito.banco}${credito.alias_credito ? ` — ${credito.alias_credito}` : ''}`;
-
-    // Action 1 — expense record (uses 'Bancos', the existing valid centro_costo value)
-    await client.query(
-      `INSERT INTO cuentas_por_pagar
-         (categoria_id, concepto, monto_total, monto_capital, monto_interes, monto_iva,
-          fecha_limite_pago, centro_costo, notas, registrado_por)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,'Bancos',$8,$9)`,
-      [
-        categoria_id, concepto, total, cap, int, iva,
-        fecha_pago,
-        `credito_bancario_id:${credito_id}`,
-        registrado_por || null,
-      ]
-    );
-
-    // Action 2 — reduce outstanding balance by capital only
-    await client.query(
-      `UPDATE creditos_bancarios
-       SET saldo_actual        = GREATEST(0, saldo_actual - $1),
-           fecha_actualizacion = NOW()
-       WHERE id = $2`,
-      [cap, credito_id]
-    );
-
-    await client.query('COMMIT');
-    res.status(201).json({
-      mensaje:     'Pago registrado exitosamente.',
-      total,
-      nuevo_saldo: Math.max(0, parseFloat(credito.saldo_actual) - cap),
-    });
-  } catch (e) {
-    await client.query('ROLLBACK');
-    console.error(e);
-    res.status(500).json({ mensaje: 'Error al registrar pago de crédito.' });
-  } finally {
-    client.release();
-  }
-};
-
-// ================================================================
 // KPIs — reutilizable por centro_costo
 // ================================================================
 const obtenerKpisCentroCosto = async (
@@ -1005,23 +691,6 @@ export const obtenerKpisOficina = async (req: Request, res: Response): Promise<v
   } catch (e) {
     console.error(e);
     res.status(500).json({ mensaje: 'Error al obtener KPIs de Oficina.' });
-  }
-};
-
-// ================================================================
-// KPIs GASTOS ABRIL
-// GET /egresos/abril/kpis?mes=&anio=
-// ================================================================
-export const obtenerKpisAbril = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const hoy  = new Date();
-    const mes  = parseInt(req.query.mes  as string) || (hoy.getMonth() + 1);
-    const anio = parseInt(req.query.anio as string) || hoy.getFullYear();
-    const data = await obtenerKpisCentroCosto('Abril', mes, anio);
-    res.json({ mes, anio, ...data });
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ mensaje: 'Error al obtener KPIs de Abril.' });
   }
 };
 

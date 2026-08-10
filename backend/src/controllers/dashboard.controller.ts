@@ -24,39 +24,19 @@ export const getKpis = async (_req: Request, res: Response): Promise<void> => {
         AS liquidez_total
       `),
 
-      // pendiente_cobro = CxC sin cobrar del mes actual
-      pool.query(`
-        SELECT COALESCE(SUM(monto), 0) AS pendiente_cobro
-        FROM cuentas_por_cobrar
-        WHERE estatus IN ('pendiente', 'vencido')
-          AND periodo_mes  = $1
-          AND periodo_anio = $2
-      `, [mes, anio]),
+      // pendiente_cobro = módulo inmuebles/CxC eliminado → 0
+      Promise.resolve({ rows: [{ pendiente_cobro: 0 }] as any[] }),
 
-      // pasivo_total = créditos bancarios + capital de inversiones
+      // pasivo_total = capital de inversiones (créditos bancarios eliminados)
       pool.query(`
-        SELECT
-          COALESCE((SELECT SUM(saldo_actual) FROM creditos_bancarios WHERE activo = true), 0) +
-          COALESCE((SELECT SUM(monto_actual)  FROM inversiones), 0)
-        AS pasivo_total
+        SELECT COALESCE((SELECT SUM(monto_actual) FROM inversiones), 0) AS pasivo_total
       `),
 
-      // contratos_por_vencer = activos que vencen en 30 días
-      pool.query(`
-        SELECT COUNT(*)::INTEGER AS contratos_por_vencer
-        FROM contratos_arrendamiento
-        WHERE estatus  = 'activo'
-          AND fecha_fin BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
-      `),
+      // contratos_por_vencer = módulo inmobiliaria eliminado → 0
+      Promise.resolve({ rows: [{ contratos_por_vencer: 0 }] as any[] }),
 
-      // indice_morosidad = vencido / (pendiente + vencido) — cartera abierta
-      pool.query(`
-        SELECT
-          COALESCE(SUM(monto) FILTER (WHERE estatus = 'vencido'),                0) AS vencido,
-          COALESCE(SUM(monto) FILTER (WHERE estatus IN ('pendiente', 'vencido')), 0) AS total_exigible
-        FROM cuentas_por_cobrar
-        WHERE estatus != 'cancelado'
-      `),
+      // indice_morosidad = módulo inmuebles/CxC eliminado → 0
+      Promise.resolve({ rows: [{ vencido: 0, total_exigible: 0 }] as any[] }),
 
       // ingresos del mes por origen (historial_ingresos_central)
       pool.query(`
@@ -193,30 +173,11 @@ export const getBossKpis = async (_req: Request, res: Response): Promise<void> =
         AS dinero_total
       `),
 
-      // 2. Ocupación inmobiliaria
-      pool.query(`
-        SELECT
-          COUNT(*) FILTER (WHERE estatus = 'rentado')  AS rentados,
-          COUNT(*) FILTER (WHERE estatus != 'vendido') AS total
-        FROM inmuebles
-      `),
+      // 2. Ocupación inmobiliaria — módulo eliminado → 0
+      Promise.resolve({ rows: [{ rentados: 0, total: 0 }] as any[] }),
 
-      // 3. Eficiencia de cobranza del mes (cobrado vs esperado)
-      pool.query(`
-        SELECT
-          COALESCE((
-            SELECT SUM(monto_utilidad + monto_capital_recuperado)
-            FROM   historial_ingresos_central
-            WHERE  origen = 'Inmueble'
-              AND  periodo_mes  = $1
-              AND  periodo_anio = $2
-          ), 0) AS cobrado,
-          COALESCE((
-            SELECT SUM(monto_renta_mensual)
-            FROM   contratos_arrendamiento
-            WHERE  estatus = 'activo'
-          ), 0) AS esperado
-      `, [mes, anio]),
+      // 3. Eficiencia de cobranza de rentas — módulo inmuebles eliminado → 0
+      Promise.resolve({ rows: [{ cobrado: 0, esperado: 0 }] as any[] }),
 
       // 4. Ingresos del mes desglosados (historial_ingresos_central)
       pool.query(`
@@ -287,13 +248,8 @@ export const getBossKpis = async (_req: Request, res: Response): Promise<void> =
           AND fecha_limite_pago <= CURRENT_DATE + INTERVAL '15 days'
       `),
 
-      // 10. Contratos que vencen en los próximos 30 días
-      pool.query(`
-        SELECT COUNT(*)::INTEGER AS contratos_por_vencer
-        FROM   contratos_arrendamiento
-        WHERE  estatus   = 'activo'
-          AND  fecha_fin BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '30 days'
-      `),
+      // 10. Contratos por vencer — módulo inmobiliaria eliminado → 0
+      Promise.resolve({ rows: [{ contratos_por_vencer: 0 }] as any[] }),
     ]);
 
     // ── Bloque 1 ─────────────────────────────────────────────────
@@ -407,35 +363,18 @@ export const getAnalytics = async (req: Request, res: Response): Promise<void> =
         AS liquidez_total
       `)),
 
-      // 2. Ingresos: rentas (split propias/externas), prestamos, cancha, estacionamiento, otros
+      // 2. Ingresos: préstamos (módulos rentas/cancha/estacionamiento eliminados → 0)
       tagQuery('ingresos', pool.query(`
-        WITH rentas_split AS (
-          SELECT hic.monto_utilidad,
-                 COALESCE(i.es_renta_externa, false) AS es_externa
-          FROM   historial_ingresos_central hic
-          LEFT JOIN contratos_arrendamiento ca ON ca.id = hic.referencia_id
-          LEFT JOIN inmuebles i ON i.id = ca.inmueble_id
-          WHERE  hic.origen = 'Inmueble'
-            AND  hic.periodo_mes = $1 AND hic.periodo_anio = $2
-        )
         SELECT
-          COALESCE((SELECT SUM(monto_utilidad) FROM rentas_split WHERE NOT es_externa), 0) AS rentas_propias,
-          COALESCE((SELECT SUM(monto_utilidad) FROM rentas_split WHERE es_externa),     0) AS rentas_externas,
+          0::NUMERIC AS rentas_propias,
+          0::NUMERIC AS rentas_externas,
           COALESCE((
             SELECT SUM(monto_utilidad + monto_capital_recuperado)
             FROM   historial_ingresos_central
             WHERE  origen = 'Prestamo' AND periodo_mes = $1 AND periodo_anio = $2
           ), 0) AS prestamos,
-          COALESCE((
-            SELECT SUM(monto_utilidad)
-            FROM   historial_ingresos_central
-            WHERE  origen = 'Cancha' AND periodo_mes = $1 AND periodo_anio = $2
-          ), 0) AS cancha,
-          COALESCE((
-            SELECT SUM(monto_utilidad)
-            FROM   historial_ingresos_central
-            WHERE  origen = 'Estacionamiento' AND periodo_mes = $1 AND periodo_anio = $2
-          ), 0) AS estacionamiento,
+          0::NUMERIC AS cancha,
+          0::NUMERIC AS estacionamiento,
           0::NUMERIC AS otros
       `, [mes, anio])),
 
@@ -471,14 +410,8 @@ export const getAnalytics = async (req: Request, res: Response): Promise<void> =
       // 4. Eficiencia: rentas cobradas vs esperadas, intereses cobrados vs esperados
       tagQuery('eficiencia', pool.query(`
         SELECT
-          COALESCE((
-            SELECT SUM(monto_utilidad)
-            FROM   historial_ingresos_central
-            WHERE  origen = 'Inmueble' AND periodo_mes = $1 AND periodo_anio = $2
-          ), 0) AS rentas_cobradas,
-          COALESCE((
-            SELECT SUM(monto_renta_mensual) FROM contratos_arrendamiento WHERE estatus = 'activo'
-          ), 0) AS rentas_esperadas,
+          0::NUMERIC AS rentas_cobradas,
+          0::NUMERIC AS rentas_esperadas,
           COALESCE((
             SELECT SUM(monto_utilidad)
             FROM   historial_ingresos_central
@@ -507,42 +440,18 @@ export const getAnalytics = async (req: Request, res: Response): Promise<void> =
 
       // 7. Top 5 pagadores del mes (préstamos + rentas)
       tagQuery('pagadores', pool.query(`
-        WITH todos AS (
-          SELECT CONCAT(c.nombres, ' ', c.apellido_paterno) AS nombre,
-                 SUM(hic.monto_utilidad + hic.monto_capital_recuperado) AS total
-          FROM   historial_ingresos_central hic
-          JOIN   prestamos p ON p.id = hic.referencia_id
-          JOIN   clientes  c ON c.id = p.cliente_id
-          WHERE  hic.origen = 'Prestamo' AND hic.periodo_mes = $1 AND hic.periodo_anio = $2
-          GROUP  BY c.id, c.nombres, c.apellido_paterno
-
-          UNION ALL
-
-          SELECT CONCAT(iq.nombres, ' ', iq.apellidos) AS nombre,
-                 SUM(hic.monto_utilidad) AS total
-          FROM   historial_ingresos_central hic
-          JOIN   contratos_arrendamiento ca ON ca.id = hic.referencia_id
-          JOIN   inquilinos iq ON iq.id = ca.inquilino_id
-          WHERE  hic.origen = 'Inmueble' AND hic.periodo_mes = $1 AND hic.periodo_anio = $2
-          GROUP  BY iq.id, iq.nombres, iq.apellidos
-        )
-        SELECT nombre, SUM(total) AS total
-        FROM   todos GROUP BY nombre ORDER BY total DESC LIMIT 5
+        SELECT CONCAT(c.nombres, ' ', c.apellido_paterno) AS nombre,
+               SUM(hic.monto_utilidad + hic.monto_capital_recuperado) AS total
+        FROM   historial_ingresos_central hic
+        JOIN   prestamos p ON p.id = hic.referencia_id
+        JOIN   clientes  c ON c.id = p.cliente_id
+        WHERE  hic.origen = 'Prestamo' AND hic.periodo_mes = $1 AND hic.periodo_anio = $2
+        GROUP  BY c.id, c.nombres, c.apellido_paterno
+        ORDER  BY total DESC LIMIT 5
       `, [mes, anio])),
 
-      // 8. Top 5 deudores: CxC pendiente/vencida del mes seleccionado
-      tagQuery('deudores', pool.query(`
-        SELECT CONCAT(iq.nombres, ' ', iq.apellidos) AS nombre,
-               SUM(cpc.monto) AS deuda
-        FROM   cuentas_por_cobrar cpc
-        JOIN   contratos_arrendamiento ca ON ca.id = cpc.contrato_id
-        JOIN   inquilinos iq ON iq.id = ca.inquilino_id
-        WHERE  cpc.estatus IN ('pendiente', 'vencido')
-          AND  cpc.periodo_mes  = $1
-          AND  cpc.periodo_anio = $2
-        GROUP  BY iq.id, iq.nombres, iq.apellidos
-        ORDER  BY deuda DESC LIMIT 5
-      `, [mes, anio])),
+      // 8. Top 5 deudores: módulo inmuebles/CxC eliminado → vacío
+      tagQuery('deudores', Promise.resolve({ rows: [] as any[] })),
 
       // 9. Abonos a capital de préstamos este mes
       tagQuery('abonos', pool.query(`
