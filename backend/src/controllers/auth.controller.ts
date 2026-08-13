@@ -14,7 +14,12 @@ const TIEMPO_BLOQUEO_MS = 15 * 60 * 1000; // 15 minutos en milisegundos
 // POST /api/auth/login
 export const login = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { correo, password } = req.body;
+    // Normalizar entrada: los espacios en blanco no deben afectar el login.
+    // Correo: trim + minúsculas (case-insensitive). Password: solo trim de bordes.
+    const correoRaw = req.body?.correo;
+    const passwordRaw = req.body?.password;
+    const correo = typeof correoRaw === 'string' ? correoRaw.trim().toLowerCase() : correoRaw;
+    const password = typeof passwordRaw === 'string' ? passwordRaw.trim() : passwordRaw;
 
     if (!correo || !password) {
       res.status(400).json({ mensaje: 'Correo y contraseña son requeridos.' });

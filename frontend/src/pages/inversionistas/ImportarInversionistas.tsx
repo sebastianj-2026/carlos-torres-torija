@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Upload, CheckCircle, XCircle, Pencil } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, Pencil } from 'lucide-react';
 import apiClient from '../../services/authService';
 
 // ── Tipos ─────────────────────────────────────────────────────────
