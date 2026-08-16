@@ -41,7 +41,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** P-001
 - **Lee:** `docs/modulos/personas/DATOS.md`
 - **Extra al DoD:** migración de datos one-shot: `personas` desde `inversionistas` (nombres/apellidos/teléfono), `aportaciones` desde `inversiones` (inversionista_id, monto, tasa_inversionista) con `referenciador_id` NULL. Idempotente. No borra el legacy.
-- **Estado:** ⬜
+- **Estado:** 🟡 SQL escrito (`migration_personas_slice_seed.up/down.sql`), **pendiente aplicar** (después de P-001). Mapea UUID→BIGINT vía columnas `legacy_*`; tasa /100; monto=monto_inicial.
 
 ### P-003 · CRUD backend personas + aportaciones
 - **Módulo:** personas

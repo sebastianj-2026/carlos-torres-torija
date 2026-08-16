@@ -22,7 +22,11 @@ CREATE TABLE IF NOT EXISTS personas (
   direccion        TEXT,
   activo           BOOLEAN NOT NULL DEFAULT TRUE,
   creado_en        TIMESTAMPTZ NOT NULL DEFAULT now(),
-  actualizado_en   TIMESTAMPTZ NOT NULL DEFAULT now()
+  actualizado_en   TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  -- Rastreo del backfill (P-002). NULL para personas creadas por UI.
+  -- El legacy usa UUID; esto mapea UUID→BIGINT y hace el seed idempotente.
+  legacy_inversionista_id UUID UNIQUE
 );
 
 -- P1: una persona por nombre completo + teléfono (solo entre activas).
@@ -57,6 +61,9 @@ CREATE TABLE IF NOT EXISTS aportaciones (
   estado             TEXT NOT NULL DEFAULT 'activa'
                      CHECK (estado IN ('activa','liquidada','archivada')),
   creado_en          TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+  -- Rastreo del backfill (P-002). NULL para aportaciones creadas por UI.
+  legacy_inversion_id UUID UNIQUE,
 
   -- P7: nadie se refiere a sí mismo.
   CONSTRAINT no_auto_referencia CHECK (referenciador_id IS DISTINCT FROM inversionista_id),
