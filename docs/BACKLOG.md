@@ -33,7 +33,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** —
 - **Lee:** `docs/modulos/personas/DATOS.md`
 - **Extra al DoD:** las 3 tablas del spec (personas, persona_documentos, aportaciones) con sus índices y constraints (identidad única, `no_auto_referencia`, `tasa_ref_coherente`). **Sin** `persona_roles`. Trae `.down.sql`. Aplicación a Neon es MANUAL (documentar el paso).
-- **Estado:** ⬜ **desbloquea comisiones T-004**
+- **Estado:** 🟡 SQL escrito (`database/migration_personas_slice.up.sql` + `.down.sql`), **pendiente aplicar a Neon manualmente**. Desbloquea comisiones T-004.
 
 ### P-002 · Seed personas + aportaciones desde inversionistas legacy
 - **Módulo:** personas
