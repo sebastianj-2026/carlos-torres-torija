@@ -56,9 +56,10 @@ CMD_TYPECHECK="(cd backend && node_modules/.bin/tsc --noEmit) && (cd frontend &&
 # Sin script de lint en ningún lado (solo eslintConfig de CRA en build). Deuda.
 CMD_LINT=""
 
-# Backend: 0 tests. Front: craco test (jest). CI=1 lo corre una vez y termina.
-CMD_TEST="CI=true npm test --prefix frontend -- --watchAll=false"
-CMD_TEST_MODULO=""            # sin suite por módulo todavía → cae a CMD_TEST
+# Backend con Vitest (T-001 montó el harness). `npm test` = `vitest run` (una vez).
+# El front sigue con craco test pero su smoke default está roto por RRD v7 (deuda).
+CMD_TEST="npm test --prefix backend"
+CMD_TEST_MODULO="npm test --prefix backend --"   # filtra por nombre de archivo/módulo
 
 # Build de producción del front (craco). El del back es `tsc` vía build script.
 CMD_BUILD="npm run build --prefix frontend"
@@ -71,8 +72,8 @@ CMD_SEED=""
 # Sin suite e2e/playwright todavía. Deuda.
 CMD_E2E_RESPONSIVE=""
 
-# Sin motor con casos-resueltos en test todavía (candidato: comisiones). Deuda.
-CMD_TEST_CASOS=""
+# Casos resueltos del motor de comisiones (T-001).
+CMD_TEST_CASOS="npm test --prefix backend -- casos-resueltos"
 
 DIR_MIGRACIONES="database"
 

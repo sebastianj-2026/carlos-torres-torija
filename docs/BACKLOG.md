@@ -36,7 +36,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** —
 - **Lee:** `comisiones/REGLAS.md` + `CASOS-RESUELTOS.md`
 - **Extra al DoD:** los 8 casos + 7 invariantes convertidos en tests. Deben salir **rojos** (el motor no existe todavía). Incluir la invarianza de suma `inv+ref+oficina==cobrado` al centavo.
-- **Estado:** ⬜
+- **Estado:** ✅ hecha — tests en `backend/src/modules/comisiones/casos-resueltos.test.ts`, RED por diseño (motor `reparto`/`fifo` inexistente). Cubre casos 1,2,3,6 (reparto), 4,8 (FIFO) e invariantes 1,4,6. Casos 5 y 7 son de servicio (T-005/T-006), no motor puro.
 
 ### T-002 · Motor de reparto mensual (devengo)
 - **Módulo:** comisiones
