@@ -16,7 +16,7 @@
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
 | personas | 🟡 especificado, NO implementado | 0 | — | spec en `docs/modulos/personas/` |
-| comisiones | 🟡 motor en TDD — T-001 tests RED | 10 (RED) | personas | T-001 hecha; siguen T-002/T-003 (verde) |
+| comisiones | 🟡 motor de cálculo VERDE (T-001/002/003); falta capa DB | 14 ✅ | personas | reparto+fifo listos; sigue T-004 (bloqueada por personas) |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
 

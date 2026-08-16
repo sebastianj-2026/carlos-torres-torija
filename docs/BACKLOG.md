@@ -44,15 +44,15 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** T-001
 - **Lee:** `comisiones/REGLAS.md` + `CASOS-RESUELTOS.md`
 - **Extra al DoD:** funciones puras que reparten cobrado→(inv, ref, oficina) con base viva (R3), moratorios fuera (R8), 2 decimales y residuo a oficina (R23). Pone verdes los casos 1, 2, 3, 6.
-- **Estado:** ⬜
+- **Estado:** ✅ hecha — `backend/src/modules/comisiones/reparto.ts`. 10/10 verde. `round2` seguro, oficina como residuo (absorbe rojo).
 
 ### T-003 · Motor FIFO de aplicación de pagos
 - **Módulo:** comisiones
 - **Tipo:** motor
 - **Depende de:** T-001
 - **Lee:** `comisiones/REGLAS.md` + `CASOS-RESUELTOS.md`
-- **Extra al DoD:** aplica un pago a devengos por línea (persona+concepto+origen), FIFO periodo asc (R15), por origen sin cruzar (R16), inversionista primero (R21). Pone verdes los casos 4, 5, 8 y el invariante 4.
-- **Estado:** ⬜
+- **Extra al DoD:** aplica un pago a devengos por línea (persona+concepto+origen), FIFO periodo asc (R15), por origen sin cruzar (R16), inversionista primero (R21). Pone verdes los casos 4, 8 y los invariantes 4/6.
+- **Estado:** ✅ hecha — `backend/src/modules/comisiones/fifo.ts`. 4/4 verde. Opera sobre la línea ya filtrada (no cruza orígenes).
 
 ## Data — espera a `personas`
 
