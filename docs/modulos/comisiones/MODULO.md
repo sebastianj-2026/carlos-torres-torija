@@ -4,9 +4,11 @@
 Calcular, acumular y pagar lo que la oficina le debe a inversionistas
 (rendimiento) y a referenciadores (comisión), mes a mes.
 
-## 🚫 ESTADO: BLOQUEADO
-Tres reglas de negocio sin definir. Ver `REGLAS.md`.
-**Ninguna tarea de este módulo se ejecuta hasta cerrarlas con Carlos.**
+## ✅ ESTADO: spec completa
+Las 3 reglas se cerraron con Carlos el 2026-08-16 (R21/R22/R23 en `REGLAS.md`).
+**Dependencia dura:** el schema referencia tablas de `personas` (aún NO
+implementado). Las tareas `data`/`logic` esperan a `personas`; el motor de
+cálculo (tests + reparto) no depende de la DB y puede arrancar ya.
 
 ## Entidades
 

@@ -1,7 +1,8 @@
 # Datos — comisiones
 
-> 🚫 No implementar hasta cerrar los 3 ⛔ de REGLAS.md.
-> El schema puede cambiar según la respuesta de ⛔3 (redondeo).
+> ✅ Reglas cerradas (R21/R22/R23). Redondeo definido: 2 decimales, residuo a la
+> oficina (R23) — el schema ya usa `NUMERIC(14,2)`, no cambia.
+> Dependencia: FKs a `personas`/`persona_documentos` — requiere `personas` implementado.
 
 ```sql
 -- El corazón del módulo. R11-R13: se devenga siempre, se paga cuando hay.
@@ -79,4 +80,4 @@ FROM devengos GROUP BY persona_id, concepto;
 ## Notas
 - `NUMERIC`, nunca float. Check: `dinero-sin-float`.
 - Nada se borra. Un devengo mal generado se cancela con estado, no con DELETE.
-- ⚠️ La precisión de `monto_devengado` depende de ⛔3 (redondeo).
+- `monto_devengado` a 2 decimales; el residuo del reparto lo absorbe la oficina (R23).

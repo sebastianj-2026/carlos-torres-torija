@@ -1,8 +1,7 @@
 # Casos resueltos — comisiones
 
-> 🚫 BLOQUEADO. Ver los 3 ⛔ al final.
-> Los 7 casos numéricos están en `PARA-CARLOS-referenciadores.md`, ya validados
-> aritméticamente. Cada uno se convierte en test ANTES de escribir el motor.
+> ✅ Reglas cerradas (R21/R22/R23). Cada caso se convierte en test ANTES de
+> escribir el motor. Los 7 casos numéricos están validados aritméticamente.
 
 ## Supuestos
 Crédito $500,000 al 4% mensual · Inversionista $500,000 al 2.0% ·
@@ -47,7 +46,7 @@ Valen para **cualquier** entrada:
 6. `monto_pagado <= monto_devengado`, siempre
 7. Ningún referenciador cobra por un referido de su referido
 
-## ⛔ Pendientes con Carlos
-1. Orden dentro del mismo mes: ¿inversionista primero o prorrata?
-2. Oficina en rojo: ¿absorbe o devenga?
-3. Redondeo: ¿decimales y dueño del residuo?
+## Reglas de desempate (cerradas 2026-08-16)
+1. Orden dentro del mismo mes → **inversionista primero**, resto del referenciador se devenga (R21)
+2. Oficina en rojo → **paga hasta lo cobrado, el resto se devenga** (R22)
+3. Redondeo → **2 decimales, residuo a la oficina** (R23)
