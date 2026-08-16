@@ -1,6 +1,8 @@
 # Reglas de negocio — comisiones
 
-## Estado: 🚫 BLOQUEADO — 3 reglas sin definir
+## Estado: ✅ reglas cerradas — listo para derivar backlog (motor)
+
+> Las 3 reglas pendientes se cerraron con Carlos el 2026-08-16 (R21, R22, R23).
 
 ## Reglas cerradas
 
@@ -50,23 +52,30 @@ base de datos, no de código.
 
 ---
 
-## Pendientes con Carlos
+## Reglas cerradas con Carlos (2026-08-16)
 
-### ⛔ REGLA NO DEFINIDA · Orden dentro del mismo mes
-Cuando no alcanza para cubrir el mes completo: ¿primero el inversionista y luego
-el referenciador, o prorrata entre ambos?
-**Se asumió inversionista primero en los casos. CONFIRMAR.**
-Bloquea: aplicación de pagos.
+### R21 · Orden dentro del mismo mes
+**Regla:** Cuando el dinero cobrado no alcanza para cubrir el mes completo, se
+paga **primero el rendimiento del inversionista, completo**; lo que sobre va al
+referenciador; el faltante del referenciador se devenga (R11/R13).
+**Base:** el cobrado del periodo por esa línea.
+**Por qué:** el inversionista recibe lo suyo íntegro (R2); la comisión de oficina
+es lo que se ajusta cuando falta. Confirma el supuesto usado en `CASOS-RESUELTOS.md`.
 
-### ⛔ REGLA NO DEFINIDA · Oficina en rojo
-Cuando las comisiones exceden lo cobrado: ¿se paga completo y la oficina absorbe
-de su bolsa, o se paga hasta lo cobrado y el resto se devenga?
-**Se asumió (b) por coherencia con R11. CONFIRMAR.**
-Bloquea: generación de devengos y aplicación de pagos.
+### R22 · Oficina en rojo
+**Regla:** Cuando comisiones + rendimientos del periodo exceden lo efectivamente
+cobrado, **se paga solo hasta lo cobrado; el faltante se devenga y acumula** (no
+se paga de la bolsa de la oficina). Se liquida cuando entre más dinero, FIFO.
+**Por qué:** coherente con R11 (si no se cobró, se devenga) y R14 (cuando no
+alcanza, lo demás se acumula). El motor nunca paga dinero que no entró.
 
-### ⛔ REGLA NO DEFINIDA · Redondeo
-¿A cuántos decimales y quién se queda con el centavo del residuo?
-Bloquea: todo el motor. Sin esto la invarianza de suma no cierra.
+### R23 · Redondeo
+**Regla:** Todo monto se redondea a **2 decimales** (centavos MXN).
+**Dueño del residuo:** el centavo sobrante del reparto **se lo queda la oficina**.
+**Dónde:** al cerrar cada línea de reparto, después de calcular cada concepto.
+**Por qué:** el residuo necesita dueño explícito o la invarianza de suma
+(`sum(repartido) === cobrado`) no cierra. La oficina absorbe/gana el centavo,
+nunca el inversionista ni el referenciador.
 
 ---
 
