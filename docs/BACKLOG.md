@@ -20,6 +20,47 @@ Si no cumple → se parte. No se negocia.
 
 ---
 
+# Módulo: personas (slice mínimo)
+
+> Decidido 2026-08-16: solo lo que comisiones necesita. Incluye
+> `persona_documentos` (comisiones lo referencia para comprobante, R19).
+> **Difiere:** `persona_roles` (roles simultáneos) y la fusión con `clientes`.
+> Orden: data → seed → logic → ui.
+
+### P-001 · Migración: personas, persona_documentos, aportaciones
+- **Módulo:** personas
+- **Tipo:** data
+- **Depende de:** —
+- **Lee:** `docs/modulos/personas/DATOS.md`
+- **Extra al DoD:** las 3 tablas del spec (personas, persona_documentos, aportaciones) con sus índices y constraints (identidad única, `no_auto_referencia`, `tasa_ref_coherente`). **Sin** `persona_roles`. Trae `.down.sql`. Aplicación a Neon es MANUAL (documentar el paso).
+- **Estado:** ⬜ **desbloquea comisiones T-004**
+
+### P-002 · Seed personas + aportaciones desde inversionistas legacy
+- **Módulo:** personas
+- **Tipo:** data
+- **Depende de:** P-001
+- **Lee:** `docs/modulos/personas/DATOS.md`
+- **Extra al DoD:** migración de datos one-shot: `personas` desde `inversionistas` (nombres/apellidos/teléfono), `aportaciones` desde `inversiones` (inversionista_id, monto, tasa_inversionista) con `referenciador_id` NULL. Idempotente. No borra el legacy.
+- **Estado:** ⬜
+
+### P-003 · CRUD backend personas + aportaciones
+- **Módulo:** personas
+- **Tipo:** logic
+- **Depende de:** P-001
+- **Lee:** `docs/modulos/personas/MODULO.md` + `REGLAS.md`
+- **Extra al DoD:** endpoints POST/GET/PATCH `/personas`, POST `/personas/:id/aportaciones` con `referenciador_id`+`tasa_referenciador` opcionales (P6/P7). Validar constraints en el servicio.
+- **Estado:** ⬜
+
+### P-004 · UI aportaciones con referidor + tasa (captura de Carlos)
+- **Módulo:** personas
+- **Tipo:** ui
+- **Depende de:** P-003
+- **Lee:** `docs/DISENO.md` + `docs/modulos/personas/FLUJOS.md`
+- **Extra al DoD:** alta/edición de aportación con campo referidor (autocompletar persona) + tasa opcional. Los históricos quedan sin referidor hasta que Carlos los complete.
+- **Estado:** ⬜
+
+---
+
 # Módulo: comisiones (motor)
 
 > Derivado 2026-08-16 de `docs/modulos/comisiones/` (spec completa, R21/R22/R23
@@ -59,10 +100,10 @@ Si no cumple → se parte. No se negocia.
 ### T-004 · Migración: devengos, pagos, pago_aplicaciones
 - **Módulo:** comisiones
 - **Tipo:** data
-- **Depende de:** `personas` implementado
+- **Depende de:** P-001 (tablas personas/persona_documentos/aportaciones)
 - **Lee:** `comisiones/DATOS.md`
 - **Extra al DoD:** schema exacto de DATOS.md + índices FIFO + vista `saldo_por_persona` + `UNIQUE corte_idempotente` (R20) + `no_sobrepago`. Trae su `.down.sql`.
-- **Estado:** 🚫 bloqueada (depende de personas)
+- **Estado:** 🚫 bloqueada (depende de P-001)
 
 ## Logic — servicios sobre la DB
 

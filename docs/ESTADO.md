@@ -15,7 +15,7 @@
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| personas | 🟡 especificado, NO implementado | 0 | — | spec en `docs/modulos/personas/` |
+| personas | 🟡 slice en backlog (P-001..P-004) | 0 | — | decisión 2026-08-16: slice mínimo |
 | comisiones | 🟡 motor de cálculo VERDE (T-001/002/003); falta capa DB | 14 ✅ | personas | reparto+fifo listos; sigue T-004 (bloqueada por personas) |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
@@ -74,6 +74,7 @@ Estados: `⬜ pendiente` · `🟡 en curso` · `✅ producción` · `🚫 bloque
 | 2026-08-16 | Fase 0 | Módulo `dashboard` como destino del conocimiento del CLAUDE.md monolítico | El dashboard es real y transversal (`dashboard.controller.ts`); agrega ingresos/egresos/nómina. |
 | 2026-08-16 | Fase 0 | Resuelto stale del dashboard vía `migration_remove_modules.sql` | `inmuebles`/`contratos_arrendamiento`/`cuentas_por_cobrar` DROP CASCADE → eliminadas; `juicios` viva; orígenes Inmueble/Cancha/Estacionamiento sin filas ni escritores, el CHECK los lista como residuo. Solo `'Prestamo'` vivo. |
 | 2026-08-16 | comisiones | Cerradas R21 (inversionista primero), R22 (oficina en rojo → devenga hasta lo cobrado), R23 (2 decimales, residuo a oficina) | Desbloquea el motor de comisiones; la invarianza de suma ya tiene dueño del residuo definido. |
+| 2026-08-16 | personas | Slice mínimo (personas + persona_documentos + aportaciones), sembrado desde inversionistas legacy; referidor capturado por UI | El legacy no tiene modelo de referidor → `aportaciones` es indispensable para comisiones. Se difieren persona_roles y la fusión con `clientes` para no tocar el legacy vivo. |
 
 ## Bitácora de aceptación (Sebastian)
 
