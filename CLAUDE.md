@@ -1,3 +1,20 @@
+# Carlos Torres Torija — CLAUDE.md
+
+> Este archivo es un **router**, no un manual. ~150 líneas, máximo.
+> Si crece, es que algo que debía vivir en `docs/` se metió aquí.
+> Metodología: v0.1.0 · Perfil: frontback-drizzle (con overrides — ver `gate.sh`)
+
+## Qué es esto en una línea
+Sistema de gestión financiera (préstamos, inversionistas, ingresos/egresos,
+tesorería, nómina) para la oficina de Carlos Torres Torija.
+
+## Stack
+- **Frontend:** React 19 + CRA/CRACO + TypeScript 4.9 + Tailwind + react-router 7 + recharts. Deploy: Vercel.
+- **Backend:** Express 5 + ts-node + `pg` (SQL crudo, sin ORM) + JWT/bcrypt. Deploy: Railway.
+- **DB:** PostgreSQL (Neon). Migraciones SQL planas en `database/`, aplicadas **a mano**.
+
+---
+
 ## graphify
 
 This project has a graphify knowledge graph at graphify-out/.
@@ -15,42 +32,44 @@ Rules:
 4. **Validación por Grafo:** Consulta siempre `graphify-out/graph.json` antes de sugerir cambios para evitar efectos colaterales en el Nodo Dios (`useAuth`).
 5. **Idioma:** Explicaciones técnicas breves en español, código y comentarios en inglés.
 
-## Arquitectura del Dashboard
+---
 
-### Endpoints
-- `GET /api/dashboard/kpis` — KPIs de supervivencia (oficinista/admin)
-- `GET /api/dashboard/boss-kpis` — Centro de comando gerencial, mes actual
-- `GET /api/dashboard/analytics?mes=&anio=` — Radiografía financiera completa con selector de mes
+## 📍 Qué leer según la tarea
 
-### Fuente de verdad de ingresos
-- `historial_ingresos_central` — tabla activa. Acepta orígenes: `'Prestamo'`, `'Inmueble'`, `'Cancha'`, `'Estacionamiento'` (CHECK expandido por migraciones de cortes).
-- `historial_ingresos` — tabla legacy. **NO existe en Neon** (migración nunca aplicada). No referenciarla en nuevas queries.
+| Si la tarea es… | Lee | NO abras |
+|---|---|---|
+| UI, componente, pantalla | `docs/DISENO.md` + `docs/modulos/<X>/FLUJOS.md` | REGLAS, DATOS |
+| Lógica de negocio | `docs/modulos/<X>/REGLAS.md` + `MODULO.md` | DISENO |
+| Motor de cálculo | `REGLAS.md` + `CASOS-RESUELTOS.md` | DISENO, FLUJOS |
+| Migración, schema | `docs/modulos/<X>/DATOS.md` | DISENO, FLUJOS |
+| Verificar | `docs/DEFINICION-DE-HECHO.md` | todo lo demás |
+| Arrancar el día | `docs/ESTADO.md` + `docs/BACKLOG.md` | todo lo demás |
 
-### Migraciones NO aplicadas en Neon (producción)
-Las siguientes migraciones están en `/database/` pero **no están en la DB de producción**:
-- `migration_historial_ingresos.sql` — tabla `historial_ingresos` no existe
-- `migration_ingresos_hub.sql` — tablas `pensiones_estacionamiento`, `ingresos_directos`, `metricas_cancha` no existen
+**Regla dura:** si un archivo no está en tu fila, no lo abras.
+Si crees que lo necesitas, **pregunta antes**. Que lo necesites suele significar
+que la tarea está mal clasificada.
 
-En el analytics controller, estas ausencias están workaroundeadas:
-- `otros` = `0::NUMERIC` (hardcoded)
-- `pensiones_activas` = `Promise.resolve({ rows: [{ pensiones_activas: 0 }] })` (hardcoded)
+---
 
-### Regla de oro de flujo
-**Nunca mezclar saldo total de deuda con flujo mensual de efectivo.**
-- `pago_creditos_mes` = pagos reales del mes a `cuentas_por_pagar WHERE centro_costo='Bancos'`
-- Nunca usar `SUM(creditos_bancarios.saldo_actual)` en contexto de flujo mensual
+## 🚫 Prohibiciones
 
-### Top Deudores
-Filtrado por `periodo_mes` y `periodo_anio` de `cuentas_por_cobrar`. No acumula meses anteriores.
+1. **Una tarea = una sesión.** No encadenes tareas en la misma conversación.
+2. **No toques `components/shared/` dentro de una tarea de módulo.** Cambiar un
+   componente compartido es tarea propia, porque afecta a todos los módulos.
+3. **No inventes reglas de negocio.** Si `REGLAS.md` no lo dice, **para y
+   pregunta**. Una regla inventada que funciona es peor que un error visible.
+4. **No corras deploy.** Nunca. El gate llega a "listo para deploy" y ahí para.
+5. **No cierres una tarea con el gate rojo.**
 
-## Tablas clave y sus relaciones
+---
 
-| Tabla | Descripción |
-|---|---|
-| `historial_ingresos_central` | Ledger unificado de cobros activos (Prestamo + Inmueble + Cancha + Estacionamiento) |
-| `cuentas_por_pagar` | Egresos. `centro_costo` IN ('Oficina','Abril','Inversionistas','Bancos','Renta Externa') |
-| `cuentas_por_cobrar` | CxC inmobiliaria. Tiene `contrato_id` y `periodo_mes/anio` |
-| `nominas_pagadas` | Costo nómina. Filtrar por `fecha_pago` |
-| `juicios` | Tiene `cliente_id` y `prestamo_id`. `activo=true` para casos vigentes |
-| `inmuebles` | Tiene `es_renta_externa BOOLEAN` para distinguir propias vs administradas |
-| `contratos_arrendamiento` | Tiene `comision_oficina_pct` y `num_local` (migration_renta_externa) |
+## Módulos
+Ver `docs/ESTADO.md` — es la fuente de verdad del estado, no este archivo.
+Especificados: `personas`, `comisiones`. Documentado (legacy): `dashboard`.
+
+## Convenciones
+- Código y comentarios en inglés; UI y explicaciones en español.
+- Dinero: debe ser `numeric` en DB. **Deuda activa:** el backend usa `parseFloat`
+  en todos los controllers (ver `docs/ESTADO.md`).
+- Fechas las genera el servidor (`now()`/`current_date`), nunca el cliente.
+- Nada se borra: archivado con bandera.

@@ -18,8 +18,10 @@ backend/dist/
 .DS_Store
 Thumbs.db
 
-# Claude Code local
-.claude/
+# Claude Code — versiona settings.json (hooks del gate), ignora lo local/transitorio
+.claude/*
+!.claude/settings.json
+.claude/gate-pendiente
 
 # Graphify cache
 graphify-out/cache/
