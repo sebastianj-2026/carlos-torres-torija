@@ -19,10 +19,11 @@ No acumula meses anteriores.
 
 ## R3 · Fuente de verdad de ingresos
 **Regla:** `historial_ingresos_central` es la tabla activa de cobros.
-- Acepta orígenes: `'Prestamo'`, `'Inmueble'`, `'Cancha'`, `'Estacionamiento'`
-  (CHECK expandido por migraciones de cortes).  ⚠️ REVISAR: el commit 52b2117
-  eliminó los módulos Inmobiliaria/Cancha/Estacionamiento. Confirmar contra Neon
-  si el CHECK y esos orígenes siguen vivos o son residuo.
+- **Solo el origen `'Prestamo'` está vivo.** `migration_remove_modules` (commit
+  52b2117) borró las filas de `'Inmueble'`, `'Cancha'` y `'Estacionamiento'` y
+  eliminó sus módulos. El `CHECK hic_origen_check` **no se encogió** y todavía
+  los lista — es residuo cosmético; ningún módulo escribe esos orígenes. No
+  construir features nuevas sobre ellos.
 - `historial_ingresos` — tabla legacy. **NO existe en Neon** (migración nunca
   aplicada). No referenciarla en nuevas queries.
 

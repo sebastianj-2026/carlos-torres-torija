@@ -26,7 +26,11 @@ Estados: `⬜ pendiente` · `🟡 en curso` · `✅ producción` · `🚫 bloque
 
 | Módulo | Qué falta | Quién resuelve | Desde |
 |---|---|---|---|
-| dashboard | Confirmar contra Neon si orígenes/tablas Inmueble/Cancha/Estacionamiento siguen vivos tras el commit 52b2117, o son residuo stale | Sebastian + Claude | 2026-08-16 |
+| — | — | — | — |
+
+> Resuelto 2026-08-16: el stale del dashboard se verificó contra
+> `migration_remove_modules.sql` (ver Decisiones). Queda un pendiente menor, no
+> bloqueante: confirmar en vivo contra Neon si se quiere certeza absoluta.
 
 > Un módulo bloqueado por regla de negocio sin definir **no entra al backlog**.
 > No se marca TODO — se detiene.
@@ -68,6 +72,7 @@ Estados: `⬜ pendiente` · `🟡 en curso` · `✅ producción` · `🚫 bloque
 | 2026-08-16 | Fase 0 | Perfil `frontback-drizzle` con overrides pesados | Es el perfil "financiera-sistema y forks", pero este fork usa CRA/CRACO + pg raw, no Drizzle/Vitest/migrate. Comandos inexistentes → vacíos, registrados como deuda. |
 | 2026-08-16 | Fase 0 | `dinero-sin-float` NO bloqueante | Sale rojo con ~100 hits legacy; bloquearía cada tarea hasta refactor total. Se documenta como deuda y se ataca en ticket dedicado. |
 | 2026-08-16 | Fase 0 | Módulo `dashboard` como destino del conocimiento del CLAUDE.md monolítico | El dashboard es real y transversal (`dashboard.controller.ts`); agrega ingresos/egresos/nómina. |
+| 2026-08-16 | Fase 0 | Resuelto stale del dashboard vía `migration_remove_modules.sql` | `inmuebles`/`contratos_arrendamiento`/`cuentas_por_cobrar` DROP CASCADE → eliminadas; `juicios` viva; orígenes Inmueble/Cancha/Estacionamiento sin filas ni escritores, el CHECK los lista como residuo. Solo `'Prestamo'` vivo. |
 
 ## Bitácora de aceptación (Sebastian)
 
