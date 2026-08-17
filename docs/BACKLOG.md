@@ -57,7 +57,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** P-003
 - **Lee:** `docs/DISENO.md` + `docs/modulos/personas/FLUJOS.md`
 - **Extra al DoD:** alta/edición de aportación con campo referidor (autocompletar persona) + tasa opcional. Los históricos quedan sin referidor hasta que Carlos los complete.
-- **Estado:** ⬜
+- **Estado:** 🟡 código completo (`pages/personas/CapturaAportacion.tsx`, `services/personasService.ts`, `types/persona.types.ts`, ruta admin en `App.tsx`). Typecheck verde. **Falta:** link en Sidebar (UI compartida → tarea propia) y verificación responsive/runtime (requiere Neon + app corriendo).
 
 ---
 

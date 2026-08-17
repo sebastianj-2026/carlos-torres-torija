@@ -15,7 +15,7 @@
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| personas | 🟡 P-001/002 SQL + P-003 backend listos; falta aplicar a Neon | 0 | — | CRUD personas/aportaciones code-complete, runtime sin probar |
+| personas | 🟡 slice code-complete (P-001..P-004); falta aplicar a Neon + validar runtime | 0 | — | migración+seed+CRUD+UI listos; falta link Sidebar y prueba real |
 | comisiones | 🟡 motor de cálculo VERDE (T-001/002/003); falta capa DB | 14 ✅ | personas | reparto+fifo listos; sigue T-004 (bloqueada por personas) |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |

@@ -24,6 +24,7 @@ import ListaInversionistas from './pages/inversionistas/ListaInversionistas';
 import PerfilInversionista from './pages/inversionistas/PerfilInversionista';
 import FormularioInversionista from './pages/inversionistas/FormularioInversionista';
 import ImportarInversionistas from './pages/inversionistas/ImportarInversionistas';
+import CapturaAportacion from './pages/personas/CapturaAportacion';
 
 // Módulo préstamos
 import ListaPrestamos from './pages/prestamos/ListaPrestamos';
@@ -137,6 +138,20 @@ const App: React.FC = () => {
                 <Layout>
                   <FormularioCliente />
                 </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Personas — captura de aportación con referidor (solo administrador) */}
+          <Route
+            path="/personas/aportacion"
+            element={
+              <ProtectedRoute>
+                <RoleGuard rolesPermitidos={['administrador']}>
+                  <Layout>
+                    <CapturaAportacion />
+                  </Layout>
+                </RoleGuard>
               </ProtectedRoute>
             }
           />
