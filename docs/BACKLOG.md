@@ -103,7 +103,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** P-001 (tablas personas/persona_documentos/aportaciones)
 - **Lee:** `comisiones/DATOS.md`
 - **Extra al DoD:** schema exacto de DATOS.md + índices FIFO + vista `saldo_por_persona` + `UNIQUE corte_idempotente` (R20) + `no_sobrepago`. Trae su `.down.sql`.
-- **Estado:** 🚫 bloqueada (depende de P-001)
+- **Estado:** 🟡 SQL escrito (`migration_comisiones.up/down.sql`), verbatim del spec. **Pendiente aplicar a Neon** (después de P-001).
 
 ## Logic — servicios sobre la DB
 
