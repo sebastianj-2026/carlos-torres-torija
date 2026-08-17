@@ -129,7 +129,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** T-004
 - **Lee:** `comisiones/MODULO.md` + `DATOS.md`
 - **Extra al DoD:** `GET /devengos?persona_id=` (estado de cuenta) y `GET /pagos/pendientes` con disponible calculado. Solo lectura.
-- **Estado:** ⬜ desbloqueada (T-004 aplicada)
+- **Estado:** ✅ hecha — validado EN VIVO 2026-08-17 (13/13). `GET /api/comisiones/devengos?persona_id=` (estado de cuenta) y `GET /api/comisiones/pendientes` (líneas con acumulado/meses/desde). Nota: 'disponible' es tesorería, fuera del slice.
 
 ## UI — pantallas
 

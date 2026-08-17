@@ -96,6 +96,64 @@ const MONEY_REGEX = /^(?:0*[1-9][0-9]*|0*[1-9][0-9]*\.[0-9]{1,2}|0*0?\.(?:0[1-9]
 const isNonEmpty = (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0;
 const isIntId = (v: unknown): boolean => /^[1-9][0-9]*$/.test(`${v}`);
 
+// ============================================================================
+// T-007: lecturas (solo lectura). Sin aritmética de dinero en JS: los montos
+// NUMERIC se devuelven como texto tal cual vienen de la DB.
+// Nota: "disponible" (efectivo en caja) es tesorería, fuera del slice.
+// ============================================================================
+
+// GET /api/comisiones/devengos?persona_id=  — estado de cuenta de una persona.
+export const estadoCuenta = async (req: Request, res: Response): Promise<void> => {
+  const raw = req.query.persona_id;
+  const personaId = typeof raw === 'string' ? raw : '';
+  if (!/^[1-9][0-9]*$/.test(personaId)) {
+    res.status(400).json({ mensaje: 'persona_id (query) inválido.' });
+    return;
+  }
+  try {
+    const saldo = await pool.query(
+      `SELECT concepto, devengado, pagado, acumulado
+         FROM saldo_por_persona WHERE persona_id = $1 ORDER BY concepto`,
+      [personaId]
+    );
+    const detalle = await pool.query(
+      `SELECT id, concepto, origen_tipo, origen_id, periodo,
+              base_capital, tasa, monto_devengado, monto_pagado, estado
+         FROM devengos WHERE persona_id = $1
+        ORDER BY periodo DESC, concepto`,
+      [personaId]
+    );
+    res.json({ persona_id: Number(personaId), saldo: saldo.rows, devengos: detalle.rows });
+  } catch (error) {
+    console.error('Error al obtener el estado de cuenta:', error);
+    res.status(500).json({ mensaje: 'Error interno al obtener el estado de cuenta.' });
+  }
+};
+
+// GET /api/comisiones/pendientes — líneas con acumulado > 0 (pantalla de Carlos).
+export const pendientes = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await pool.query(
+      `SELECT d.persona_id, p.nombre, p.apellido_paterno, p.apellido_materno,
+              d.concepto, d.origen_tipo, d.origen_id,
+              SUM(d.monto_devengado - d.monto_pagado) AS acumulado,
+              COUNT(*)  AS meses,
+              MIN(d.periodo) AS desde
+         FROM devengos d
+         JOIN personas p ON p.id = d.persona_id
+        WHERE d.estado <> 'pagado'
+        GROUP BY d.persona_id, p.nombre, p.apellido_paterno, p.apellido_materno,
+                 d.concepto, d.origen_tipo, d.origen_id
+       HAVING SUM(d.monto_devengado - d.monto_pagado) > 0
+        ORDER BY desde ASC, acumulado DESC`
+    );
+    res.json({ pendientes: result.rows });
+  } catch (error) {
+    console.error('Error al obtener pendientes:', error);
+    res.status(500).json({ mensaje: 'Error interno al obtener los pendientes.' });
+  }
+};
+
 export const registrarPago = async (req: Request, res: Response): Promise<void> => {
   const {
     persona_id, concepto, origen_tipo, origen_id, monto, fecha,

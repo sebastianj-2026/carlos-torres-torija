@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authMiddleware } from '../middlewares/auth.middleware';
 import { roleMiddleware } from '../middlewares/role.middleware';
-import { generarCorte, registrarPago } from '../controllers/comisiones.controller';
+import { generarCorte, registrarPago, estadoCuenta, pendientes } from '../controllers/comisiones.controller';
 
 // ================================================================
 // Router para /api/comisiones (cortes, pagos)
@@ -16,3 +16,7 @@ comisionesRouter.post('/cortes/:periodo', roleMiddleware('administrador'), gener
 
 // T-006: registra un pago y lo aplica FIFO sobre la línea. Solo administrador.
 comisionesRouter.post('/pagos', roleMiddleware('administrador'), registrarPago);
+
+// T-007: lecturas (solo administrador — datos financieros sensibles).
+comisionesRouter.get('/devengos', roleMiddleware('administrador'), estadoCuenta);
+comisionesRouter.get('/pendientes', roleMiddleware('administrador'), pendientes);

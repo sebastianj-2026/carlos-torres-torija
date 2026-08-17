@@ -16,7 +16,7 @@
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
 | personas | 🟢 slice funcional: P-003 validado en vivo 14/14; P-004 falta check visual | 0 | — | 4 personas + 4 aportaciones sembradas; falta link Sidebar |
-| comisiones | 🟡 corte (T-005) + pagos/FIFO (T-006) validados en vivo; falta T-007 + UI | 14 ✅ | personas (P-001) | devengos y pagos FIFO funcionando contra Neon |
+| comisiones | 🟢 backend COMPLETO (T-001…007) validado en vivo; falta solo UI (T-008/009/010) | 14 ✅ | personas (P-001) | motor+corte+pagos FIFO+lecturas funcionando contra Neon |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
 
