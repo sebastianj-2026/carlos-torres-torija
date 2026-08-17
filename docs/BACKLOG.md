@@ -138,8 +138,7 @@ Si no cumple → se parte. No se negocia.
 - **Tipo:** ui
 - **Depende de:** T-005
 - **Lee:** `docs/DISENO.md` + `comisiones/FLUJOS.md`
-- **Extra al DoD:** selector de periodo, previsualización antes de generar, aviso + botón deshabilitado si el periodo ya se corrió (R20).
-- **Estado:** 🚫 bloqueada (depende de T-005)
+- **Estado:** 🟡 código completo (`pages/comisiones/CorteMes.tsx`, `services/comisionesService.ts`, ruta admin en `App.tsx`) + endpoint preview `GET /cortes/:periodo/preview` validado en vivo. Selector de mes, previsualización con total, aviso R20 si ya corrido. Typecheck verde. **Falta:** check visual (navegador).
 
 ### T-009 · Pantalla Pagos pendientes (la de Carlos)
 - **Módulo:** comisiones

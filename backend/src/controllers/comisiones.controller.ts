@@ -21,6 +21,51 @@ import pool from '../config/database';
 
 const PERIODO_REGEX = /^\d{4}-(0[1-9]|1[0-2])$/; // 'YYYY-MM'
 
+// GET /api/comisiones/cortes/:periodo/preview — qué se generaría, sin insertar.
+export const previewCorte = async (req: Request, res: Response): Promise<void> => {
+  const rawPeriodo = req.params.periodo;
+  const periodo = Array.isArray(rawPeriodo) ? rawPeriodo[0] : rawPeriodo;
+  if (!periodo || !PERIODO_REGEX.test(periodo)) {
+    res.status(400).json({ mensaje: 'periodo inválido. Formato esperado: YYYY-MM.' });
+    return;
+  }
+  const periodoDate = `${periodo}-01`;
+  try {
+    const rows = await pool.query(
+      `SELECT p.id AS persona_id, p.nombre, p.apellido_paterno, p.apellido_materno,
+              'rendimiento' AS concepto, a.id AS origen_id,
+              a.monto AS base_capital, a.tasa_inversionista AS tasa,
+              round(a.monto * a.tasa_inversionista, 2) AS monto_devengado
+         FROM aportaciones a JOIN personas p ON p.id = a.inversionista_id
+        WHERE a.estado = 'activa'
+          AND NOT EXISTS (SELECT 1 FROM devengos d
+                           WHERE d.persona_id=a.inversionista_id AND d.concepto='rendimiento'
+                             AND d.origen_tipo='aportacion' AND d.origen_id=a.id AND d.periodo=$1)
+       UNION ALL
+       SELECT p.id, p.nombre, p.apellido_paterno, p.apellido_materno,
+              'comision', a.id, a.monto, a.tasa_referenciador,
+              round(a.monto * a.tasa_referenciador, 2)
+         FROM aportaciones a JOIN personas p ON p.id = a.referenciador_id
+        WHERE a.estado = 'activa' AND a.referenciador_id IS NOT NULL
+          AND NOT EXISTS (SELECT 1 FROM devengos d
+                           WHERE d.persona_id=a.referenciador_id AND d.concepto='comision'
+                             AND d.origen_tipo='aportacion' AND d.origen_id=a.id AND d.periodo=$1)
+        ORDER BY concepto, persona_id`,
+      [periodoDate]
+    );
+    const existe = await pool.query('SELECT EXISTS(SELECT 1 FROM devengos WHERE periodo=$1) AS e', [periodoDate]);
+    res.json({
+      periodo,
+      por_generar: rows.rows,
+      total: rows.rowCount ?? 0,
+      ya_tiene_devengos: existe.rows[0].e,
+    });
+  } catch (error) {
+    console.error('Error en preview de corte:', error);
+    res.status(500).json({ mensaje: 'Error interno al previsualizar el corte.' });
+  }
+};
+
 export const generarCorte = async (req: Request, res: Response): Promise<void> => {
   const rawPeriodo = req.params.periodo;
   const periodo = Array.isArray(rawPeriodo) ? rawPeriodo[0] : rawPeriodo;

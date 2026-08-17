@@ -25,6 +25,7 @@ import PerfilInversionista from './pages/inversionistas/PerfilInversionista';
 import FormularioInversionista from './pages/inversionistas/FormularioInversionista';
 import ImportarInversionistas from './pages/inversionistas/ImportarInversionistas';
 import CapturaAportacion from './pages/personas/CapturaAportacion';
+import CorteMes from './pages/comisiones/CorteMes';
 
 // Módulo préstamos
 import ListaPrestamos from './pages/prestamos/ListaPrestamos';
@@ -150,6 +151,20 @@ const App: React.FC = () => {
                 <RoleGuard rolesPermitidos={['administrador']}>
                   <Layout>
                     <CapturaAportacion />
+                  </Layout>
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Comisiones — corte del mes (solo administrador) */}
+          <Route
+            path="/comisiones/corte"
+            element={
+              <ProtectedRoute>
+                <RoleGuard rolesPermitidos={['administrador']}>
+                  <Layout>
+                    <CorteMes />
                   </Layout>
                 </RoleGuard>
               </ProtectedRoute>
