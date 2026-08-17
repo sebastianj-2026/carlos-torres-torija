@@ -130,6 +130,8 @@ export interface CrearInversionDto {
   fecha_inicio: string;
   fecha_vencimiento?: string;
   notas?: string;
+  referenciador_id?: string;      // otro inversionista que refirió esta inversión
+  tasa_referenciador?: number;    // % mensual de comisión del referidor
 }
 
 export type EditarInversionDto = Partial<CrearInversionDto>;

@@ -545,13 +545,35 @@ export const crearInversion = async (req: Request, res: Response): Promise<void>
       return;
     }
 
+    // Referidor (otro inversionista) + su tasa. Van juntos o ninguno; no auto-referencia.
+    const referenciadorId = datos.referenciador_id?.trim() || null;
+    const tasaReferenciador = datos.tasa_referenciador;
+    if (referenciadorId) {
+      if (referenciadorId === id) {
+        res.status(400).json({ mensaje: 'El referidor no puede ser el mismo inversionista.' });
+        return;
+      }
+      if (!tasaReferenciador || tasaReferenciador <= 0) {
+        res.status(400).json({ mensaje: 'Falta la tasa del referidor.' });
+        return;
+      }
+      const refExiste = await pool.query('SELECT id FROM inversionistas WHERE id = $1', [referenciadorId]);
+      if (refExiste.rowCount === 0) {
+        res.status(400).json({ mensaje: 'El referidor no existe.' });
+        return;
+      }
+    } else if (tasaReferenciador) {
+      res.status(400).json({ mensaje: 'Hay tasa de referidor sin referidor.' });
+      return;
+    }
+
     const resultado = await pool.query(
       `INSERT INTO inversiones
          (inversionista_id, monto_inicial, monto_actual, tasa_interes_mensual,
           dia_pago, forma_ingreso, cuenta_deposito,
           tiene_pagare, url_pagare, fecha_inicio, fecha_vencimiento,
-          notas, registrado_por)
-       VALUES ($1, $2, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+          notas, registrado_por, referenciador_id, tasa_referenciador)
+       VALUES ($1, $2, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
        RETURNING *`,
       [
         id,
@@ -566,6 +588,8 @@ export const crearInversion = async (req: Request, res: Response): Promise<void>
         datos.fecha_vencimiento || null,
         datos.notas?.trim()     || null,
         registrado_por          || null,
+        referenciadorId,
+        referenciadorId ? tasaReferenciador : null,
       ]
     );
 

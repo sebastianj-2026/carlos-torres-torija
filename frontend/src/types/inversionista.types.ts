@@ -1,5 +1,5 @@
 // ================================================================
-// OFICINA TS — Módulo de Inversionistas
+// PrestaFácil — Módulo de Inversionistas
 // Tipos e interfaces para el frontend
 // ================================================================
 
@@ -66,6 +66,8 @@ export interface Inversion {
   fecha_inicio: string;
   fecha_vencimiento: string | null;
   notas: string | null;
+  referenciador_id: string | null;
+  tasa_referenciador: string | null;
   registrado_por: string | null;
   fecha_registro: string;
   fecha_actualizacion: string;
@@ -159,6 +161,8 @@ export interface FormularioInversionData {
   fecha_inicio: string;
   fecha_vencimiento: string;
   notas: string;
+  referenciador_id?: string;
+  tasa_referenciador?: string;
 }
 
 export interface FormularioPagoInteresData {
