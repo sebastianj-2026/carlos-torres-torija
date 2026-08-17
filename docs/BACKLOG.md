@@ -146,7 +146,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** T-006, T-007
 - **Lee:** `docs/DISENO.md` + `comisiones/FLUJOS.md`
 - **Extra al DoD:** selección manual (R14), total seleccionado/quedaría en vivo, FIFO dentro de línea sin elegir periodo (R15), pide `autorizado por` + comprobante PDF (R19). Responsive 375: tarjetas con total fijo abajo.
-- **Estado:** 🚫 bloqueada (depende de T-006)
+- **Estado:** 🟡 código completo (`pages/comisiones/PagosPendientes.tsx`, service, ruta admin). Selección manual, total en centavos (sin float), barra fija, autorizado_por. Consume endpoints validados en vivo. **Gaps:** comprobante PDF pendiente (falta subida de persona_documentos) y check visual (navegador).
 
 ### T-010 · Estado de cuenta por persona
 - **Módulo:** comisiones

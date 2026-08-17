@@ -26,6 +26,7 @@ import FormularioInversionista from './pages/inversionistas/FormularioInversioni
 import ImportarInversionistas from './pages/inversionistas/ImportarInversionistas';
 import CapturaAportacion from './pages/personas/CapturaAportacion';
 import CorteMes from './pages/comisiones/CorteMes';
+import PagosPendientes from './pages/comisiones/PagosPendientes';
 
 // Módulo préstamos
 import ListaPrestamos from './pages/prestamos/ListaPrestamos';
@@ -165,6 +166,20 @@ const App: React.FC = () => {
                 <RoleGuard rolesPermitidos={['administrador']}>
                   <Layout>
                     <CorteMes />
+                  </Layout>
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Comisiones — pagos pendientes (solo administrador) */}
+          <Route
+            path="/comisiones/pendientes"
+            element={
+              <ProtectedRoute>
+                <RoleGuard rolesPermitidos={['administrador']}>
+                  <Layout>
+                    <PagosPendientes />
                   </Layout>
                 </RoleGuard>
               </ProtectedRoute>

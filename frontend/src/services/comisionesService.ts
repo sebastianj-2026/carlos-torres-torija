@@ -39,6 +39,41 @@ export const generarCorte = async (periodo: string): Promise<ResultadoCorte> => 
   return data;
 };
 
+export interface PendienteLinea {
+  persona_id: number;
+  nombre: string;
+  apellido_paterno: string;
+  apellido_materno?: string | null;
+  concepto: 'rendimiento' | 'comision';
+  origen_tipo: 'aportacion' | 'credito';
+  origen_id: number;
+  acumulado: string;
+  meses: string | number;
+  desde: string;
+}
+
+export const listarPendientes = async (): Promise<PendienteLinea[]> => {
+  const { data } = await apiClient.get<{ pendientes: PendienteLinea[] }>('/comisiones/pendientes');
+  return data.pendientes;
+};
+
+export interface RegistrarPagoInput {
+  persona_id: number;
+  concepto: 'rendimiento' | 'comision';
+  origen_tipo: 'aportacion' | 'credito';
+  origen_id: number;
+  monto: string;
+  fecha: string;
+  autorizado_por: string;
+  comprobante_doc_id?: number | null;
+  nota?: string;
+}
+
+export const registrarPagoComision = async (input: RegistrarPagoInput): Promise<unknown> => {
+  const { data } = await apiClient.post('/comisiones/pagos', input);
+  return data;
+};
+
 // Suma de importes MXN en centavos enteros (sin float) → "1234.56".
 export const sumaMxn = (valores: string[]): string => {
   let cents = 0;
