@@ -234,3 +234,57 @@ export const crearAportacion = async (req: Request, res: Response): Promise<void
     res.status(500).json({ mensaje: 'Error interno al crear la aportación.' });
   }
 };
+
+// ----------------------------------------------------------------
+// POST /api/personas/:id/documentos  — sube un comprobante PDF (R19).
+// Bytes en BYTEA en la DB (patrón del legacy). Multer memoryStorage + magic bytes.
+// ----------------------------------------------------------------
+export const subirComprobante = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const file = (req as any).file;
+  if (!file) {
+    res.status(400).json({ mensaje: 'Falta el archivo (campo "archivo").' });
+    return;
+  }
+  if (file.mimetype !== 'application/pdf') {
+    res.status(400).json({ mensaje: 'El comprobante debe ser PDF.' });
+    return;
+  }
+  try {
+    const r = await pool.query(
+      `INSERT INTO persona_documentos (persona_id, tipo, nombre_archivo, mime, bytes, contenido)
+       VALUES ($1, 'comprobante_pago', $2, $3, $4, $5)
+       RETURNING id, tipo, nombre_archivo, mime, bytes, subido_en`,
+      [id, file.originalname, file.mimetype, file.size, file.buffer]
+    );
+    res.status(201).json(r.rows[0]);
+  } catch (error: any) {
+    if (error?.code === '23503') { res.status(400).json({ mensaje: 'La persona no existe.' }); return; }
+    console.error('Error al subir comprobante:', error);
+    res.status(500).json({ mensaje: 'Error interno al subir el comprobante.' });
+  }
+};
+
+// ----------------------------------------------------------------
+// GET /api/personas/:id/documentos/:docId  — descarga/abre el PDF.
+// ----------------------------------------------------------------
+export const descargarDocumento = async (req: Request, res: Response): Promise<void> => {
+  const { id, docId } = req.params;
+  try {
+    const r = await pool.query(
+      `SELECT nombre_archivo, mime, contenido
+         FROM persona_documentos WHERE id = $1 AND persona_id = $2`,
+      [docId, id]
+    );
+    if (r.rowCount === 0 || !r.rows[0].contenido) {
+      res.status(404).json({ mensaje: 'Documento no encontrado.' });
+      return;
+    }
+    res.setHeader('Content-Type', r.rows[0].mime);
+    res.setHeader('Content-Disposition', `inline; filename="${r.rows[0].nombre_archivo}"`);
+    res.send(r.rows[0].contenido);
+  } catch (error) {
+    console.error('Error al descargar documento:', error);
+    res.status(500).json({ mensaje: 'Error interno al descargar el documento.' });
+  }
+};

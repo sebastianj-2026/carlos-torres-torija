@@ -15,8 +15,8 @@
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| personas | 🟢 slice funcional: P-003 validado en vivo 14/14; P-004 falta check visual | 0 | — | 4 personas + 4 aportaciones sembradas; falta link Sidebar |
-| comisiones | 🟢 backend validado en vivo + UI code-complete (T-001…010); falta check visual | 14 ✅ | personas (P-001) | módulo completo salvo verificación visual y comprobante PDF |
+| personas | 🟢 slice funcional + comprobantes PDF (subida/descarga) + links Sidebar | 0 | — | 4 personas + 4 aportaciones sembradas; falta check visual |
+| comisiones | 🟢 completo (T-001…010) + comprobante PDF + links Sidebar; falta solo check visual | 14 ✅ | personas (P-001) | módulo funcional end-to-end contra Neon; falta verlo en navegador |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
 

@@ -10,6 +10,14 @@ export const listarPersonas = async (buscar?: string): Promise<Persona[]> => {
   return data;
 };
 
+// POST /api/personas/:id/documentos — sube un comprobante PDF (R19).
+export const subirComprobante = async (personaId: number, file: File): Promise<{ id: number }> => {
+  const fd = new FormData();
+  fd.append('archivo', file);
+  const { data } = await apiClient.post<{ id: number }>(`/personas/${personaId}/documentos`, fd);
+  return data;
+};
+
 // POST /api/personas/:id/aportaciones
 export const crearAportacion = async (
   personaId: number,

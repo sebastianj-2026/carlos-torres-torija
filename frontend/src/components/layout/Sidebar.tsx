@@ -14,6 +14,8 @@ import {
   Receipt,
   Banknote,
   HardHat,
+  UserPlus,
+  CalendarClock,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -36,6 +38,10 @@ const itemsMenu: ItemMenu[] = [
   { etiqueta: 'Hub de Ingresos',    ruta: '/ingresos',        Icono: Banknote                         },
   { etiqueta: 'Nóminas',            ruta: '/nominas',         Icono: HardHat                          },
   { etiqueta: 'Juicios',            ruta: '/juicios',         Icono: Gavel,           soloAdmin: true },
+  { etiqueta: 'Aportaciones',       ruta: '/personas/aportacion',      Icono: UserPlus,       soloAdmin: true },
+  { etiqueta: 'Comisiones',         ruta: '/comisiones/pendientes',    Icono: Receipt,        soloAdmin: true },
+  { etiqueta: 'Corte del mes',      ruta: '/comisiones/corte',         Icono: CalendarClock,  soloAdmin: true },
+  { etiqueta: 'Estado de cuenta',   ruta: '/comisiones/estado-cuenta', Icono: FileText,       soloAdmin: true },
 ];
 
 interface SidebarProps {
@@ -52,7 +58,7 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileAbierto, onCerrarMobile }) => {
 
   const claseBase     = 'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-150 text-sm font-medium group';
   const claseInactivo = 'text-slate-400 hover:bg-slate-700/60 hover:text-white';
-  const claseActivo   = 'bg-orange-500 text-white shadow-md shadow-orange-500/30';
+  const claseActivo   = 'bg-sky-500 text-white shadow-md shadow-sky-500/30';
 
   return (
     <>
@@ -70,18 +76,18 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileAbierto, onCerrarMobile }) => {
         <div className="flex items-center justify-between h-16 px-3 border-b border-slate-700/60 shrink-0">
           {!colapsado && (
             <div className="flex items-center gap-2 overflow-hidden">
-              <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center shrink-0">
-                <span className="text-white font-black text-xs">OTS</span>
+              <div className="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center shrink-0">
+                <span className="text-white font-black text-xs">PF</span>
               </div>
               <div className="flex items-baseline gap-1">
-                <span className="font-light text-slate-300 text-sm tracking-widest uppercase">Oficina</span>
-                <span className="font-black text-orange-400 text-sm tracking-wider">TS</span>
+                <span className="font-light text-slate-300 text-sm tracking-wide">Presta</span>
+                <span className="font-black text-sky-400 text-sm tracking-wide">Fácil</span>
               </div>
             </div>
           )}
           {colapsado && (
-            <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center mx-auto">
-              <span className="text-white font-black text-xs">OTS</span>
+            <div className="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center mx-auto">
+              <span className="text-white font-black text-xs">PF</span>
             </div>
           )}
           {!colapsado && (
@@ -124,8 +130,8 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileAbierto, onCerrarMobile }) => {
         {!colapsado && (
           <div className="px-3 py-4 border-t border-slate-700/60 shrink-0">
             <div className="flex items-center gap-2 px-3">
-              <div className="w-7 h-7 rounded-full bg-orange-500/20 flex items-center justify-center shrink-0">
-                <span className="text-orange-400 text-xs font-bold uppercase">
+              <div className="w-7 h-7 rounded-full bg-sky-500/20 flex items-center justify-center shrink-0">
+                <span className="text-sky-400 text-xs font-bold uppercase">
                   {usuario?.nombre?.charAt(0) ?? 'U'}
                 </span>
               </div>
