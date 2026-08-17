@@ -15,8 +15,8 @@
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| personas | 🟢 slice funcional + comprobantes PDF (subida/descarga) + links Sidebar | 0 | — | 4 personas + 4 aportaciones sembradas; falta check visual |
-| comisiones | 🟢 completo (T-001…010) + comprobante PDF + links Sidebar; falta solo check visual | 14 ✅ | personas (P-001) | módulo funcional end-to-end contra Neon; falta verlo en navegador |
+| inversionistas + referidor | 🟢 referidor+tasa sobre la inversión, capturado en el detalle (validado en vivo 7/7) | — | — | rediseño 2026-08-17: un solo módulo |
+| personas / comisiones (backend) | 😴 DORMIDO — tablas y endpoints existen en Neon pero SIN UI (rediseño los reemplazó) | 14 ✅ | — | UI eliminada; tablas personas/aportaciones/devengos/pagos sin uso |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
 
@@ -76,6 +76,7 @@ Estados: `⬜ pendiente` · `🟡 en curso` · `✅ producción` · `🚫 bloque
 | 2026-08-16 | comisiones | Cerradas R21 (inversionista primero), R22 (oficina en rojo → devenga hasta lo cobrado), R23 (2 decimales, residuo a oficina) | Desbloquea el motor de comisiones; la invarianza de suma ya tiene dueño del residuo definido. |
 | 2026-08-16 | personas | Slice mínimo (personas + persona_documentos + aportaciones), sembrado desde inversionistas legacy; referidor capturado por UI | El legacy no tiene modelo de referidor → `aportaciones` es indispensable para comisiones. Se difieren persona_roles y la fusión con `clientes` para no tocar el legacy vivo. |
 | 2026-08-17 | comisiones | T-005 calcula el devengo en SQL NUMERIC (`round(base*tasa,2)`), no con `reparto.ts` | Evita `Number()` sobre dinero (regla dinero-sin-float) y hace el corte atómico/idempotente en la DB. **Riesgo:** la regla de cálculo vive en dos lados (SQL del corte + `reparto.ts` unit-testeado); si cambia, actualizar ambos. |
+| 2026-08-17 | rediseño | **Un solo módulo de inversionistas + referidores.** Referidor+tasa sobre `inversiones` (legacy), capturado en el detalle del inversionista. Se quitaron las pantallas personas/comisiones (corte, pendientes, estado de cuenta, captura suelta). | Feedback de Sebastian: no le gustó el split personas/comisiones. El referidor es otro inversionista. Las tablas personas/aportaciones/devengos/pagos quedan dormidas (borrables). El backend de comisiones no se toca por ahora. |
 
 ## Bitácora de aceptación (Sebastian)
 
