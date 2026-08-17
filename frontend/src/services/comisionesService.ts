@@ -74,6 +74,37 @@ export const registrarPagoComision = async (input: RegistrarPagoInput): Promise<
   return data;
 };
 
+export interface SaldoConcepto {
+  concepto: 'rendimiento' | 'comision';
+  devengado: string;
+  pagado: string;
+  acumulado: string;
+}
+
+export interface DevengoDetalle {
+  id: number;
+  concepto: 'rendimiento' | 'comision';
+  origen_tipo: 'aportacion' | 'credito';
+  origen_id: number;
+  periodo: string;
+  base_capital: string;
+  tasa: string;
+  monto_devengado: string;
+  monto_pagado: string;
+  estado: 'pendiente' | 'parcial' | 'pagado';
+}
+
+export interface EstadoCuenta {
+  persona_id: number;
+  saldo: SaldoConcepto[];
+  devengos: DevengoDetalle[];
+}
+
+export const getEstadoCuenta = async (personaId: number): Promise<EstadoCuenta> => {
+  const { data } = await apiClient.get<EstadoCuenta>(`/comisiones/devengos?persona_id=${personaId}`);
+  return data;
+};
+
 // Suma de importes MXN en centavos enteros (sin float) → "1234.56".
 export const sumaMxn = (valores: string[]): string => {
   let cents = 0;

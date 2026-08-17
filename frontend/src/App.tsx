@@ -27,6 +27,7 @@ import ImportarInversionistas from './pages/inversionistas/ImportarInversionista
 import CapturaAportacion from './pages/personas/CapturaAportacion';
 import CorteMes from './pages/comisiones/CorteMes';
 import PagosPendientes from './pages/comisiones/PagosPendientes';
+import EstadoCuenta from './pages/comisiones/EstadoCuenta';
 
 // Módulo préstamos
 import ListaPrestamos from './pages/prestamos/ListaPrestamos';
@@ -180,6 +181,20 @@ const App: React.FC = () => {
                 <RoleGuard rolesPermitidos={['administrador']}>
                   <Layout>
                     <PagosPendientes />
+                  </Layout>
+                </RoleGuard>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Comisiones — estado de cuenta por persona (solo administrador) */}
+          <Route
+            path="/comisiones/estado-cuenta"
+            element={
+              <ProtectedRoute>
+                <RoleGuard rolesPermitidos={['administrador']}>
+                  <Layout>
+                    <EstadoCuenta />
                   </Layout>
                 </RoleGuard>
               </ProtectedRoute>

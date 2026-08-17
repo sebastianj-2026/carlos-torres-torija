@@ -154,7 +154,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** T-007
 - **Lee:** `docs/DISENO.md` + `comisiones/FLUJOS.md` + `personas/FLUJOS.md`
 - **Extra al DoD:** vive en el detalle de persona; devengado/pagado/acumulado por concepto.
-- **Estado:** 🚫 bloqueada (depende de T-007)
+- **Estado:** 🟡 código completo (`pages/comisiones/EstadoCuenta.tsx`, service, ruta admin). Autónoma con buscador de persona (no hay página de detalle en el slice). Consume `/comisiones/devengos` validado en vivo. Falta check visual.
 
 ## Fase 2 — mejoras (no bloquean el core)
 
