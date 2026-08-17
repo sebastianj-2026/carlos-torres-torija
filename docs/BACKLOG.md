@@ -33,7 +33,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** —
 - **Lee:** `docs/modulos/personas/DATOS.md`
 - **Extra al DoD:** las 3 tablas del spec (personas, persona_documentos, aportaciones) con sus índices y constraints (identidad única, `no_auto_referencia`, `tasa_ref_coherente`). **Sin** `persona_roles`. Trae `.down.sql`. Aplicación a Neon es MANUAL (documentar el paso).
-- **Estado:** 🟡 SQL escrito (`database/migration_personas_slice.up.sql` + `.down.sql`), **pendiente aplicar a Neon manualmente**. Desbloquea comisiones T-004.
+- **Estado:** ✅ aplicada a Neon 2026-08-17. Tablas personas/persona_documentos/aportaciones vivas.
 
 ### P-002 · Seed personas + aportaciones desde inversionistas legacy
 - **Módulo:** personas
@@ -41,7 +41,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** P-001
 - **Lee:** `docs/modulos/personas/DATOS.md`
 - **Extra al DoD:** migración de datos one-shot: `personas` desde `inversionistas` (nombres/apellidos/teléfono), `aportaciones` desde `inversiones` (inversionista_id, monto, tasa_inversionista) con `referenciador_id` NULL. Idempotente. No borra el legacy.
-- **Estado:** 🟡 SQL escrito (`migration_personas_slice_seed.up/down.sql`), **pendiente aplicar** (después de P-001). Mapea UUID→BIGINT vía columnas `legacy_*`; tasa /100; monto=monto_inicial.
+- **Estado:** ✅ aplicada a Neon 2026-08-17. 4 inversionistas→4 personas, 4 inversiones→4 aportaciones (tasa /100 verificada, referidor NULL).
 
 ### P-003 · CRUD backend personas + aportaciones
 - **Módulo:** personas
@@ -103,7 +103,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** P-001 (tablas personas/persona_documentos/aportaciones)
 - **Lee:** `comisiones/DATOS.md`
 - **Extra al DoD:** schema exacto de DATOS.md + índices FIFO + vista `saldo_por_persona` + `UNIQUE corte_idempotente` (R20) + `no_sobrepago`. Trae su `.down.sql`.
-- **Estado:** 🟡 SQL escrito (`migration_comisiones.up/down.sql`), verbatim del spec. **Pendiente aplicar a Neon** (después de P-001).
+- **Estado:** ✅ aplicada a Neon 2026-08-17. devengos/pagos/pago_aplicaciones + vista saldo_por_persona vivas.
 
 ## Logic — servicios sobre la DB
 
@@ -113,7 +113,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** T-002, T-004
 - **Lee:** `comisiones/REGLAS.md` + `MODULO.md`
 - **Extra al DoD:** `POST /cortes/:periodo` genera devengos, congela `base_capital`+`tasa` al generarse (R18), idempotente a nivel DB (R20). Correr dos veces = mismo estado (caso 7).
-- **Estado:** 🚫 bloqueada (depende de T-004)
+- **Estado:** ⬜ desbloqueada (T-004 aplicada)
 
 ### T-006 · Servicio de pagos + aplicaciones FIFO
 - **Módulo:** comisiones
@@ -121,7 +121,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** T-003, T-004
 - **Lee:** `comisiones/REGLAS.md` + `MODULO.md`
 - **Extra al DoD:** `POST /pagos` aplica FIFO (T-003), un pago por concepto (R17), gobernanza `autorizado_por`+comprobante (R19). No absorbe faltante: lo devenga (R22).
-- **Estado:** 🚫 bloqueada (depende de T-004)
+- **Estado:** ⬜ desbloqueada (T-004 aplicada)
 
 ### T-007 · Estado de cuenta y pendientes
 - **Módulo:** comisiones
@@ -129,7 +129,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** T-004
 - **Lee:** `comisiones/MODULO.md` + `DATOS.md`
 - **Extra al DoD:** `GET /devengos?persona_id=` (estado de cuenta) y `GET /pagos/pendientes` con disponible calculado. Solo lectura.
-- **Estado:** 🚫 bloqueada (depende de T-004)
+- **Estado:** ⬜ desbloqueada (T-004 aplicada)
 
 ## UI — pantallas
 

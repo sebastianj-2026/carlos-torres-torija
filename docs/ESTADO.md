@@ -15,8 +15,8 @@
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| personas | 🟡 slice code-complete (P-001..P-004); falta aplicar a Neon + validar runtime | 0 | — | migración+seed+CRUD+UI listos; falta link Sidebar y prueba real |
-| comisiones | 🟡 motor VERDE + T-004 SQL escrito; falta aplicar + servicios | 14 ✅ | personas (P-001) | reparto+fifo listos; migración devengos/pagos escrita |
+| personas | 🟢 slice con datos en Neon (P-001/002 aplicadas); P-003/004 sin validar en vivo | 0 | — | 4 personas + 4 aportaciones sembradas; falta link Sidebar |
+| comisiones | 🟡 motor VERDE + T-004 aplicada; faltan servicios (T-005+) | 14 ✅ | personas (P-001) | tablas devengos/pagos/aplicaciones vivas en Neon |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
 
