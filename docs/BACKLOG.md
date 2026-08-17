@@ -49,7 +49,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** P-001
 - **Lee:** `docs/modulos/personas/MODULO.md` + `REGLAS.md`
 - **Extra al DoD:** endpoints POST/GET/PATCH `/personas`, POST `/personas/:id/aportaciones` con `referenciador_id`+`tasa_referenciador` opcionales (P6/P7). Validar constraints en el servicio.
-- **Estado:** 🟡 código completo (`controllers/personas.controller.ts`, `routes/personas.routes.ts`, `middlewares/validateIntId.middleware.ts`, wiring en `index.ts`). Typecheck verde, sin dinero-float. **Runtime sin probar** hasta aplicar P-001/P-002 a Neon (sin test de integración — deuda).
+- **Estado:** ✅ hecha — validado EN VIVO contra Neon 2026-08-17 (14/14: auth 401/403, lectura sembrada, alta, negativos P7/coherencia/monto/404/id). Sin test de integración automatizado (deuda).
 
 ### P-004 · UI aportaciones con referidor + tasa (captura de Carlos)
 - **Módulo:** personas
@@ -57,7 +57,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** P-003
 - **Lee:** `docs/DISENO.md` + `docs/modulos/personas/FLUJOS.md`
 - **Extra al DoD:** alta/edición de aportación con campo referidor (autocompletar persona) + tasa opcional. Los históricos quedan sin referidor hasta que Carlos los complete.
-- **Estado:** 🟡 código completo (`pages/personas/CapturaAportacion.tsx`, `services/personasService.ts`, `types/persona.types.ts`, ruta admin en `App.tsx`). Typecheck verde. **Falta:** link en Sidebar (UI compartida → tarea propia) y verificación responsive/runtime (requiere Neon + app corriendo).
+- **Estado:** 🟡 código completo + contrato validado (usa los endpoints que P-003 probó en vivo). Responsive endurecido (fila monto/fecha apila en <640px). **Falta:** check visual 375/768/1440 (extension de Chrome no conectado → click-through manual o e2e) y link en Sidebar (UI compartida → tarea propia).
 
 ---
 

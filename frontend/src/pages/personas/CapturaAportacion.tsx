@@ -190,7 +190,7 @@ export default function CapturaAportacion() {
       <form onSubmit={enviar} className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-4">
         <PersonaPicker label="Inversionista" seleccion={inversionista} onSelect={setInversionista} />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Monto (MXN)</label>
             <input value={monto} onChange={(e) => setMonto(e.target.value)} inputMode="decimal" placeholder="500000.00" className={inputCls} />
