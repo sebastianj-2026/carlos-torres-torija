@@ -113,7 +113,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** T-002, T-004
 - **Lee:** `comisiones/REGLAS.md` + `MODULO.md`
 - **Extra al DoD:** `POST /cortes/:periodo` genera devengos, congela `base_capital`+`tasa` al generarse (R18), idempotente a nivel DB (R20). Correr dos veces = mismo estado (caso 7).
-- **Estado:** ✅ hecha — validado EN VIVO 2026-08-17 (12/12: auth, periodo inválido, montos round(base*tasa,2), R18 congelado, R20 idempotente). Cálculo en SQL NUMERIC (no JS). Falta test de integración automatizado (deuda).
+- **Estado:** ✅ hecha — validado EN VIVO 2026-08-17 (12/12: auth, periodo inválido, montos round(base*tasa,2), R18 congelado, R20 idempotente). Cálculo en SQL NUMERIC (no JS). Endpoint `POST /api/comisiones/cortes/:periodo`. Falta test de integración automatizado (deuda).
 
 ### T-006 · Servicio de pagos + aplicaciones FIFO
 - **Módulo:** comisiones
@@ -121,7 +121,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** T-003, T-004
 - **Lee:** `comisiones/REGLAS.md` + `MODULO.md`
 - **Extra al DoD:** `POST /pagos` aplica FIFO (T-003), un pago por concepto (R17), gobernanza `autorizado_por`+comprobante (R19). No absorbe faltante: lo devenga (R22).
-- **Estado:** ⬜ desbloqueada (T-004 aplicada)
+- **Estado:** ✅ hecha — validado EN VIVO 2026-08-17 (16/16: FIFO por antigüedad, estados pagado/parcial, no_sobrepago, sobrepago→400, R19, auth). FIFO en SQL NUMERIC. Endpoint `POST /api/comisiones/pagos`.
 
 ### T-007 · Estado de cuenta y pendientes
 - **Módulo:** comisiones

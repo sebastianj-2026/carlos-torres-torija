@@ -80,3 +80,126 @@ export const generarCorte = async (req: Request, res: Response): Promise<void> =
     client.release();
   }
 };
+
+// ============================================================================
+// T-006: registrar un pago y aplicarlo FIFO sobre la línea (persona+concepto+
+// origen). R15: FIFO por periodo ascendente. R16: no cruza orígenes (la línea
+// ya viene acotada por origen). R17: un pago por concepto. R19: gobernanza.
+// R22: no absorbe faltante — solo aplica lo que se paga; el resto sigue devengado.
+//
+// La asignación FIFO se calcula en SQL NUMERIC (window function), NO en JS:
+// aplicado_i = min(pendiente_i, max(0, monto - sum(pendiente antes de i))).
+// Es la misma regla de fifo.ts (unit-testeado, casos 4/8), sin dinero-float.
+// ============================================================================
+
+const MONEY_REGEX = /^(?:0*[1-9][0-9]*|0*[1-9][0-9]*\.[0-9]{1,2}|0*0?\.(?:0[1-9]|[1-9][0-9]?))$/;
+const isNonEmpty = (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0;
+const isIntId = (v: unknown): boolean => /^[1-9][0-9]*$/.test(`${v}`);
+
+export const registrarPago = async (req: Request, res: Response): Promise<void> => {
+  const {
+    persona_id, concepto, origen_tipo, origen_id, monto, fecha,
+    autorizado_por, comprobante_doc_id, nota,
+  } = req.body;
+
+  if (!isIntId(persona_id)) { res.status(400).json({ mensaje: 'persona_id inválido.' }); return; }
+  if (concepto !== 'rendimiento' && concepto !== 'comision') {
+    res.status(400).json({ mensaje: "concepto debe ser 'rendimiento' o 'comision'." }); return;
+  }
+  if (origen_tipo !== 'aportacion' && origen_tipo !== 'credito') {
+    res.status(400).json({ mensaje: "origen_tipo debe ser 'aportacion' o 'credito'." }); return;
+  }
+  if (!isIntId(origen_id)) { res.status(400).json({ mensaje: 'origen_id inválido.' }); return; }
+  if (!isNonEmpty(monto) || !MONEY_REGEX.test(monto.trim())) {
+    res.status(400).json({ mensaje: 'monto debe ser un importe positivo con hasta 2 decimales (texto).' }); return;
+  }
+  if (!isNonEmpty(fecha)) { res.status(400).json({ mensaje: 'fecha es obligatoria.' }); return; }
+  if (!isNonEmpty(autorizado_por)) { res.status(400).json({ mensaje: 'autorizado_por es obligatorio (R19).' }); return; }
+  if (comprobante_doc_id !== undefined && comprobante_doc_id !== null && !isIntId(comprobante_doc_id)) {
+    res.status(400).json({ mensaje: 'comprobante_doc_id inválido.' }); return;
+  }
+
+  const linea = [`${persona_id}`, concepto, origen_tipo, `${origen_id}`];
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+
+    // Pendiente total de la línea (para rechazar sobrepago del pago completo).
+    const pendRes = await client.query(
+      `SELECT COALESCE(SUM(monto_devengado - monto_pagado), 0) AS pendiente
+         FROM devengos
+        WHERE persona_id=$1 AND concepto=$2 AND origen_tipo=$3 AND origen_id=$4 AND estado <> 'pagado'`,
+      linea
+    );
+    const pendiente = pendRes.rows[0].pendiente as string;
+    if (Number(pendiente) <= 0) {
+      await client.query('ROLLBACK');
+      res.status(400).json({ mensaje: 'No hay devengos pendientes en esa línea.' });
+      return;
+    }
+    // Comparación de importe delegada a NUMERIC en la DB para no usar float en JS.
+    const excedeRes = await client.query('SELECT ($1::numeric > $2::numeric) AS excede', [monto.trim(), pendiente]);
+    if (excedeRes.rows[0].excede) {
+      await client.query('ROLLBACK');
+      res.status(400).json({ mensaje: `El pago excede lo pendiente de la línea (${pendiente}).` });
+      return;
+    }
+
+    // Registrar el pago (R17: un pago por concepto; R19: gobernanza).
+    const pagoRes = await client.query(
+      `INSERT INTO pagos (persona_id, concepto, monto, fecha, autorizado_por, comprobante_doc_id, nota)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
+       RETURNING id, persona_id, concepto, monto, fecha, autorizado_por, comprobante_doc_id, creado_en`,
+      [`${persona_id}`, concepto, monto.trim(), fecha.trim(), autorizado_por.trim(),
+       comprobante_doc_id ?? null, nota ?? null]
+    );
+    const pago = pagoRes.rows[0];
+
+    // Asignación FIFO en SQL NUMERIC (periodo ascendente).
+    const alloc = await client.query(
+      `WITH pend AS (
+         SELECT id, (monto_devengado - monto_pagado) AS pendiente,
+                SUM(monto_devengado - monto_pagado) OVER (ORDER BY periodo, id) AS acum
+           FROM devengos
+          WHERE persona_id=$1 AND concepto=$2 AND origen_tipo=$3 AND origen_id=$4 AND estado <> 'pagado'
+       )
+       SELECT id,
+              LEAST(pendiente, GREATEST(0::numeric, $5::numeric - (acum - pendiente))) AS aplicado
+         FROM pend
+        WHERE LEAST(pendiente, GREATEST(0::numeric, $5::numeric - (acum - pendiente))) > 0
+        ORDER BY id`,
+      [...linea, monto.trim()]
+    );
+
+    const aplicaciones = [];
+    for (const row of alloc.rows) {
+      await client.query(
+        `INSERT INTO pago_aplicaciones (pago_id, devengo_id, monto) VALUES ($1, $2, $3)`,
+        [pago.id, row.id, row.aplicado]
+      );
+      await client.query(
+        `UPDATE devengos
+            SET monto_pagado = monto_pagado + $2::numeric,
+                estado = CASE
+                  WHEN monto_pagado + $2::numeric >= monto_devengado THEN 'pagado'
+                  WHEN monto_pagado + $2::numeric > 0                 THEN 'parcial'
+                  ELSE estado END
+          WHERE id = $1`,
+        [row.id, row.aplicado]
+      );
+      aplicaciones.push({ devengo_id: row.id, monto: row.aplicado });
+    }
+
+    await client.query('COMMIT');
+    res.status(201).json({ pago, aplicaciones });
+  } catch (error: any) {
+    await client.query('ROLLBACK');
+    if (error?.code === '23503') { res.status(400).json({ mensaje: 'persona o comprobante no existe.' }); return; }
+    if (error?.code === '23514') { res.status(400).json({ mensaje: 'El pago viola una restricción (p.ej. sobrepago de un devengo).' }); return; }
+    console.error('Error al registrar el pago:', error);
+    res.status(500).json({ mensaje: 'Error interno al registrar el pago.' });
+  } finally {
+    client.release();
+  }
+};
