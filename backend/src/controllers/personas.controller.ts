@@ -250,12 +250,16 @@ export const subirComprobante = async (req: Request, res: Response): Promise<voi
     res.status(400).json({ mensaje: 'El comprobante debe ser PDF.' });
     return;
   }
+  // Normaliza el nombre al guardar: sin caracteres de control, acotado.
+  const nombreArchivo = String(file.originalname || 'comprobante.pdf')
+    .replace(/[\r\n\t\x00-\x1f]/g, '_')
+    .slice(0, 255);
   try {
     const r = await pool.query(
       `INSERT INTO persona_documentos (persona_id, tipo, nombre_archivo, mime, bytes, contenido)
        VALUES ($1, 'comprobante_pago', $2, $3, $4, $5)
        RETURNING id, tipo, nombre_archivo, mime, bytes, subido_en`,
-      [id, file.originalname, file.mimetype, file.size, file.buffer]
+      [id, nombreArchivo, file.mimetype, file.size, file.buffer]
     );
     res.status(201).json(r.rows[0]);
   } catch (error: any) {
@@ -280,8 +284,15 @@ export const descargarDocumento = async (req: Request, res: Response): Promise<v
       res.status(404).json({ mensaje: 'Documento no encontrado.' });
       return;
     }
+    // Sanea el nombre para el header (evita inyección por CRLF/comillas) y
+    // añade filename* (RFC 5987) para preservar el nombre real.
+    const nombreOriginal: string = r.rows[0].nombre_archivo ?? 'documento.pdf';
+    const nombreSeguro = nombreOriginal.replace(/[\r\n"\\]/g, '_');
     res.setHeader('Content-Type', r.rows[0].mime);
-    res.setHeader('Content-Disposition', `inline; filename="${r.rows[0].nombre_archivo}"`);
+    res.setHeader(
+      'Content-Disposition',
+      `inline; filename="${nombreSeguro}"; filename*=UTF-8''${encodeURIComponent(nombreOriginal)}`
+    );
     res.send(r.rows[0].contenido);
   } catch (error) {
     console.error('Error al descargar documento:', error);

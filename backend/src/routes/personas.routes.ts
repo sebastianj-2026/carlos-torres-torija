@@ -45,6 +45,7 @@ personasRouter.post(
 );
 personasRouter.get(
   '/:id/documentos/:docId',
+  roleMiddleware('administrador'),
   validateIntId('id'),
   validateIntId('docId'),
   descargarDocumento
