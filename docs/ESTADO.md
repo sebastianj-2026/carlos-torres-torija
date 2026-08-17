@@ -16,7 +16,7 @@
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
 | personas | 🟢 slice funcional: P-003 validado en vivo 14/14; P-004 falta check visual | 0 | — | 4 personas + 4 aportaciones sembradas; falta link Sidebar |
-| comisiones | 🟡 motor VERDE + T-004 aplicada; faltan servicios (T-005+) | 14 ✅ | personas (P-001) | tablas devengos/pagos/aplicaciones vivas en Neon |
+| comisiones | 🟡 motor + T-004 + T-005 (corte) validado en vivo; faltan T-006/007 | 14 ✅ | personas (P-001) | corte de devengos idempotente funcionando contra Neon |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
 
@@ -75,6 +75,7 @@ Estados: `⬜ pendiente` · `🟡 en curso` · `✅ producción` · `🚫 bloque
 | 2026-08-16 | Fase 0 | Resuelto stale del dashboard vía `migration_remove_modules.sql` | `inmuebles`/`contratos_arrendamiento`/`cuentas_por_cobrar` DROP CASCADE → eliminadas; `juicios` viva; orígenes Inmueble/Cancha/Estacionamiento sin filas ni escritores, el CHECK los lista como residuo. Solo `'Prestamo'` vivo. |
 | 2026-08-16 | comisiones | Cerradas R21 (inversionista primero), R22 (oficina en rojo → devenga hasta lo cobrado), R23 (2 decimales, residuo a oficina) | Desbloquea el motor de comisiones; la invarianza de suma ya tiene dueño del residuo definido. |
 | 2026-08-16 | personas | Slice mínimo (personas + persona_documentos + aportaciones), sembrado desde inversionistas legacy; referidor capturado por UI | El legacy no tiene modelo de referidor → `aportaciones` es indispensable para comisiones. Se difieren persona_roles y la fusión con `clientes` para no tocar el legacy vivo. |
+| 2026-08-17 | comisiones | T-005 calcula el devengo en SQL NUMERIC (`round(base*tasa,2)`), no con `reparto.ts` | Evita `Number()` sobre dinero (regla dinero-sin-float) y hace el corte atómico/idempotente en la DB. **Riesgo:** la regla de cálculo vive en dos lados (SQL del corte + `reparto.ts` unit-testeado); si cambia, actualizar ambos. |
 
 ## Bitácora de aceptación (Sebastian)
 
