@@ -14,8 +14,6 @@ import {
   Receipt,
   Banknote,
   HardHat,
-  UserPlus,
-  CalendarClock,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -38,10 +36,6 @@ const itemsMenu: ItemMenu[] = [
   { etiqueta: 'Hub de Ingresos',    ruta: '/ingresos',        Icono: Banknote                         },
   { etiqueta: 'Nóminas',            ruta: '/nominas',         Icono: HardHat                          },
   { etiqueta: 'Juicios',            ruta: '/juicios',         Icono: Gavel,           soloAdmin: true },
-  { etiqueta: 'Aportaciones',       ruta: '/personas/aportacion',      Icono: UserPlus,       soloAdmin: true },
-  { etiqueta: 'Comisiones',         ruta: '/comisiones/pendientes',    Icono: Receipt,        soloAdmin: true },
-  { etiqueta: 'Corte del mes',      ruta: '/comisiones/corte',         Icono: CalendarClock,  soloAdmin: true },
-  { etiqueta: 'Estado de cuenta',   ruta: '/comisiones/estado-cuenta', Icono: FileText,       soloAdmin: true },
 ];
 
 interface SidebarProps {
