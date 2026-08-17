@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.routes';
 import clientesRoutes from './routes/clientes.routes';
 import { inversionistasRouter, inversionesRouter } from './routes/inversionistas.routes';
+import { personasRouter } from './routes/personas.routes';
 import { prestamosRouter, moratoriosRouter } from './routes/prestamos.routes';
 import { cobrosRouter } from './routes/cobros.routes';
 import tesoreriaRoutes from './routes/tesoreria.routes';
@@ -65,6 +66,9 @@ app.use('/api/clientes', clientesRoutes);
 // Rutas de inversionistas e inversiones
 app.use('/api/inversionistas', inversionistasRouter);
 app.use('/api/inversiones', inversionesRouter);
+
+// Rutas de personas (slice: personas + aportaciones)
+app.use('/api/personas', personasRouter);
 
 // Rutas de préstamos y moratorios
 app.use('/api/prestamos', prestamosRouter);

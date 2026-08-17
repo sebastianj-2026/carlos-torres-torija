@@ -49,7 +49,7 @@ Si no cumple → se parte. No se negocia.
 - **Depende de:** P-001
 - **Lee:** `docs/modulos/personas/MODULO.md` + `REGLAS.md`
 - **Extra al DoD:** endpoints POST/GET/PATCH `/personas`, POST `/personas/:id/aportaciones` con `referenciador_id`+`tasa_referenciador` opcionales (P6/P7). Validar constraints en el servicio.
-- **Estado:** ⬜
+- **Estado:** 🟡 código completo (`controllers/personas.controller.ts`, `routes/personas.routes.ts`, `middlewares/validateIntId.middleware.ts`, wiring en `index.ts`). Typecheck verde, sin dinero-float. **Runtime sin probar** hasta aplicar P-001/P-002 a Neon (sin test de integración — deuda).
 
 ### P-004 · UI aportaciones con referidor + tasa (captura de Carlos)
 - **Módulo:** personas
