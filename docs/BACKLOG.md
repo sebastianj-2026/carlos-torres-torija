@@ -28,7 +28,7 @@ Si no cumple → se parte. No se negocia.
 
 # Bloque A — desbloqueado, arranca ya
 
-> Orden: `M1 → M2 → M9 → M10 → M11 → M3 → M4 → M5 → M6 → M7 → M8`
+> Orden: `M1 → M2 → M9 → M10a → M10b → M10 → M11 → M3 → M4 → M5 → M6 → M7 → M8`
 > **M2 y M11 tocan datos vivos.** Respaldo antes, verificación de conteos después.
 
 ### M1 · Migración: tabla `referenciadores`
@@ -62,13 +62,37 @@ Si no cumple → se parte. No se negocia.
   Trae `.down.sql`.
 - **Estado:** ✅ — `numero_cuenta`/`banco` opcionales, con `.down.sql`. ⚠️ **Sin aplicar a Neon.**
 
-### M10 · Migración: quitar `asignado_a` de inversionistas
-- **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** —
-- **Lee:** `docs/modulos/inversionistas/DATOS.md`
-- **Extra al DoD:** antes del `DROP COLUMN`, verificar con `grep` que **nada** en
-  backend ni frontend lea `asignado_a`. Si hay datos, respaldarlos en el commit.
-  Migración propia, con `.down.sql`.
+> **M10 se partió en tres (2026-08-19).** El `DROP` no podía correr: ~8 archivos
+> en backend y frontend leen `asignado_a`. Primero deja de leerse (M10a, M10b),
+> luego se dropea (M10). Ver decisión en `ESTADO.md`.
+
+### M10a · Backend deja de leer `asignado_a`
+- **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** —
+- **Lee:** `docs/modulos/inversionistas/MODULO.md` + `REGLAS.md`
+- **Archivos (2):** `controllers/inversionistas.controller.ts` (filtro, SELECT,
+  INSERT, UPDATE) + `models/inversionista.model.ts` (tipo `AsignadoA` + campos).
+- **Extra al DoD:** el endpoint sigue funcionando sin el campo. La **columna
+  sigue en la DB** (no se dropea aquí). Verde por sí solo.
 - **Estado:** ⬜
+
+### M10b · Frontend deja de leer `asignado_a`
+- **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M10a
+- **Lee:** `docs/DISENO.md` + `docs/modulos/inversionistas/FLUJOS.md`
+- **Archivos (6):** `types/inversionista.types.ts`, `services/inversionistasService.ts`,
+  `components/inversionistas/TablaInversionistas.tsx`,
+  `pages/inversionistas/{FormularioInversionista,ListaInversionistas,PerfilInversionista}.tsx`.
+- **Extra al DoD:** los 6 van **juntos** — el tipo compartido `AsignadoA` los
+  acopla; separarlos deja imports colgando y el build rojo. Se quita el filtro, la
+  columna, el campo del alta y el dato del perfil. Excepción justificada a ≤5.
+- **Estado:** ⬜
+
+### M10 · Migración: quitar `asignado_a` de inversionistas
+- **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** M10a, M10b
+- **Lee:** `docs/modulos/inversionistas/DATOS.md`
+- **Extra al DoD:** con M10a+M10b hechas, el `grep` de `asignado_a` debe volver
+  limpio (fuera de docs). `DROP COLUMN` en su propia migración, con `.down.sql`.
+  Si hay datos, respaldarlos en el commit.
+- **Estado:** 🚫 bloqueada por M10a, M10b
 
 ### M11 · Migración: unificar escala de `tasa_referenciador`
 - **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** M2
@@ -196,7 +220,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 11 | 3 ✅ · 8 ⬜ (siguiente: M10) |
+| A — inversionistas/referenciadores | 13 | 3 ✅ · 9 ⬜ · 1 🚫 (siguiente: M10a) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 
