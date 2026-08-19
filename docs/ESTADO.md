@@ -35,7 +35,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| inversionistas / referenciadores | 🟡 en curso — Bloque A corriendo (2/11) | — | préstamos (lectura) | M2 · tabla `referencias` (2026-08-19, sin aplicar a Neon) |
+| inversionistas / referenciadores | 🟡 en curso — Bloque A corriendo (3/11) | — | préstamos (lectura) | M9 · datos bancarios en inversionistas (2026-08-19, sin aplicar a Neon) |
 | comisiones-motor | 🚫 bloqueado — 3 reglas sin definir | 14 ✅ (del motor descartado, sirven de referencia) | inversionistas | split de REGLAS 2026-08-19 |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
@@ -135,3 +135,4 @@ M13–M15 estén verdes.**
 |---|---|---|---|
 | 2026-08-19 | M1 · tabla `referenciadores` | ✅ aceptada | Cierre autorizado sobre gate verde (`data · inversionistas`, v0.1.1). Migración escrita, **sin aplicar a Neon** — la aplica Sebastian. |
 | 2026-08-19 | M2 · tabla `referencias` | ✅ aceptada | Cierre autorizado sobre gate verde. Copia diferida (0 filas hoy). **Sin aplicar a Neon.** |
+| 2026-08-19 | M9 · datos bancarios | ✅ aceptada | `numero_cuenta`/`banco` opcionales en inversionistas. **Sin aplicar a Neon.** |

@@ -60,7 +60,7 @@ Si no cumple → se parte. No se negocia.
 - **Lee:** `docs/modulos/inversionistas/DATOS.md`
 - **Extra al DoD:** ambas columnas **opcionales**. Nada las vuelve obligatorias.
   Trae `.down.sql`.
-- **Estado:** ⬜
+- **Estado:** ✅ — `numero_cuenta`/`banco` opcionales, con `.down.sql`. ⚠️ **Sin aplicar a Neon.**
 
 ### M10 · Migración: quitar `asignado_a` de inversionistas
 - **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** —
@@ -196,7 +196,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 11 | 2 ✅ · 9 ⬜ (siguiente: M9) |
+| A — inversionistas/referenciadores | 11 | 3 ✅ · 8 ⬜ (siguiente: M10) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 
