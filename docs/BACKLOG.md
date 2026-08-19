@@ -73,7 +73,7 @@ Si no cumple → se parte. No se negocia.
   INSERT, UPDATE) + `models/inversionista.model.ts` (tipo `AsignadoA` + campos).
 - **Extra al DoD:** el endpoint sigue funcionando sin el campo. La **columna
   sigue en la DB** (no se dropea aquí). Verde por sí solo.
-- **Estado:** ⬜
+- **Estado:** ✅ — controller + model sin `asignado_a`. `gate.sh`: `--passWithNoTests`.
 
 ### M10b · Frontend deja de leer `asignado_a`
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M10a
@@ -220,7 +220,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 13 | 3 ✅ · 9 ⬜ · 1 🚫 (siguiente: M10a) |
+| A — inversionistas/referenciadores | 13 | 4 ✅ · 8 ⬜ · 1 🚫 (siguiente: M10b) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 

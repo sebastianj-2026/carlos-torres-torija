@@ -142,7 +142,6 @@ export const obtenerStatsInversionistas = async (_req: Request, res: Response): 
 export const listarInversionistas = async (req: Request, res: Response): Promise<void> => {
   try {
     const buscar    = (req.query.buscar     as string) || '';
-    const asignado  = (req.query.asignado_a as string) || '';
     const orden     = (req.query.orden      as string) || '';
     const pagina    = Math.max(1, parseInt(req.query.pagina as string) || 1);
     const limite    = Math.min(100, Math.max(1, parseInt(req.query.limite as string) || 20));
@@ -172,12 +171,6 @@ export const listarInversionistas = async (req: Request, res: Response): Promise
       indice++;
     }
 
-    if (asignado) {
-      condiciones.push(`i.asignado_a = $${indice}`);
-      valores.push(asignado);
-      indice++;
-    }
-
     const where = condiciones.length > 0 ? `WHERE ${condiciones.join(' AND ')}` : '';
 
     const totalResult = await pool.query(
@@ -193,7 +186,6 @@ export const listarInversionistas = async (req: Request, res: Response): Promise
           i.apellido_paterno,
           i.apellido_materno,
           i.telefono,
-          i.asignado_a,
           i.capital_aportado_total,
           i.capital_disponible,
           COALESCE(SUM(inv.monto_actual) FILTER (WHERE inv.estatus = 'activo'), 0)
@@ -291,8 +283,8 @@ export const crearInversionista = async (req: Request, res: Response): Promise<v
     const resultado = await client.query(
       `INSERT INTO inversionistas
          (nombres, apellido_paterno, apellido_materno, telefono, correo,
-          asignado_a, url_ine, capital_aportado_total, capital_disponible, registrado_por)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $8, $9)
+          url_ine, capital_aportado_total, capital_disponible, registrado_por)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $7, $8)
        RETURNING *`,
       [
         datos.nombres.trim(),
@@ -300,7 +292,6 @@ export const crearInversionista = async (req: Request, res: Response): Promise<v
         datos.apellido_materno?.trim()     || null,
         datos.telefono?.trim()             || null,
         datos.correo?.toLowerCase().trim() || null,
-        datos.asignado_a                   || null,
         datos.url_ine?.trim()              || null,
         montoInicial,
         registrado_por                     || null,
@@ -355,10 +346,9 @@ export const editarInversionista = async (req: Request, res: Response): Promise<
           apellido_materno    = COALESCE($3, apellido_materno),
           telefono            = COALESCE($4, telefono),
           correo              = COALESCE($5, correo),
-          asignado_a          = COALESCE($6, asignado_a),
-          url_ine             = COALESCE($7, url_ine),
+          url_ine             = COALESCE($6, url_ine),
           fecha_actualizacion = NOW()
-       WHERE id = $8
+       WHERE id = $7
        RETURNING *`,
       [
         datos.nombres?.trim()           || null,
@@ -366,7 +356,6 @@ export const editarInversionista = async (req: Request, res: Response): Promise<
         datos.apellido_materno?.trim()  || null,
         datos.telefono?.trim()          || null,
         datos.correo?.toLowerCase().trim() || null,
-        datos.asignado_a                || null,
         datos.url_ine?.trim()           || null,
         id,
       ]
