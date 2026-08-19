@@ -49,7 +49,11 @@ Si no cumple → se parte. No se negocia.
   deprecada, NO se borra**. Trae `.down.sql`.
 - **⚠️ Datos vivos:** respaldo antes. Después: `COUNT(*)` de inversiones con
   referenciador debe ser idéntico antes y después. Si no cuadra, `.down.sql`.
-- **Estado:** ⬜
+- **Estado:** ✅ — tabla + 3 constraints + índice + deprecación escritos.
+  **Copia diferida:** hoy hay **0 filas** con `referenciador_id` (verificado en
+  Neon); el copiado real exige puente `inversionista→referenciador` + escala de
+  tasa (M11), sin definir. La migración trae una **guarda** que falla si aparecen
+  filas. ⚠️ **Sin aplicar a Neon.**
 
 ### M9 · Migración: `numero_cuenta` y `banco` en inversionistas
 - **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** —
@@ -192,7 +196,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 11 | 1 ✅ · 10 ⬜ (siguiente: M2) |
+| A — inversionistas/referenciadores | 11 | 2 ✅ · 9 ⬜ (siguiente: M9) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 

@@ -35,7 +35,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| inversionistas / referenciadores | 🟡 en curso — Bloque A corriendo (1/11) | — | préstamos (lectura) | M1 · tabla `referenciadores` (2026-08-19, sin aplicar a Neon) |
+| inversionistas / referenciadores | 🟡 en curso — Bloque A corriendo (2/11) | — | préstamos (lectura) | M2 · tabla `referencias` (2026-08-19, sin aplicar a Neon) |
 | comisiones-motor | 🚫 bloqueado — 3 reglas sin definir | 14 ✅ (del motor descartado, sirven de referencia) | inversionistas | split de REGLAS 2026-08-19 |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
@@ -125,6 +125,7 @@ M13–M15 estén verdes.**
 | **2026-08-19** | **re-especificación** | `inversiones.referenciador_id` se **depreca, no se borra**, en la misma migración que crea `referencias` | Borrarla mientras el código todavía la lee tumba producción. Se quita cuando ya nadie la lea. |
 | **2026-08-19** | M1 | **Los dos defectos del check de reglas se arreglan en `gate.base.sh` (v0.1.1), no en el proyecto** | `grep -r` crudo sobre `docs/` matcheaba la prosa de `DEFINICION-DE-LISTO.md` (gate rojo desde siempre) y barría todo el árbol (un módulo detenido congelaba el repo). Se corrige en la base porque el `gate.sh` del proyecto no admite lógica y porque lo heredan los demás proyectos. Ver `docs/CORRECCIONES.md` C-01 y C-02. |
 | **2026-08-19** | M1 | **`REGLAS.md` se parte en dos: estructura (P1–P7) y cálculo (R1–R21 + las 3 ⛔)** | El Bloque A no usa ninguna R, pero el gate lo rechazaba por marcas ⛔ de un módulo que ni toca. Estaban juntas por accidente. Ni se inventó una regla ni se tocó el check del gate: el bloqueo sigue vivo, ahora sobre el módulo que sí corresponde. |
+| **2026-08-19** | M2 | **La copia de referidos legacy a `referencias` se difiere; no se inventa el puente** | Hoy hay **0 filas** con `inversiones.referenciador_id` (verificado en Neon). El copiado real exige dos decisiones sin especificar: puente `inversionista(id)→referenciadores(id)` y escala de tasa (`NUMERIC(6,4)→(5,2)`, unifica M11). Se crea la tabla y se depreca la columna; la migración lleva una **guarda** que aborta si aparecen filas antes de definir el copiado. |
 
 ---
 
@@ -133,3 +134,4 @@ M13–M15 estén verdes.**
 | Fecha | Tarea | Veredicto | Nota |
 |---|---|---|---|
 | 2026-08-19 | M1 · tabla `referenciadores` | ✅ aceptada | Cierre autorizado sobre gate verde (`data · inversionistas`, v0.1.1). Migración escrita, **sin aplicar a Neon** — la aplica Sebastian. |
+| 2026-08-19 | M2 · tabla `referencias` | ✅ aceptada | Cierre autorizado sobre gate verde. Copia diferida (0 filas hoy). **Sin aplicar a Neon.** |
