@@ -48,17 +48,9 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
   };
 
   const SortIcon = ({ ascKey, descKey }: { ascKey: string; descKey: string }) => {
-    if (orden === ascKey) return <ChevronUp size={13} className="text-orange-500" />;
-    if (orden === descKey) return <ChevronDown size={13} className="text-orange-500" />;
+    if (orden === ascKey) return <ChevronUp size={13} className="text-sky-500" />;
+    if (orden === descKey) return <ChevronDown size={13} className="text-sky-500" />;
     return <ChevronsUpDown size={13} className="text-slate-300" />;
-  };
-
-  // Etiqueta legible del asignado
-  const etiquetaAsignado = (valor: string | null) => {
-    if (!valor) return <span className="text-slate-400">—</span>;
-    return (
-      <span className="capitalize text-slate-700">{valor}</span>
-    );
   };
 
   if (!cargando && inversionistas.length === 0) {
@@ -93,9 +85,6 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
               </th>
               <th className="hidden sm:table-cell px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">
                 Teléfono
-              </th>
-              <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">
-                Asignado a
               </th>
               <th className="px-4 py-3 text-right font-semibold text-slate-500 text-xs uppercase tracking-wide">
                 <button
@@ -143,7 +132,7 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
                     <td className="px-4 py-3">
                       <button
                         onClick={() => navigate(`/inversionistas/${inv.id}`)}
-                        className="font-medium text-slate-800 hover:text-orange-600 transition-colors text-left"
+                        className="font-medium text-slate-800 hover:text-sky-600 transition-colors text-left"
                       >
                         {inv.nombres} {inv.apellido_paterno}{inv.apellido_materno ? ` ${inv.apellido_materno}` : ''}
                       </button>
@@ -154,16 +143,13 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
                       {inv.telefono ?? <span className="text-slate-400">—</span>}
                     </td>
 
-                    {/* Asignado */}
-                    <td className="px-4 py-3">{etiquetaAsignado(inv.asignado_a)}</td>
-
                     {/* Total invertido */}
                     <td className="px-4 py-3 text-right font-semibold text-slate-800">
                       {formatearMoneda(inv.total_invertido)}
                     </td>
 
                     {/* Pago mensual */}
-                    <td className="px-4 py-3 text-right font-semibold text-orange-600">
+                    <td className="px-4 py-3 text-right font-semibold text-sky-600">
                       {formatearMoneda(inv.pago_mensual)}
                     </td>
 
@@ -192,7 +178,7 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
                     {/* Inversiones activas */}
                     <td className="hidden sm:table-cell px-4 py-3 text-center">
                       <span className="inline-flex items-center justify-center w-7 h-7 rounded-full
-                                       bg-orange-100 text-orange-600 text-xs font-bold">
+                                       bg-sky-100 text-sky-600 text-xs font-bold">
                         {inv.inversiones_activas}
                       </span>
                     </td>
@@ -202,8 +188,8 @@ const TablaInversionistas: React.FC<TablaInversionistasProps> = ({
                       <div className="flex items-center justify-end gap-1">
                         <button
                           onClick={() => navigate(`/inversionistas/${inv.id}`)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-orange-600
-                                     hover:bg-orange-50 transition-colors"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-sky-600
+                                     hover:bg-sky-50 transition-colors"
                           title="Ver perfil"
                         >
                           <Eye size={15} />

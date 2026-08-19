@@ -30,7 +30,7 @@ if [[ ! -f "${METODOLOGIA_ROOT:-}/base/gate.base.sh" ]]; then
 fi
 
 # Versión heredada que este proyecto acepta. La sube /auditar-proyecto, no sola.
-METODOLOGIA_VERSION="0.1.1"
+METODOLOGIA_VERSION="0.1.2"
 
 source "$METODOLOGIA_ROOT/perfiles/frontback-drizzle.sh"
 source "$METODOLOGIA_ROOT/base/gate.base.sh"

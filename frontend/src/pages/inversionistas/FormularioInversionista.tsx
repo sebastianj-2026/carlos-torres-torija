@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Wallet, Upload, FileText, X, ExternalLink } from 'lucide-react';
-import { FormularioInversionistaData, AsignadoA } from '../../types/inversionista.types';
+import { FormularioInversionistaData } from '../../types/inversionista.types';
 import {
   crearInversionista,
   editarInversionista,
@@ -15,7 +15,6 @@ const DATOS_INICIALES: FormularioInversionistaData = {
   apellido_materno:      '',
   telefono:              '',
   correo:                '',
-  asignado_a:            '',
   url_ine:               '',
   monto_aportado_inicial: '',
   fecha_aportacion:      new Date().toISOString().split('T')[0],
@@ -53,7 +52,7 @@ const Campo: React.FC<CampoProps> = ({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
     />
   </div>
 );
@@ -82,7 +81,7 @@ const CampoMoneda: React.FC<Omit<CampoProps, 'tipo'>> = ({
           onChange={handleChange}
           placeholder={placeholder}
           className="w-full pl-7 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                     focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                     focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
         />
       </div>
     </div>
@@ -119,7 +118,6 @@ const FormularioInversionista: React.FC = () => {
           apellido_materno:      perfil.apellido_materno ?? '',
           telefono:              perfil.telefono         ?? '',
           correo:                perfil.correo           ?? '',
-          asignado_a:            perfil.asignado_a       ?? '',
           url_ine:               perfil.url_ine          ?? '',
           monto_aportado_inicial: '',
           fecha_aportacion:      '',
@@ -160,7 +158,6 @@ const FormularioInversionista: React.FC = () => {
           apellido_materno: datos.apellido_materno.trim() || undefined,
           telefono:         datos.telefono.trim()         || undefined,
           correo:           datos.correo.trim()           || undefined,
-          asignado_a:       (datos.asignado_a as AsignadoA) || undefined,
           url_ine:          urlINE,
         });
         setExito(true);
@@ -173,7 +170,6 @@ const FormularioInversionista: React.FC = () => {
           apellido_materno:      datos.apellido_materno.trim() || undefined,
           telefono:              datos.telefono.trim()         || undefined,
           correo:                datos.correo.trim()           || undefined,
-          asignado_a:            (datos.asignado_a as AsignadoA) || undefined,
           monto_aportado_inicial: montoNum > 0 ? montoNum : undefined,
           fecha_aportacion:      datos.fecha_aportacion || undefined,
         });
@@ -271,24 +267,6 @@ const FormularioInversionista: React.FC = () => {
           </div>
         </div>
 
-        {/* Asignación */}
-        <div className="pt-2 border-t border-slate-50">
-          <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">Asignación</p>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Asignado a</label>
-            <select
-              value={datos.asignado_a}
-              onChange={(e) => actualizar('asignado_a', e.target.value)}
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
-            >
-              <option value="">Sin asignar</option>
-              <option value="sebastian">Sebastián</option>
-              <option value="abril">Abril</option>
-            </select>
-          </div>
-        </div>
-
         {/* Documentos — INE */}
         <div className="pt-2 border-t border-slate-50">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-3">
@@ -327,7 +305,7 @@ const FormularioInversionista: React.FC = () => {
             <div
               onClick={() => inputIneRef.current?.click()}
               className={`cursor-pointer border-2 border-dashed rounded-xl p-4 transition-all
-                          hover:border-orange-300 hover:bg-orange-50/20
+                          hover:border-sky-300 hover:bg-sky-50/20
                           ${archivoINE
                             ? 'border-green-300 bg-green-50/40'
                             : 'border-slate-200 bg-white'}`}
@@ -378,7 +356,7 @@ const FormularioInversionista: React.FC = () => {
         {!esEdicion && (
           <div className="pt-2 border-t border-slate-50">
             <div className="flex items-center gap-2 mb-3">
-              <Wallet size={14} className="text-orange-500" />
+              <Wallet size={14} className="text-sky-500" />
               <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
                 Bolsa de Capital Inicial
               </p>
@@ -426,7 +404,7 @@ const FormularioInversionista: React.FC = () => {
             onClick={handleGuardar}
             disabled={guardando || exito}
             className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium
-                       bg-orange-500 text-white rounded-xl hover:bg-orange-600
+                       bg-sky-500 text-white rounded-xl hover:bg-sky-600
                        transition-colors disabled:opacity-60"
           >
             <Save size={15} />

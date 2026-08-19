@@ -28,7 +28,6 @@ export const listarInversionistas = async (
 ): Promise<PaginacionInversionistas> => {
   const params = new URLSearchParams();
   if (filtros.buscar)     params.set('buscar',     filtros.buscar);
-  if (filtros.asignado_a) params.set('asignado_a', filtros.asignado_a);
   if (filtros.orden)      params.set('orden',      filtros.orden);
   if (filtros.pagina)     params.set('pagina',     String(filtros.pagina));
   if (filtros.limite)     params.set('limite',     String(filtros.limite));
@@ -88,7 +87,7 @@ export const listarMovimientosWallet = async (id: string): Promise<MovimientoWal
 };
 
 // ----------------------------------------------------------------
-// Wallet: transferir capital a Oficina TS
+// Wallet: transferir capital a PrestaFácil
 // ----------------------------------------------------------------
 export const transferirAOficina = async (
   id: string,

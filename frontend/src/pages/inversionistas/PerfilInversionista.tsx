@@ -507,13 +507,6 @@ const PerfilInversionista: React.FC = () => {
                   <span className="text-slate-700">{perfil.correo}</span>
                 </div>
               )}
-              {perfil.asignado_a && (
-                <div className="flex items-center gap-2 text-sm">
-                  <User size={14} className="text-slate-400 shrink-0" />
-                  <span className="text-slate-500">Asignado a:</span>
-                  <span className="text-slate-700 capitalize">{perfil.asignado_a}</span>
-                </div>
-              )}
               <p className="text-xs text-slate-400">
                 Registrado: {new Date(perfil.fecha_registro).toLocaleDateString('es-MX')}
               </p>

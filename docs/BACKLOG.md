@@ -84,7 +84,7 @@ Si no cumple → se parte. No se negocia.
 - **Extra al DoD:** los 6 van **juntos** — el tipo compartido `AsignadoA` los
   acopla; separarlos deja imports colgando y el build rojo. Se quita el filtro, la
   columna, el campo del alta y el dato del perfil. Excepción justificada a ≤5.
-- **Estado:** ⬜
+- **Estado:** ✅ — 6 archivos sin `asignado_a`; typecheck + compile verdes.
 
 ### M10 · Migración: quitar `asignado_a` de inversionistas
 - **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** M10a, M10b
@@ -92,7 +92,8 @@ Si no cumple → se parte. No se negocia.
 - **Extra al DoD:** con M10a+M10b hechas, el `grep` de `asignado_a` debe volver
   limpio (fuera de docs). `DROP COLUMN` en su propia migración, con `.down.sql`.
   Si hay datos, respaldarlos en el commit.
-- **Estado:** 🚫 bloqueada por M10a, M10b
+- **Estado:** ⬜ — desbloqueada (M10a ✅, M10b ✅). El grep de `asignado_a` en
+  código ya vuelve limpio.
 
 ### M11 · Migración: unificar escala de `tasa_referenciador`
 - **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** M2
@@ -220,7 +221,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 13 | 4 ✅ · 8 ⬜ · 1 🚫 (siguiente: M10b) |
+| A — inversionistas/referenciadores | 13 | 5 ✅ · 7 ⬜ · 1 🚫 (siguiente: M10 — desbloqueada) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 

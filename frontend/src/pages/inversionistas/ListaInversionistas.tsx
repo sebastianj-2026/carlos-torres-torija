@@ -8,7 +8,6 @@ import TablaInversionistas from '../../components/inversionistas/TablaInversioni
 
 const FILTROS_INICIALES: FiltrosInversionistas = {
   buscar:     '',
-  asignado_a: '',
   orden:      '',
   pagina:     1,
   limite:     20,
@@ -50,7 +49,6 @@ const ListaInversionistas: React.FC = () => {
     try {
       const resultado = await listarInversionistas({
         buscar:     buscarDebounced,
-        asignado_a: filtros.asignado_a,
         orden:      filtros.orden,
         pagina:     filtros.pagina,
         limite:     filtros.limite,
@@ -61,7 +59,7 @@ const ListaInversionistas: React.FC = () => {
     } finally {
       setCargando(false);
     }
-  }, [buscarDebounced, filtros.asignado_a, filtros.orden, filtros.pagina, filtros.limite]);
+  }, [buscarDebounced, filtros.orden, filtros.pagina, filtros.limite]);
 
   useEffect(() => {
     cargarDatos();
@@ -73,7 +71,7 @@ const ListaInversionistas: React.FC = () => {
 
   const limpiarFiltros = () => setFiltros(FILTROS_INICIALES);
 
-  const hayFiltrosActivos = filtros.buscar || filtros.asignado_a || filtros.orden;
+  const hayFiltrosActivos = filtros.buscar || filtros.orden;
 
   return (
     <div className="p-6 lg:p-8">
@@ -98,8 +96,8 @@ const ListaInversionistas: React.FC = () => {
           </button>
           <button
             onClick={() => navigate('/inversionistas/nuevo')}
-            className="flex items-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600
-                       text-white text-sm font-medium rounded-xl shadow-sm shadow-orange-500/25
+            className="flex items-center gap-2 px-4 py-2.5 bg-sky-500 hover:bg-sky-600
+                       text-white text-sm font-medium rounded-xl shadow-sm shadow-sky-500/25
                        transition-colors"
           >
             <Plus size={16} />
@@ -132,8 +130,8 @@ const ListaInversionistas: React.FC = () => {
           </div>
 
           <div className="bg-white rounded-2xl border border-slate-100 p-3 sm:p-4 flex items-center gap-3 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
-              <DollarSign size={18} className="text-orange-500" />
+            <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center shrink-0">
+              <DollarSign size={18} className="text-sky-500" />
             </div>
             <div>
               <p className="text-xs text-slate-400 font-medium">Capital manejado</p>
@@ -164,23 +162,10 @@ const ListaInversionistas: React.FC = () => {
             onChange={(e) => handleFiltro({ buscar: e.target.value })}
             placeholder="Buscar por nombre, teléfono o correo..."
             className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-xl
-                       focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent
+                       focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent
                        bg-white"
           />
         </div>
-
-        {/* Filtro por asignado */}
-        <select
-          value={filtros.asignado_a}
-          onChange={(e) => handleFiltro({ asignado_a: e.target.value })}
-          className="px-3 py-2.5 text-sm border border-slate-200 rounded-xl bg-white
-                     focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent
-                     text-slate-700"
-        >
-          <option value="">Todos los asignados</option>
-          <option value="sebastian">Sebastián</option>
-          <option value="abril">Abril</option>
-        </select>
 
         {/* Limpiar filtros */}
         {hayFiltrosActivos && (

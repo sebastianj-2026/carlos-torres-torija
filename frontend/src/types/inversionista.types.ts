@@ -3,8 +3,6 @@
 // Tipos e interfaces para el frontend
 // ================================================================
 
-export type AsignadoA = 'sebastian' | 'abril';
-
 export type EstatusInversion = 'activo' | 'pausado' | 'liquidado' | 'vencido';
 
 export type FormaIngreso = 'efectivo' | 'deposito';
@@ -23,7 +21,6 @@ export interface Inversionista {
   apellido_materno: string | null;
   telefono: string | null;
   correo: string | null;
-  asignado_a: AsignadoA | null;
   url_ine: string | null;
   capital_aportado_total: string;
   capital_disponible: string;
@@ -39,7 +36,6 @@ export interface InversionistaResumen {
   apellido_paterno: string;
   apellido_materno: string | null;
   telefono: string | null;
-  asignado_a: AsignadoA | null;
   capital_aportado_total: string;
   capital_disponible: string;
   total_invertido: string;
@@ -128,7 +124,6 @@ export interface PaginacionInversionistas {
 // ----------------------------------------------------------------
 export interface FiltrosInversionistas {
   buscar: string;
-  asignado_a: string;
   orden: string;
   pagina: number;
   limite: number;
@@ -143,7 +138,6 @@ export interface FormularioInversionistaData {
   apellido_materno: string;
   telefono: string;
   correo: string;
-  asignado_a: AsignadoA | '';
   url_ine: string;
   // Solo creación: capital inicial
   monto_aportado_inicial: string;
