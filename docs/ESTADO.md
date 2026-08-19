@@ -5,7 +5,7 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-08-19
+**Última actualización:** 2026-08-19 (cierre de M10b · siguiente: M10)
 
 ---
 
