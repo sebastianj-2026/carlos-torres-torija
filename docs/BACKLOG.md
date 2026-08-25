@@ -105,7 +105,10 @@ Si no cumple → se parte. No se negocia.
   decimales: `monto = base * tasa / 100`. Trae `.down.sql`.
 - **⚠️ Convierte datos:** respaldo antes. Después, verificar cada fila
   convertida a mano contra su valor original.
-- **Estado:** ⬜
+- **Estado:** ✅ — `.up` respalda valores no nulos en `_respaldo_tasa_referenciador`
+  y convierte `NUMERIC(6,4)→(5,2)` (`× 100`); reversa simétrica (`/ 100`) suelta el
+  respaldo. Guardas de idempotencia por `numeric_scale`. **0 filas hoy** (verificado
+  en Neon). ⚠️ **Sin aplicar a Neon** — la aplica Sebastian a mano.
 
 ### M3 · Alta y edición de referenciador
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M1
@@ -149,6 +152,17 @@ Si no cumple → se parte. No se negocia.
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M5
 - **Lee:** `docs/DISENO.md` + `docs/modulos/inversionistas/FLUJOS.md`
 - **Extra al DoD:** avisa, **no bloquea**. No cambia estados ni impide guardar.
+- **Estado:** ⬜
+
+### M21 · Alinear el form legacy de referidor a la escala nueva
+- **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M11
+- **Lee:** `docs/DISENO.md` + `docs/modulos/inversionistas/FLUJOS.md`
+- **Por qué:** M11 dejó `inversiones.tasa_referenciador` en `NUMERIC(5,2)` (`0.50`).
+  `PerfilInversionista.tsx:140` todavía captura/manda la tasa en escala vieja
+  (`0.0050`); una alta **después** de M11 se redondearía a `0.01`. Con 0 filas hoy
+  no hay urgencia, pero se cierra antes de crear un referido por esa ruta.
+- **Extra al DoD:** el form captura y muestra la tasa como % con 2 decimales
+  (`0.50 = 0.5%`). El INSERT del controller ya es pass-through — no toca escala.
 - **Estado:** ⬜
 
 ---
@@ -223,7 +237,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 13 | 6 ✅ · 6 ⬜ · 1 🚫 (siguiente: M11 — desbloqueada) |
+| A — inversionistas/referenciadores | 14 | 7 ✅ · 7 ⬜ (siguiente: M3 — desbloqueada) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 
