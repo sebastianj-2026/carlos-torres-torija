@@ -92,8 +92,10 @@ Si no cumple → se parte. No se negocia.
 - **Extra al DoD:** con M10a+M10b hechas, el `grep` de `asignado_a` debe volver
   limpio (fuera de docs). `DROP COLUMN` en su propia migración, con `.down.sql`.
   Si hay datos, respaldarlos en el commit.
-- **Estado:** ⬜ — desbloqueada (M10a ✅, M10b ✅). El grep de `asignado_a` en
-  código ya vuelve limpio.
+- **Estado:** ✅ — `.up`/`.down` escritas. `.up` respalda valores no nulos en
+  `_respaldo_asignado_a` antes del `DROP COLUMN IF EXISTS`; la reversa restaura
+  estructura (CHECK fiel: `'sebastian'`,`'abril'`) + datos. Grep de `asignado_a`
+  en código limpio. ⚠️ **Sin aplicar a Neon**: la aplica Sebastian a mano.
 
 ### M11 · Migración: unificar escala de `tasa_referenciador`
 - **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** M2
@@ -221,7 +223,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 13 | 5 ✅ · 7 ⬜ · 1 🚫 (siguiente: M10 — desbloqueada) |
+| A — inversionistas/referenciadores | 13 | 6 ✅ · 6 ⬜ · 1 🚫 (siguiente: M11 — desbloqueada) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 
