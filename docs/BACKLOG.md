@@ -128,7 +128,12 @@ Si no cumple → se parte. No se negocia.
 - **Extra al DoD:** `POST`/`PATCH /api/referencias`. Opcional en los dos
   orígenes. **No hereda** el referenciador de una inversión anterior (P4).
   Rechaza el segundo referenciador del mismo origen (P3) con error en español.
-- **Estado:** ⬜
+- **Estado:** ✅ — `POST`/`PATCH /api/referencias`. Coherencia de origen validada
+  en código; P3 vía captura del `UNIQUE` (23505) → 409 en español. `fecha_inicio`
+  la pone el servidor (`CURRENT_DATE`). `PATCH` sólo estado/tasa/fecha_fin/notas
+  (R9), no mueve origen ni referenciador. `tasa` como string. 4 archivos.
+  ⚠️ La tabla `referencias` (M2) sigue **sin aplicar a Neon**: el endpoint 500ará
+  en runtime hasta que Sebastian la aplique.
 
 ### M5 · Lista con filtro de las tres formas de ganar
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M3
@@ -241,7 +246,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 14 | 8 ✅ · 6 ⬜ (siguiente: M4 — desbloqueada) |
+| A — inversionistas/referenciadores | 14 | 9 ✅ · 5 ⬜ (siguiente: M5 — desbloqueada) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 
