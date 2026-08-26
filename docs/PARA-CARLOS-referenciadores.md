@@ -70,6 +70,45 @@ reparto dice $12,500.00 — y esa diferencia se acumula mes con mes.
 
 ---
 
+# Dos preguntas más (referencias — M3/M4)
+
+> Estas **no** bloquean el motor; el código ya corre. Pero se programaron con un
+> supuesto que conviene confirmar, porque tocan dinero y permisos. Si Carlos
+> decide distinto, es un ajuste chico — no un rehacer.
+
+## ⛔ 4 · ¿Quién puede ligar un referenciador a una inversión o préstamo?
+
+Ligar una referencia fija la **tasa de comisión** = dinero que se le deberá a
+alguien. Hoy cualquier usuario con sesión puede hacerlo.
+
+| Opción | Qué pasa |
+|---|---|
+| **A. Sólo administrador** | Igual que editar una inversión: sólo admin liga/edita referencias |
+| **B. Cualquier usuario con sesión** | Como está hoy |
+
+**Por qué importa.** Editar una inversión ya exige administrador; una referencia
+mueve dinero igual. Dejarla abierta es una asimetría de permisos.
+**Lo que asumimos:** B (como está), pendiente de confirmar.
+**Respuesta de Carlos:** ______________________
+
+## ⛔ 5 · ¿Qué cambios de estado de una referencia son válidos?
+
+Una referencia puede estar `activa`, `terminada` o `cancelada`. Hoy se puede
+mover en **cualquier** dirección (revivir una `cancelada`) y cambiar la tasa
+aunque ya esté `terminada`/`cancelada`.
+
+| Opción | Qué pasa |
+|---|---|
+| **A. Sólo hacia adelante** | `activa → terminada/cancelada`, sin regreso. La tasa no se edita si ya no está `activa` |
+| **B. Libre** | Como está hoy: cualquier transición, tasa editable siempre |
+
+**Nota de mitigación.** El devengo congela base y tasa al generarse (R18), así que
+editar la tasa después **no** reescribe lo ya devengado. El riesgo es acotado.
+**Lo que asumimos:** B (libre), pendiente de confirmar.
+**Respuesta de Carlos:** ______________________
+
+---
+
 ## Después de la junta
 
 1. Escribir las respuestas en `docs/modulos/comisiones-motor/REGLAS.md`,

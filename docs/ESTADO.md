@@ -56,6 +56,10 @@ Hoja para la junta: `docs/PARA-CARLOS-referenciadores.md`.
 Las tres: (1) orden dentro del mismo mes, (2) oficina en rojo, (3) redondeo y
 dueño del residuo.
 
+Además, la hoja lleva **2 preguntas nuevas** (⛔4, ⛔5) de la revisión de seguridad
+de M3/M4 — **no bloquean** nada (el código ya corre con un supuesto), sólo
+confirman permiso de rol para ligar referencias y transiciones válidas de estado.
+
 > Un módulo bloqueado por regla de negocio sin definir **no entra al backlog**.
 > No se marca TODO — se detiene.
 
@@ -105,6 +109,14 @@ M13–M15 estén verdes.**
 - [ ] **Sin e2e/responsive.** No existe `e2e/responsive.spec.ts`; responsive se
       verifica a ojo con playwright-mcp. `CMD_E2E_RESPONSIVE` vacío.
 - [ ] **`docs/DISENO.md` con marcas `{{TODO}}`** — tokens y tipografía sin extraer.
+- [ ] **Validación de entrada laxa en endpoints nuevos de referencias** (M4).
+      Los UUID del body (`referenciador_id`, `inversion_id`, `prestamo_id`) no se
+      validan de forma antes de la DB → UUID mal formado da **500** (22P02) en vez
+      de **400**; `tasa` no valida el techo de `NUMERIC(5,2)` (>999.99 → overflow);
+      `fecha_fin` no valida fecha. **Sin brecha** (todo parametrizado). Mismo hueco
+      en el legacy `crearInversion`. Ticket propio de endurecimiento (revisión de
+      seguridad del commit de M4, 2026-08-26). No se parchó en caliente para no
+      reabrir tarea cerrada.
 - [ ] **El working tree marca ~140 archivos como modificados** sin cambio de
       contenido aparente (probable normalización de fin de línea CRLF/LF).
       Revisar `core.autocrlf` / `.gitattributes` **antes** del próximo commit, o
