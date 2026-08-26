@@ -5,7 +5,7 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-08-25 (cierre de M11 · siguiente: M3)
+**Última actualización:** 2026-08-26 (cierre de M3 · siguiente: M4)
 
 ---
 
@@ -35,7 +35,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| inversionistas / referenciadores | 🟡 en curso — Bloque A corriendo (7/14) | — | préstamos (lectura) | M11 · unificar escala `tasa_referenciador` (migración, sin aplicar a Neon) (2026-08-25) |
+| inversionistas / referenciadores | 🟡 en curso — Bloque A corriendo (8/14) | — | préstamos (lectura) | M3 · alta/edición de referenciador (API `/api/referenciadores`) (2026-08-26) |
 | comisiones-motor | 🚫 bloqueado — 3 reglas sin definir | 14 ✅ (del motor descartado, sirven de referencia) | inversionistas | split de REGLAS 2026-08-19 |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
@@ -129,6 +129,8 @@ M13–M15 estén verdes.**
 | **2026-08-19** | M1 | **`REGLAS.md` se parte en dos: estructura (P1–P7) y cálculo (R1–R21 + las 3 ⛔)** | El Bloque A no usa ninguna R, pero el gate lo rechazaba por marcas ⛔ de un módulo que ni toca. Estaban juntas por accidente. Ni se inventó una regla ni se tocó el check del gate: el bloqueo sigue vivo, ahora sobre el módulo que sí corresponde. |
 | **2026-08-19** | M2 | **La copia de referidos legacy a `referencias` se difiere; no se inventa el puente** | Hoy hay **0 filas** con `inversiones.referenciador_id` (verificado en Neon). El copiado real exige dos decisiones sin especificar: puente `inversionista(id)→referenciadores(id)` y escala de tasa (`NUMERIC(6,4)→(5,2)`, unifica M11). Se crea la tabla y se depreca la columna; la migración lleva una **guarda** que aborta si aparecen filas antes de definir el copiado. |
 | 2026-08-25 | M11 | **La migración se queda pura `data`; alinear el form legacy a la escala nueva se difiere a M21 (`ui`)** | Cambiar la escala de la columna es una cosa; cambiar cómo el form la captura es otra (otro módulo/tipo). Meterlas juntas rompe "una tarea = un tipo". Con 0 filas hoy el hueco (una alta post-M11 redondearía `0.0050→0.01`) no es urgente, pero queda anotado en backlog para no crear un referido por esa ruta antes de M21. |
+| 2026-08-26 | M3 | **`GET /api/referenciadores/:id` NO joinea `referencias`; el desglose se difiere a M4** | `referencias` (M2) está escrita pero **sin aplicar a Neon**; joinearla haría 500 en runtime. Su lectura/gestión es M4. Así M3 depende sólo de M1 y sigue atómico. |
+| 2026-08-26 | M3 | **Código nuevo usa envelope `{ success, data, error }`; el filtro `forma` sólo cubre 2 y 3** | Es el contrato de `MODULO.md` (el legacy `{ mensaje }` no se toca). Forma 1 (solo inversionista) no vive en `referenciadores`; la lista combinada de las 3 formas es de M5 (ui). No se inventó UNION con `inversionistas`. |
 
 ---
 
@@ -143,5 +145,6 @@ M13–M15 estén verdes.**
 | 2026-08-19 | M10b · frontend sin `asignado_a` | ✅ aceptada | Cierre sobre gate verde `ui` (v0.1.2). 6 archivos; fuera filtro, columna, campo y perfil. Verificación visual a ojo en localhost. |
 | 2026-08-25 | M10 · DROP `asignado_a` | ✅ aceptada | Cierre sobre gate verde `data`. `.up` respalda a `_respaldo_asignado_a` antes del DROP; reversa restaura estructura (CHECK `'sebastian'`,`'abril'`) + datos. Grep en código limpio. **Sin aplicar a Neon** — la aplica Sebastian. |
 | 2026-08-25 | M11 · unificar escala `tasa_referenciador` | ✅ aceptada | Cierre sobre gate verde `data · inversionistas`. `NUMERIC(6,4)→(5,2)` (`× 100`), respaldo en `_respaldo_tasa_referenciador`, reversa simétrica (`/ 100`), guardas de idempotencia por `numeric_scale`. 0 filas hoy. Form legacy → **M21** (opción a, autorizada). **Sin aplicar a Neon.** |
+| 2026-08-26 | M3 · alta/edición de referenciador | ✅ aceptada | Cierre sobre gate verde `logic · inversionistas`. API `/api/referenciadores` (list/get/alta/edición), envelope `{ success, data, error }`, filtro `forma=2\|3`, baja por `activo` (P6). `GET/:id` sin `referencias` (M4). 4 archivos. |
 | 2026-08-19 | M10 (split) | — | El `DROP asignado_a` no corría: ~8 archivos (backend + 6 de frontend) leen la columna. Se parte en M10a (logic, backend deja de leer), M10b (ui, frontend deja de leer), M10 (data, DROP, dependiente). M10b lleva 6 archivos como excepción a ≤5 porque el tipo `AsignadoA` los acopla. Bloque A: 11 → 13 tareas. |
 | 2026-08-19 | M10a | — | `gate.sh` → `CMD_TEST_MODULO` con `--passWithNoTests`: un módulo sin tests pasa en vez de reventar (vitest sale 1 con filtro sin match). Override de proyecto, no toca la base. Deuda de fondo: cero tests por módulo. |

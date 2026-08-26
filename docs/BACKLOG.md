@@ -116,7 +116,11 @@ Si no cumple → se parte. No se negocia.
 - **Extra al DoD:** `POST`/`PATCH`/`GET /api/referenciadores`. **Reusa** el
   formulario de inversionista, no lo duplica. Baja por cambio de estado, nunca
   `DELETE` (P6). Montos y tasas como string en el JSON.
-- **Estado:** ⬜
+- **Estado:** ✅ — `GET`/`POST`/`GET/:id`/`PATCH /api/referenciadores`. Envelope
+  `{ success, data, error }` (contrato de `MODULO.md`). Filtro `forma=2|3` derivado
+  de `inversionista_id` (forma 1 no es referenciador → fuera de este endpoint, es
+  M5). Baja por `activo` (P6). `GET/:id` **sin** join a `referencias` (llega en M4;
+  la tabla no está en Neon). 4 archivos.
 
 ### M4 · Ligar referenciador a inversión o préstamo
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M2, M3
@@ -237,7 +241,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 14 | 7 ✅ · 7 ⬜ (siguiente: M3 — desbloqueada) |
+| A — inversionistas/referenciadores | 14 | 8 ✅ · 6 ⬜ (siguiente: M4 — desbloqueada) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 
