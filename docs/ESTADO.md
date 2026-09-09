@@ -5,7 +5,7 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-09-08 (cierre de M6 · siguiente: M7)
+**Última actualización:** 2026-09-08 (cierre de M23 · siguiente: M7)
 
 ---
 
@@ -35,7 +35,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| inversionistas / referenciadores | 🟡 en curso — Bloque A corriendo (11/15) | — | préstamos (lectura) | M6 · columnas de deuda en la lista (2026-09-08) |
+| inversionistas / referenciadores | 🟡 en curso — Bloque A corriendo (12/16) | — | préstamos (lectura) | M23 · detalle de referenciador devuelve sus referencias (2026-09-08) |
 | comisiones-motor | 🚫 bloqueado — 3 reglas sin definir | 14 ✅ (del motor descartado, sirven de referencia) | inversionistas | split de REGLAS 2026-08-19 |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
@@ -145,6 +145,7 @@ M13–M15 estén verdes.**
 | 2026-08-26 | M3 | **Código nuevo usa envelope `{ success, data, error }`; el filtro `forma` sólo cubre 2 y 3** | Es el contrato de `MODULO.md` (el legacy `{ mensaje }` no se toca). Forma 1 (solo inversionista) no vive en `referenciadores`; la lista combinada de las 3 formas es de M5 (ui). No se inventó UNION con `inversionistas`. |
 | 2026-08-26 | M4 | **`referencias.fecha_inicio` la pone el servidor (`CURRENT_DATE`); `PATCH` no mueve origen ni referenciador** | Convención del proyecto: las fechas las genera el servidor, nunca el cliente. R9: la edición sólo toca estado/tasa/fecha_fin/notas — una referencia no se muda de origen, se cambia de estado. P3 se apoya en el `UNIQUE` de la tabla (409 en español), no en un `SELECT` previo con carrera. |
 | 2026-09-08 | M5 | **La lista combinada de las 3 formas se arma en el cliente: ambas APIs se traen completas (100/página, tope 50 vueltas) y se filtran/paginan localmente** | El UNION no existe como endpoint (decisión de M3) y agregarlo sería `logic` dentro de una tarea `ui`. Escala de oficina (decenas de filas) lo aguanta; si crece, el endpoint combinado es tarea nueva. |
+| 2026-09-08 | M23 | **La lectura de referencias vive en `GET /api/referenciadores/:id` (join con `origen_nombre`), no en un `GET /api/referencias` nuevo** | Es el contrato ya pactado en `MODULO.md` ("detalle + sus referencias"). M3 difirió el join "a M4" y M4 sólo hizo alta/edición — la lectura quedó huérfana y M7 no podía arrancar. Tarea `logic` propia (M23) en vez de meter backend en la tarea `ui`. |
 | 2026-09-08 | M5 | **Acciones sin destino se ven pero no navegan: alta deshabilitada con tooltip (M22 nueva en backlog), detalle sin acción hasta M7** | FLUJOS §2 (form de alta) quedó etiquetada "(M3)" pero M3 cerró como API pura — la pantalla no tenía tarea. Se registró M22 en vez de meterla aquí (rompería atomicidad). Decisión de Sebastian en sesión. |
 
 ---
@@ -164,5 +165,6 @@ M13–M15 estén verdes.**
 | 2026-08-26 | M4 · ligar referenciador a inversión/préstamo | ✅ aceptada | Cierre sobre gate verde `logic · inversionistas`. API `/api/referencias` (alta/edición). Coherencia de origen, P3 vía `UNIQUE`→409, `fecha_inicio` servidor, `PATCH` R9. 4 archivos. **Ejecutado en la misma sesión que M3 por instrucción explícita de Sebastian** (excepción a "una tarea = una sesión"). ⚠️ `referencias` sin aplicar a Neon. |
 | 2026-09-08 | M5 · lista tres formas | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. Filtro 4 botones, unión client-side, baja P6, `—` en referidos activos. 5 archivos + App.tsx (borrador previo). **Verificación visual 375/768/1440 pendiente de aplicar M1 a Neon** (la pantalla 500a sin la tabla). **Siguiente tarea en la misma sesión por instrucción explícita** (excepción a "una tarea = una sesión", como M3/M4). |
 | 2026-09-08 | M6 · columnas de deuda | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. `—` con tooltip mientras M12 esté bloqueada (nunca `0.00`); orden *se le debe* desc comparando NUMERIC como string, sin float. 4 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
+| 2026-09-08 | M23 · GET con referencias | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `referencias[]` + `origen_nombre` por join en servidor, una fila por origen (R16). 2 archivos. ⚠️ 500a hasta aplicar M2 a Neon. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-08-19 | M10 (split) | — | El `DROP asignado_a` no corría: ~8 archivos (backend + 6 de frontend) leen la columna. Se parte en M10a (logic, backend deja de leer), M10b (ui, frontend deja de leer), M10 (data, DROP, dependiente). M10b lleva 6 archivos como excepción a ≤5 porque el tipo `AsignadoA` los acopla. Bloque A: 11 → 13 tareas. |
 | 2026-08-19 | M10a | — | `gate.sh` → `CMD_TEST_MODULO` con `--passWithNoTests`: un módulo sin tests pasa en vez de reventar (vitest sale 1 con filtro sin match). Override de proyecto, no toca la base. Deuda de fondo: cero tests por módulo. |

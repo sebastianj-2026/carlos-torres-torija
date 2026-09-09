@@ -195,6 +195,23 @@ Si no cumple → se parte. No se negocia.
   el botón de alta en la lista de M5.
 - **Estado:** ⬜
 
+### M23 · Detalle de referenciador devuelve sus referencias
+- **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M3, M4
+- **Lee:** `docs/modulos/inversionistas/MODULO.md` + `REGLAS.md`
+- **Por qué:** el contrato de `MODULO.md` dice `GET /api/referenciadores/:id` =
+  "detalle + sus referencias". M3 difirió el join "a M4" y M4 sólo hizo
+  `POST`/`PATCH` — la lectura quedó huérfana. M7 (desglose por origen) no puede
+  arrancar sin esto.
+- **Extra al DoD:** el GET agrega `referencias[]` con `origen_nombre` (nombre
+  del inversionista de la inversión o del cliente del préstamo — join en
+  servidor). Una fila **por origen**, nunca agregado (R16). Montos/tasas como
+  string. Envelope `{ success, data, error }`.
+- **Estado:** ✅ — `GET /:id` devuelve `data.referencias[]` con `origen_nombre`
+  (join `inversiones→inversionistas` / `prestamos→clientes` en servidor), orden
+  `fecha_inicio DESC`. Tasas como string (NUMERIC de `pg` sin tocar).
+  `ReferenciaConOrigen` en el model. 2 archivos. ⚠️ 500a en runtime hasta
+  aplicar M2 a Neon (mismo aviso que M4).
+
 ---
 
 # Bloque B — motor de comisiones · 🚫 BLOQUEADO
@@ -267,7 +284,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 15 | 11 ✅ · 4 ⬜ (siguiente: M7 — desbloqueada) |
+| A — inversionistas/referenciadores | 16 | 12 ✅ · 4 ⬜ (siguiente: M7 — desbloqueada) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 

@@ -98,10 +98,11 @@ export const listarReferenciadores = async (req: Request, res: Response): Promis
 };
 
 // ----------------------------------------------------------------
-// Obtener un referenciador por id
+// Obtener un referenciador por id, con sus referencias (M23)
 // GET /api/referenciadores/:id
-//   El desglose de sus referencias (inversión|préstamo ligados) llega
-//   con M4, cuando exista el endpoint de /api/referencias.
+//   Contrato de MODULO.md: detalle + sus referencias. Una fila por
+//   origen, nunca agregado por persona (R16). origen_nombre viene del
+//   inversionista de la inversión o del cliente del préstamo.
 // ----------------------------------------------------------------
 export const obtenerReferenciador = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -117,7 +118,42 @@ export const obtenerReferenciador = async (req: Request, res: Response): Promise
       return;
     }
 
-    res.json({ success: true, data: resultado.rows[0], error: null });
+    const referencias = await pool.query(
+      `SELECT
+          ref.id,
+          ref.referenciador_id,
+          ref.tipo_referido,
+          ref.inversion_id,
+          ref.prestamo_id,
+          ref.tasa,
+          ref.estado,
+          ref.fecha_inicio,
+          ref.fecha_fin,
+          ref.notas,
+          ref.registrado_por,
+          ref.fecha_registro,
+          CASE WHEN ref.tipo_referido = 'inversion' THEN
+            CONCAT(pi.nombres, ' ', pi.apellido_paterno,
+              CASE WHEN pi.apellido_materno IS NOT NULL THEN ' ' || pi.apellido_materno ELSE '' END)
+          ELSE
+            CONCAT(c.nombres, ' ', c.apellido_paterno,
+              CASE WHEN c.apellido_materno IS NOT NULL THEN ' ' || c.apellido_materno ELSE '' END)
+          END AS origen_nombre
+        FROM referencias ref
+        LEFT JOIN inversiones inv     ON inv.id = ref.inversion_id
+        LEFT JOIN inversionistas pi   ON pi.id  = inv.inversionista_id
+        LEFT JOIN prestamos pr        ON pr.id  = ref.prestamo_id
+        LEFT JOIN clientes c          ON c.id   = pr.cliente_id
+        WHERE ref.referenciador_id = $1
+        ORDER BY ref.fecha_inicio DESC, ref.fecha_registro DESC`,
+      [id]
+    );
+
+    res.json({
+      success: true,
+      data: { ...resultado.rows[0], referencias: referencias.rows },
+      error: null,
+    });
   } catch (error) {
     console.error('Error al obtener referenciador:', error);
     res.status(500).json({ success: false, data: null, error: 'Error interno al obtener el referenciador.' });

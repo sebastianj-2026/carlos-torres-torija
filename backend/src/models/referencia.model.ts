@@ -28,6 +28,12 @@ export interface Referencia {
   fecha_registro: string;
 }
 
+// Fila de referencia con el nombre de su origen (inversionista de la
+// inversión o cliente del préstamo), para el detalle del referenciador (M23).
+export interface ReferenciaConOrigen extends Referencia {
+  origen_nombre: string;
+}
+
 // ----------------------------------------------------------------
 // DTOs para creación y edición
 // ----------------------------------------------------------------
