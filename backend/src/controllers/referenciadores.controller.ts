@@ -132,6 +132,7 @@ export const obtenerReferenciador = async (req: Request, res: Response): Promise
           ref.notas,
           ref.registrado_por,
           ref.fecha_registro,
+          inv.inversionista_id AS origen_inversionista_id,
           CASE WHEN ref.tipo_referido = 'inversion' THEN
             CONCAT(pi.nombres, ' ', pi.apellido_paterno,
               CASE WHEN pi.apellido_materno IS NOT NULL THEN ' ' || pi.apellido_materno ELSE '' END)

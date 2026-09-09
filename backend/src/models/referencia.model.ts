@@ -32,6 +32,9 @@ export interface Referencia {
 // inversión o cliente del préstamo), para el detalle del referenciador (M23).
 export interface ReferenciaConOrigen extends Referencia {
   origen_nombre: string;
+  // Dueño de la inversión ligada, para navegar a su perfil (M24).
+  // NULL en referencias de préstamo: ahí navega prestamo_id.
+  origen_inversionista_id: string | null;
 }
 
 // ----------------------------------------------------------------

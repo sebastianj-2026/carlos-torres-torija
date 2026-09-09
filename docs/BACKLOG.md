@@ -212,6 +212,18 @@ Si no cumple → se parte. No se negocia.
   `ReferenciaConOrigen` en el model. 2 archivos. ⚠️ 500a en runtime hasta
   aplicar M2 a Neon (mismo aviso que M4).
 
+### M24 · Referencias con id navegable del origen
+- **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M23
+- **Lee:** `docs/modulos/inversionistas/MODULO.md` + `REGLAS.md`
+- **Por qué:** la acción "abrir la inversión ligada" (M7, FLUJOS §4) navega al
+  perfil del inversionista dueño (`/inversionistas/:id`) y el payload de M23 no
+  trae ese id — sólo `inversion_id` y el nombre. Para préstamos `prestamo_id`
+  ya alcanza (`/prestamos/:id`).
+- **Extra al DoD:** `referencias[]` agrega `origen_inversionista_id`
+  (`inv.inversionista_id`; NULL en referencias de préstamo).
+- **Estado:** ✅ — columna en el SELECT + campo en `ReferenciaConOrigen`.
+  2 archivos.
+
 ---
 
 # Bloque B — motor de comisiones · 🚫 BLOQUEADO
@@ -284,7 +296,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 16 | 12 ✅ · 4 ⬜ (siguiente: M7 — desbloqueada) |
+| A — inversionistas/referenciadores | 17 | 13 ✅ · 4 ⬜ (siguiente: M7 — desbloqueada) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 

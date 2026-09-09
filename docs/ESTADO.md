@@ -5,7 +5,7 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-09-08 (cierre de M23 · siguiente: M7)
+**Última actualización:** 2026-09-08 (cierre de M24 · siguiente: M7)
 
 ---
 
@@ -35,7 +35,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| inversionistas / referenciadores | 🟡 en curso — Bloque A corriendo (12/16) | — | préstamos (lectura) | M23 · detalle de referenciador devuelve sus referencias (2026-09-08) |
+| inversionistas / referenciadores | 🟡 en curso — Bloque A corriendo (13/17) | — | préstamos (lectura) | M24 · referencias con id navegable del origen (2026-09-08) |
 | comisiones-motor | 🚫 bloqueado — 3 reglas sin definir | 14 ✅ (del motor descartado, sirven de referencia) | inversionistas | split de REGLAS 2026-08-19 |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
@@ -166,5 +166,6 @@ M13–M15 estén verdes.**
 | 2026-09-08 | M5 · lista tres formas | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. Filtro 4 botones, unión client-side, baja P6, `—` en referidos activos. 5 archivos + App.tsx (borrador previo). **Verificación visual 375/768/1440 pendiente de aplicar M1 a Neon** (la pantalla 500a sin la tabla). **Siguiente tarea en la misma sesión por instrucción explícita** (excepción a "una tarea = una sesión", como M3/M4). |
 | 2026-09-08 | M6 · columnas de deuda | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. `—` con tooltip mientras M12 esté bloqueada (nunca `0.00`); orden *se le debe* desc comparando NUMERIC como string, sin float. 4 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-09-08 | M23 · GET con referencias | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `referencias[]` + `origen_nombre` por join en servidor, una fila por origen (R16). 2 archivos. ⚠️ 500a hasta aplicar M2 a Neon. **Siguiente tarea en la misma sesión por instrucción explícita.** |
+| 2026-09-08 | M24 · id navegable del origen | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `origen_inversionista_id` en `referencias[]` para que M7 navegue a `/inversionistas/:id`; préstamos ya navegaban con `prestamo_id`. 2 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-08-19 | M10 (split) | — | El `DROP asignado_a` no corría: ~8 archivos (backend + 6 de frontend) leen la columna. Se parte en M10a (logic, backend deja de leer), M10b (ui, frontend deja de leer), M10 (data, DROP, dependiente). M10b lleva 6 archivos como excepción a ≤5 porque el tipo `AsignadoA` los acopla. Bloque A: 11 → 13 tareas. |
 | 2026-08-19 | M10a | — | `gate.sh` → `CMD_TEST_MODULO` con `--passWithNoTests`: un módulo sin tests pasa en vez de reventar (vitest sale 1 con filtro sin match). Override de proyecto, no toca la base. Deuda de fondo: cero tests por módulo. |
