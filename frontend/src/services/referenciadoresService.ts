@@ -80,6 +80,9 @@ export const listarPersonasTresFormas = async (): Promise<PersonaLista[]> => {
     correo: r.correo,
     inversionista_id: r.inversionista_id,
     activo: r.activo,
+    // El backend no expone deuda hasta que corra el motor (M12).
+    se_le_debe: null,
+    al_corriente: null,
   }));
 
   const idsConFormaDos = new Set(
@@ -102,6 +105,8 @@ export const listarPersonasTresFormas = async (): Promise<PersonaLista[]> => {
         correo: null,
         inversionista_id: inv.id,
         activo: null,
+        se_le_debe: null,
+        al_corriente: null,
       });
     }
     if (pagina >= lote.totalPaginas) break;

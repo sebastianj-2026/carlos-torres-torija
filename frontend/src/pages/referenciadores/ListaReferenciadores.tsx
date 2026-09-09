@@ -9,6 +9,26 @@ import TablaReferenciadores from '../../components/referenciadores/TablaReferenc
 
 const POR_PAGINA = 20;
 
+// Compara dos NUMERIC no negativos como string, sin pasar por float.
+const compararNumeric = (x: string, y: string): number => {
+  const [xi, xd = ''] = x.split('.');
+  const [yi, yd = ''] = y.split('.');
+  if (xi.length !== yi.length) return xi.length - yi.length;
+  if (xi !== yi) return xi < yi ? -1 : 1;
+  const dx = xd.padEnd(6, '0');
+  const dy = yd.padEnd(6, '0');
+  return dx === dy ? 0 : dx < dy ? -1 : 1;
+};
+
+// Orden por defecto: *se le debe* descendente — lo que urge, arriba.
+// null (motor pendiente, M12) empata: el sort estable conserva el alfabético.
+const porDeudaDesc = (a: PersonaLista, b: PersonaLista): number => {
+  if (a.se_le_debe === null && b.se_le_debe === null) return 0;
+  if (a.se_le_debe === null) return 1;
+  if (b.se_le_debe === null) return -1;
+  return compararNumeric(b.se_le_debe, a.se_le_debe);
+};
+
 // Filtro principal — las tres formas de ganar. Lo primero que se ve.
 const FORMAS: { valor: FiltroForma; etiqueta: string }[] = [
   { valor: '',  etiqueta: 'Todos' },
@@ -52,16 +72,18 @@ const ListaReferenciadores: React.FC = () => {
   // de las tres formas no existe como endpoint (decisión de M3).
   const filtradas = useMemo(() => {
     const texto = buscarDebounced.trim().toLowerCase();
-    return personas.filter((p) => {
-      if (forma && p.forma !== Number(forma)) return false;
-      if (!texto) return true;
-      const nombre = `${p.nombres} ${p.apellido_paterno} ${p.apellido_materno ?? ''}`.toLowerCase();
-      return (
-        nombre.includes(texto) ||
-        (p.telefono ?? '').toLowerCase().includes(texto) ||
-        (p.correo ?? '').toLowerCase().includes(texto)
-      );
-    });
+    return personas
+      .filter((p) => {
+        if (forma && p.forma !== Number(forma)) return false;
+        if (!texto) return true;
+        const nombre = `${p.nombres} ${p.apellido_paterno} ${p.apellido_materno ?? ''}`.toLowerCase();
+        return (
+          nombre.includes(texto) ||
+          (p.telefono ?? '').toLowerCase().includes(texto) ||
+          (p.correo ?? '').toLowerCase().includes(texto)
+        );
+      })
+      .sort(porDeudaDesc);
   }, [personas, forma, buscarDebounced]);
 
   const totalPaginas = Math.max(1, Math.ceil(filtradas.length / POR_PAGINA));

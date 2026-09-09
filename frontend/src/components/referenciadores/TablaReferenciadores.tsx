@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Eye, UserCog, UserX } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, UserCog, UserX, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { PersonaLista, FormaPersona } from '../../types/referenciador.types';
 
+const PENDIENTE_MOTOR = 'Pendiente de habilitar el motor de comisiones';
 const PENDIENTE_REFERENCIAS ='Pendiente: el conteo de referencias llega con el detalle (M7)';
 
 // Badge de la forma de ganar
@@ -39,6 +40,39 @@ const BadgeEstado: React.FC<{ activo: boolean | null }> = ({ activo }) => {
   );
 };
 
+// Formatea un NUMERIC como string a MXN sin pasar por float.
+const fmtMonto = (v: string): string => {
+  const [entero, decimales = ''] = v.split('.');
+  const agrupado = entero.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return `$${agrupado}.${decimales.padEnd(2, '0').slice(0, 2)}`;
+};
+
+// Se le debe: `—` con tooltip mientras el motor (M12) no exista. Nunca 0.00.
+const CeldaDeuda: React.FC<{ valor: string | null; grande?: boolean }> = ({ valor, grande }) => {
+  if (valor === null) {
+    return (
+      <span className={`text-slate-400 ${grande ? 'text-2xl font-bold' : ''}`} title={PENDIENTE_MOTOR}>
+        —
+      </span>
+    );
+  }
+  return (
+    <span className={`text-slate-800 font-semibold ${grande ? 'text-2xl' : ''}`}>
+      {fmtMonto(valor)}
+    </span>
+  );
+};
+
+// Al corriente: ✅ / ⚠️ según haya devengos pendientes. `—` mientras no exista el motor.
+const CeldaCorriente: React.FC<{ valor: boolean | null }> = ({ valor }) => {
+  if (valor === null) return <span className="text-slate-400" title={PENDIENTE_MOTOR}>—</span>;
+  return valor ? (
+    <CheckCircle2 size={16} className="text-green-500 inline" aria-label="Al corriente" />
+  ) : (
+    <AlertTriangle size={16} className="text-amber-500 inline" aria-label="Con devengos pendientes" />
+  );
+};
+
 interface TablaReferenciadoresProps {
   personas: PersonaLista[];
   total: number;
@@ -52,7 +86,7 @@ interface TablaReferenciadoresProps {
 
 const EsqueletoFila: React.FC = () => (
   <tr className="animate-pulse">
-    {[...Array(7)].map((_, i) => (
+    {[...Array(9)].map((_, i) => (
       <td key={i} className="px-4 py-3">
         <div className="h-4 bg-slate-200 rounded w-3/4" />
       </td>
@@ -163,6 +197,8 @@ const TablaReferenciadores: React.FC<TablaReferenciadoresProps> = ({
               <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">Forma</th>
               <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">Teléfono</th>
               <th className="px-4 py-3 text-center font-semibold text-slate-500 text-xs uppercase tracking-wide">Referidos activos</th>
+              <th className="px-4 py-3 text-right font-semibold text-slate-500 text-xs uppercase tracking-wide">Se le debe</th>
+              <th className="px-4 py-3 text-center font-semibold text-slate-500 text-xs uppercase tracking-wide">Al corriente</th>
               <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">Estado</th>
               <th className="px-4 py-3 text-right font-semibold text-slate-500 text-xs uppercase tracking-wide">Acciones</th>
             </tr>
@@ -182,6 +218,8 @@ const TablaReferenciadores: React.FC<TablaReferenciadoresProps> = ({
                       {p.telefono ?? <span className="text-slate-400">—</span>}
                     </td>
                     <td className="px-4 py-3 text-center text-slate-400" title={PENDIENTE_REFERENCIAS}>—</td>
+                    <td className="px-4 py-3 text-right"><CeldaDeuda valor={p.se_le_debe} /></td>
+                    <td className="px-4 py-3 text-center"><CeldaCorriente valor={p.al_corriente} /></td>
                     <td className="px-4 py-3"><BadgeEstado activo={p.activo} /></td>
                     <td className="px-4 py-3">{acciones(p)}</td>
                   </tr>
@@ -205,6 +243,11 @@ const TablaReferenciadores: React.FC<TablaReferenciadoresProps> = ({
                   <span className="font-semibold text-slate-800">{nombreCompleto(p)}</span>
                   <BadgeForma forma={p.forma} />
                 </div>
+                {/* Se le debe como cifra grande (FLUJOS §1, tarjeta 375px) */}
+                <div className="mb-2">
+                  <p className="text-xs text-slate-400 font-medium">Se le debe</p>
+                  <CeldaDeuda valor={p.se_le_debe} grande />
+                </div>
                 <div className="flex items-center justify-between gap-2 text-sm mb-1">
                   <span className="text-slate-600">
                     {p.telefono ?? <span className="text-slate-400">Sin teléfono</span>}
@@ -214,6 +257,10 @@ const TablaReferenciadores: React.FC<TablaReferenciadoresProps> = ({
                 <div className="flex items-center justify-between gap-2 text-sm">
                   <span className="text-slate-400" title={PENDIENTE_REFERENCIAS}>
                     Referidos activos: —
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="text-slate-400 text-xs">Al corriente:</span>
+                    <CeldaCorriente valor={p.al_corriente} />
                   </span>
                   {acciones(p)}
                 </div>

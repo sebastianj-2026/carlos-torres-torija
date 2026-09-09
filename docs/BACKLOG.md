@@ -153,7 +153,11 @@ Si no cumple → se parte. No se negocia.
 - **Lee:** `docs/DISENO.md` + `docs/modulos/inversionistas/FLUJOS.md`
 - **Extra al DoD:** *se le debe* y *al corriente*. Orden por defecto: se le debe
   descendente. **Mientras M12 esté bloqueada muestran `—`, nunca `0.00`.**
-- **Estado:** ⬜
+- **Estado:** ✅ — dos columnas + cifra grande en tarjeta 375px; con motor
+  bloqueado pintan `—` con tooltip, nunca `0.00` (los campos llegan `null` del
+  service). Orden *se le debe* desc con comparación de NUMERIC como string (sin
+  float); `null` empata → alfabético. Ramas con dato real ya escritas, se
+  activan cuando el backend exponga los campos (Bloque B/C). 4 archivos.
 
 ### M7 · Detalle con desglose por origen
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M4, M6
@@ -263,7 +267,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 15 | 10 ✅ · 5 ⬜ (siguiente: M6 — desbloqueada) |
+| A — inversionistas/referenciadores | 15 | 11 ✅ · 4 ⬜ (siguiente: M7 — desbloqueada) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 

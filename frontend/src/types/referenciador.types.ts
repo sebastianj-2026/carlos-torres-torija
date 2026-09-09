@@ -52,6 +52,11 @@ export interface PersonaLista {
   inversionista_id: string | null;
   // null en forma 1: inversionistas no tiene bandera de estado
   activo: boolean | null;
+  // Σ devengado − pagado, NUMERIC como string. null mientras el motor
+  // de comisiones (M12) no exista: se pinta `—`, nunca 0.00.
+  se_le_debe: string | null;
+  // true = sin devengos pendientes. null mientras no exista el motor.
+  al_corriente: boolean | null;
 }
 
 // '' = todas las formas
