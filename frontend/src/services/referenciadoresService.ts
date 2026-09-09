@@ -3,6 +3,7 @@ import {
   PaginacionReferenciadores,
   FiltrosReferenciadores,
   ReferenciadorResumen,
+  ReferenciadorDetalle,
   PersonaLista,
 } from '../types/referenciador.types';
 import { listarInversionistas } from './inversionistasService';
@@ -37,6 +38,20 @@ export const listarReferenciadores = async (
 
   if (!respuesta.data.success || !respuesta.data.data) {
     throw new Error(respuesta.data.error ?? 'No se pudo cargar la lista de referenciadores.');
+  }
+  return respuesta.data.data;
+};
+
+// ----------------------------------------------------------------
+// Detalle de referenciador con sus referencias (M7)
+// GET /api/referenciadores/:id
+// ----------------------------------------------------------------
+export const obtenerReferenciador = async (id: string): Promise<ReferenciadorDetalle> => {
+  const respuesta = await apiClient.get<Envelope<ReferenciadorDetalle>>(
+    `/referenciadores/${id}`
+  );
+  if (!respuesta.data.success || !respuesta.data.data) {
+    throw new Error(respuesta.data.error ?? 'No se pudo cargar el referenciador.');
   }
   return respuesta.data.data;
 };

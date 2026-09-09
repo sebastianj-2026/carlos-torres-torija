@@ -164,7 +164,12 @@ Si no cumple → se parte. No se negocia.
 - **Lee:** `docs/DISENO.md` + `docs/modulos/inversionistas/FLUJOS.md`
 - **Extra al DoD:** una fila **por origen**, nunca agregado por persona (R16).
   Tres totales arriba. Sin botón de pagar — eso es cuentas por pagar.
-- **Estado:** ⬜
+- **Estado:** ✅ — `/referenciadores/:id` con encabezado (forma derivada, cuenta
+  y banco a la mano), tres totales y desglose por origen en `—` con tooltip
+  (motor bloqueado). Abrir origen: inversión → perfil del dueño
+  (`origen_inversionista_id`, M24), préstamo → `/prestamos/:id`. Editar
+  deshabilitado hasta M22; baja P6 con doble clic. La lista (M5) ya navega al
+  detalle. 5 archivos.
 
 ### M8 · Alerta de inversión activa sin préstamo ligado
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M5
@@ -296,7 +301,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 17 | 13 ✅ · 4 ⬜ (siguiente: M7 — desbloqueada) |
+| A — inversionistas/referenciadores | 17 | 14 ✅ · 3 ⬜ (siguiente: M8 — desbloqueada) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 

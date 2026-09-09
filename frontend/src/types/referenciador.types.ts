@@ -59,6 +59,49 @@ export interface PersonaLista {
   al_corriente: boolean | null;
 }
 
+// ----------------------------------------------------------------
+// Detalle de referenciador (M7) — GET /api/referenciadores/:id
+// Contrato de MODULO.md: detalle + sus referencias (M23/M24).
+// ----------------------------------------------------------------
+export type TipoReferido = 'inversion' | 'prestamo';
+
+export type EstadoReferencia = 'activa' | 'terminada' | 'cancelada';
+
+export interface ReferenciaConOrigen {
+  id: string;
+  referenciador_id: string;
+  tipo_referido: TipoReferido;
+  inversion_id: string | null;
+  prestamo_id: string | null;
+  // Tasa mensual en porcentaje con 2 decimales: 0.50 = 0.5%. String en pg.
+  tasa: string;
+  estado: EstadoReferencia;
+  fecha_inicio: string;
+  fecha_fin: string | null;
+  notas: string | null;
+  // Nombre del inversionista de la inversión o del cliente del préstamo.
+  origen_nombre: string;
+  // Dueño de la inversión ligada, para navegar a su perfil. NULL en préstamos.
+  origen_inversionista_id: string | null;
+}
+
+export interface ReferenciadorDetalle {
+  id: string;
+  nombres: string;
+  apellido_paterno: string;
+  apellido_materno: string | null;
+  telefono: string | null;
+  correo: string | null;
+  direccion: string | null;
+  url_ine: string | null;
+  numero_cuenta: string | null;
+  banco: string | null;
+  inversionista_id: string | null;
+  activo: boolean;
+  fecha_registro: string;
+  referencias: ReferenciaConOrigen[];
+}
+
 // '' = todas las formas
 export type FiltroForma = '' | '1' | '2' | '3';
 

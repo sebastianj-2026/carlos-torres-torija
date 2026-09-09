@@ -21,6 +21,7 @@ import ExpedienteCliente from './pages/clientes/ExpedienteCliente';
 
 // Módulo inversionistas
 import ListaReferenciadores from './pages/referenciadores/ListaReferenciadores';
+import DetalleReferenciador from './pages/referenciadores/DetalleReferenciador';
 import ListaInversionistas from './pages/inversionistas/ListaInversionistas';
 import PerfilInversionista from './pages/inversionistas/PerfilInversionista';
 import FormularioInversionista from './pages/inversionistas/FormularioInversionista';
@@ -149,6 +150,16 @@ const App: React.FC = () => {
               <ProtectedRoute>
                 <Layout>
                   <ListaReferenciadores />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/referenciadores/:id"
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <DetalleReferenciador />
                 </Layout>
               </ProtectedRoute>
             }

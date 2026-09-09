@@ -3,11 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Eye, UserCog, UserX, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { PersonaLista, FormaPersona } from '../../types/referenciador.types';
 
-const PENDIENTE_MOTOR = 'Pendiente de habilitar el motor de comisiones';
+export const PENDIENTE_MOTOR = 'Pendiente de habilitar el motor de comisiones';
 const PENDIENTE_REFERENCIAS ='Pendiente: el conteo de referencias llega con el detalle (M7)';
 
 // Badge de la forma de ganar
-const BadgeForma: React.FC<{ forma: FormaPersona }> = ({ forma }) => {
+export const BadgeForma: React.FC<{ forma: FormaPersona }> = ({ forma }) => {
   const estilos: Record<FormaPersona, string> = {
     1: 'bg-green-50 text-green-600',
     2: 'bg-purple-50 text-purple-600',
@@ -26,7 +26,7 @@ const BadgeForma: React.FC<{ forma: FormaPersona }> = ({ forma }) => {
 };
 
 // Badge de estado (P6: baja por bandera, nunca DELETE). Forma 1 no tiene bandera.
-const BadgeEstado: React.FC<{ activo: boolean | null }> = ({ activo }) => {
+export const BadgeEstado: React.FC<{ activo: boolean | null }> = ({ activo }) => {
   if (activo === null) return <span className="text-slate-400">—</span>;
   return (
     <span
@@ -48,7 +48,7 @@ const fmtMonto = (v: string): string => {
 };
 
 // Se le debe: `—` con tooltip mientras el motor (M12) no exista. Nunca 0.00.
-const CeldaDeuda: React.FC<{ valor: string | null; grande?: boolean }> = ({ valor, grande }) => {
+export const CeldaDeuda: React.FC<{ valor: string | null; grande?: boolean }> = ({ valor, grande }) => {
   if (valor === null) {
     return (
       <span className={`text-slate-400 ${grande ? 'text-2xl font-bold' : ''}`} title={PENDIENTE_MOTOR}>
@@ -111,17 +111,19 @@ const TablaReferenciadores: React.FC<TablaReferenciadoresProps> = ({
   const nombreCompleto = (p: PersonaLista) =>
     `${p.nombres} ${p.apellido_paterno}${p.apellido_materno ? ` ${p.apellido_materno}` : ''}`;
 
+  // Forma 1 abre el perfil de inversionista; 2/3 el detalle de referenciador (M7).
+  const rutaDetalle = (p: PersonaLista) =>
+    p.forma === 1 ? `/inversionistas/${p.id}` : `/referenciadores/${p.id}`;
+
   const acciones = (p: PersonaLista) => (
     <div className="flex items-center justify-end gap-1">
-      {p.forma === 1 && (
-        <button
-          onClick={() => navigate(`/inversionistas/${p.id}`)}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition-colors"
-          title="Ver perfil de inversionista"
-        >
-          <Eye size={15} />
-        </button>
-      )}
+      <button
+        onClick={() => navigate(rutaDetalle(p))}
+        className="p-1.5 rounded-lg text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition-colors"
+        title={p.forma === 1 ? 'Ver perfil de inversionista' : 'Ver detalle'}
+      >
+        <Eye size={15} />
+      </button>
       {p.forma !== 1 && p.activo === true && (
         bajaPendiente === p.id ? (
           <button
@@ -211,8 +213,14 @@ const TablaReferenciadores: React.FC<TablaReferenciadoresProps> = ({
                     <td className="px-4 py-3 text-center text-xs text-slate-400 font-medium w-10">
                       {(pagina - 1) * limite + idx + 1}
                     </td>
-                    {/* El detalle de referenciador llega con M7; forma 1 sí tiene perfil hoy. */}
-                    <td className="px-4 py-3 font-medium text-slate-800">{nombreCompleto(p)}</td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={() => navigate(rutaDetalle(p))}
+                        className="font-medium text-slate-800 hover:text-sky-600 transition-colors text-left"
+                      >
+                        {nombreCompleto(p)}
+                      </button>
+                    </td>
                     <td className="px-4 py-3"><BadgeForma forma={p.forma} /></td>
                     <td className="px-4 py-3 text-slate-600">
                       {p.telefono ?? <span className="text-slate-400">—</span>}
@@ -240,7 +248,12 @@ const TablaReferenciadores: React.FC<TablaReferenciadoresProps> = ({
           : personas.map((p) => (
               <div key={`${p.forma}-${p.id}`} className="p-4">
                 <div className="flex items-center justify-between gap-2 mb-2">
-                  <span className="font-semibold text-slate-800">{nombreCompleto(p)}</span>
+                  <button
+                    onClick={() => navigate(rutaDetalle(p))}
+                    className="font-semibold text-slate-800 hover:text-sky-600 transition-colors text-left"
+                  >
+                    {nombreCompleto(p)}
+                  </button>
                   <BadgeForma forma={p.forma} />
                 </div>
                 {/* Se le debe como cifra grande (FLUJOS §1, tarjeta 375px) */}
