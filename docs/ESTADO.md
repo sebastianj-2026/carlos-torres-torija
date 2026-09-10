@@ -124,10 +124,13 @@ M13–M15 estén verdes.**
       resuelta el 2026-09-09 (M26): UUID/tasa/fecha_fin validados antes de la DB,
       400 en español. **Sigue viva la mitad legacy:** el mismo hueco en
       `crearInversion` no se tocó (refactor legacy es ticket propio).
-- [ ] **El working tree marca ~140 archivos como modificados** sin cambio de
-      contenido aparente (probable normalización de fin de línea CRLF/LF).
-      Revisar `core.autocrlf` / `.gitattributes` **antes** del próximo commit, o
-      el diff del release será ilegible.
+- [x] ~~**Working tree con ~140 archivos modificados**~~ — resuelta el
+      2026-09-09. El diagnóstico de CRLF era **incorrecto**: eran cambios reales
+      sin commitear (rebranding OFICINA TS→PrestaFácil, schema/seed sin
+      `asignado_a`, `.claudeignore`). Commiteados en 3 commits temáticos por
+      instrucción de Sebastian. `core.autocrlf=true` funciona bien; no hizo
+      falta `.gitattributes`. Sin trackear a propósito: `_to_delete/`,
+      `graphify-out/`, `.playwright-mcp/`.
 
 ---
 
