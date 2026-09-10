@@ -1,5 +1,9 @@
 # Para Carlos — 3 preguntas que desbloquean el motor de comisiones
 
+> ✅ **Resueltas el 2026-09-09 por Sebastian** (decidió resolver él y validar con
+> Carlos al final del release). Las reglas viven en
+> `docs/modulos/comisiones-motor/REGLAS.md` (R22–R24).
+
 > Hoja para la junta. No es técnica: son tres decisiones de negocio.
 > Sin ellas, cualquier cosa que programemos sería una regla **inventada** — y una
 > regla inventada que corre sin error es el peor resultado posible: se descubre
@@ -25,7 +29,7 @@ Entraron $6,000.
 - Con B: inversionista $5,000 · referenciador $1,000
 
 **Lo que asumimos:** A (inversionista primero).
-**Respuesta de Carlos:** ______________________
+**Respuesta (Sebastian, 2026-09-09 — Carlos valida al final):** Sin orden programado: la oficina ve todos los pendientes y decide cuál liquidar y en qué orden (R22).
 
 ---
 
@@ -45,7 +49,7 @@ Las comisiones del mes salen más caras que lo que se cobró.
 
 **Lo que asumimos:** B (devenga), por coherencia con la regla de que lo que no se
 cobró se acumula y se paga después.
-**Respuesta de Carlos:** ______________________
+**Respuesta (Sebastian, 2026-09-09 — Carlos valida al final):** Ni A ni B automáticos: todo permanece devengado hasta que la oficina decida pagarlo; no hay pago automático (R23).
 
 ---
 
@@ -66,7 +70,7 @@ cuadrar con el total cobrado. El estado de cuenta diría $12,499.99 donde el
 reparto dice $12,500.00 — y esa diferencia se acumula mes con mes.
 
 **Lo que asumimos:** 2 decimales, residuo a la oficina.
-**Respuesta de Carlos:** ______________________
+**Respuesta (Sebastian, 2026-09-09 — Carlos valida al final):** A — 2 decimales, residuo a la oficina (R24).
 
 ---
 
@@ -89,7 +93,7 @@ alguien. Hoy cualquier usuario con sesión puede hacerlo.
 **Por qué importa.** Editar una inversión ya exige administrador; una referencia
 mueve dinero igual. Dejarla abierta es una asimetría de permisos.
 **Lo que asumimos:** B (como está), pendiente de confirmar.
-**Respuesta de Carlos:** ______________________
+**Respuesta (Sebastian, 2026-09-09 — Carlos valida al final):** A — sólo administrador liga/edita referencias (tarea M28).
 
 ## ⛔ 5 · ¿Qué cambios de estado de una referencia son válidos?
 
@@ -105,7 +109,7 @@ aunque ya esté `terminada`/`cancelada`.
 **Nota de mitigación.** El devengo congela base y tasa al generarse (R18), así que
 editar la tasa después **no** reescribe lo ya devengado. El riesgo es acotado.
 **Lo que asumimos:** B (libre), pendiente de confirmar.
-**Respuesta de Carlos:** ______________________
+**Respuesta (Sebastian, 2026-09-09 — Carlos valida al final):** A — sólo hacia adelante; tasa no editable fuera de `activa` (tarea M29).
 
 ---
 

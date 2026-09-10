@@ -5,7 +5,7 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-09-09 (cierre de M22 · **Bloque A completo**; B y C siguen 🚫 por las 3 ⛔ de Carlos)
+**Última actualización:** 2026-09-09 (⛔1–⛔5 resueltas por Sebastian → **Bloques B y C desbloqueados**; siguiente: M12. Carlos valida las reglas al final del release)
 **Migraciones M1/M2/M9/M10/M11 APLICADAS a Neon el 2026-09-09** (por Claude, con
 autorización explícita de Sebastian — excepción puntual a la prohibición 7).
 Verificado: tablas con 0 filas y 3 constraints, `asignado_a` fuera,
@@ -50,7 +50,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
 | inversionistas / referenciadores | 🟡 Bloque A **completo** (17 ✅ · 1 ❌ / 18); espera Bloques B/C | — | préstamos (lectura) | M22 · form de alta/edición de referenciador (2026-09-09) |
-| comisiones-motor | 🚫 bloqueado — 3 reglas sin definir | 14 ✅ (del motor descartado, sirven de referencia) | inversionistas | split de REGLAS 2026-08-19 |
+| comisiones-motor | ⬜ desbloqueado — R22–R24 definidas (2026-09-09) | 14 ✅ (del motor descartado, sirven de referencia) | inversionistas | desbloqueo por R22–R24 (2026-09-09) |
 | dashboard | ✅ legacy funcional, documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ legacy funcional | 0 | — | sin spec de metodología |
 | ~~personas~~ / ~~comisiones~~ | ❌ DESCARTADOS como módulos | 14 | — | docs en `_to_delete/`; ver "Código huérfano" |
@@ -61,18 +61,11 @@ Estados: `⬜ pendiente` · `🟡 en curso` · `✅ legacy funcional` · `🚫 b
 
 ## Bloqueos activos
 
-| Qué | Qué falta | Quién resuelve | Desde |
-|---|---|---|---|
-| Bloque B y C del backlog (M12–M20, 9 tareas) | Las 3 reglas ⛔ de `docs/modulos/comisiones-motor/REGLAS.md` | **Carlos**, en junta | 2026-08-19 |
-
-Hoja para la junta: `docs/PARA-CARLOS-referenciadores.md`.
-
-Las tres: (1) orden dentro del mismo mes, (2) oficina en rojo, (3) redondeo y
-dueño del residuo.
-
-Además, la hoja lleva **2 preguntas nuevas** (⛔4, ⛔5) de la revisión de seguridad
-de M3/M4 — **no bloquean** nada (el código ya corre con un supuesto), sólo
-confirman permiso de rol para ligar referencias y transiciones válidas de estado.
+**Ninguno.** Las 5 ⛔ se resolvieron el **2026-09-09**: Sebastian decidió
+resolverlas él y **validar con Carlos al final del release** (su instrucción en
+sesión). Las 3 del motor son ahora **R22–R24** en
+`docs/modulos/comisiones-motor/REGLAS.md`; ⛔4/⛔5 generaron las tareas M28/M29.
+Bloques B y C desbloqueados (9 tareas ⬜).
 
 > Un módulo bloqueado por regla de negocio sin definir **no entra al backlog**.
 > No se marca TODO — se detiene.
@@ -178,6 +171,7 @@ M13–M15 estén verdes.**
 | 2026-09-08 | M6 · columnas de deuda | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. `—` con tooltip mientras M12 esté bloqueada (nunca `0.00`); orden *se le debe* desc comparando NUMERIC como string, sin float. 4 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-09-08 | M23 · GET con referencias | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `referencias[]` + `origen_nombre` por join en servidor, una fila por origen (R16). 2 archivos. ⚠️ 500a hasta aplicar M2 a Neon. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-09-08 | M24 · id navegable del origen | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `origen_inversionista_id` en `referencias[]` para que M7 navegue a `/inversionistas/:id`; préstamos ya navegaban con `prestamo_id`. 2 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
+| 2026-09-09 | ⛔1–⛔5 | ✅ resueltas | **Sebastian decide; Carlos valida al final del release** (instrucción en sesión). ⛔1→R22 (sin orden automático, la oficina elige pago por pago), ⛔2→R23 (nunca absorbe en automático, todo devenga hasta pago manual), ⛔3→R24 (2 decimales, residuo a la oficina), ⛔4→A (solo admin, M28), ⛔5→A (estados solo adelante, M29). |
 | 2026-09-09 | M27 · fix Invalid Date en CardInversion | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. `DATE` de pg llega como ISO completo; se normaliza a `YYYY-MM-DD` antes de parsear. Verificado en navegador. 1 archivo. |
 | 2026-09-09 | M26 · endurecer validación /api/referencias | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. Deuda de seguridad de M4 saldada en lo nuevo; smoke test de 6 casos contra el server (datos temporales creados y borrados). 1 archivo. Elegida por Sebastian ante backlog bloqueado. |
 | 2026-09-09 | M22 · form alta/edición referenciador | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. Reusa `Campo` (P5) y `FileDropZone accept` PDF (M25); alta crea forma 3 (FLUJOS §2 no lista `inversionista_id` — la liga a inversionista queda fuera del form). **6 archivos, excepción a ≤5 autorizada.** Verificación visual pendiente de aplicar M1/M2 a Neon. |

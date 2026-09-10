@@ -239,6 +239,19 @@ Si no cumple → se parte. No se negocia.
   parsear. Verificado en navegador: "Inicio: 01 may 2026 · Vence: 01 may 2027".
   1 archivo.
 
+### M28 · Solo administrador liga y edita referencias
+- **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M4
+- **Por qué:** ⛔4 resuelta (2026-09-09): opción A. Hoy cualquier usuario con
+  sesión puede ligar/editar referencias; debe exigir rol administrador, como
+  editar una inversión.
+- **Estado:** ⬜
+
+### M29 · Estados de referencia solo hacia adelante
+- **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M4
+- **Por qué:** ⛔5 resuelta (2026-09-09): opción A. `activa → terminada/cancelada`
+  sin regreso; la tasa no se edita si la referencia ya no está `activa`.
+- **Estado:** ⬜
+
 ### M23 · Detalle de referenciador devuelve sus referencias
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M3, M4
 - **Lee:** `docs/modulos/inversionistas/MODULO.md` + `REGLAS.md`
@@ -269,12 +282,12 @@ Si no cumple → se parte. No se negocia.
 
 ---
 
-# Bloque B — motor de comisiones · 🚫 BLOQUEADO
+# Bloque B — motor de comisiones · desbloqueado 2026-09-09
 
-> **Ninguna arranca hasta cerrar los 3 ⛔ con Carlos.**
+> Las 3 reglas se resolvieron (R22–R24, decididas por Sebastian; Carlos valida
+> al final del release).
 > **Lee (todas las de este bloque):** `docs/modulos/comisiones-motor/REGLAS.md`.
-> Ese archivo tiene las 3 marcas sin definir y por eso el gate lo rechaza. A
-> propósito. Hoja de junta: `docs/PARA-CARLOS-referenciadores.md`.
+> Hoja con las respuestas: `docs/PARA-CARLOS-referenciadores.md`.
 >
 > Las reglas de **estructura** (P1–P7) viven en
 > `docs/modulos/inversionistas/REGLAS.md` y están completas — el Bloque A no
@@ -284,54 +297,54 @@ Si no cumple → se parte. No se negocia.
 - **Tipo:** `data` · **Depende de:** M2 + ⛔1 ⛔2 ⛔3
 - **Extra al DoD:** `devengos_idempotente` UNIQUE a nivel BD (R20),
   `dev_un_beneficiario`, `dev_no_sobrepago`, índice FIFO. Con `.down.sql`.
-- **Estado:** 🚫
+- **Estado:** ⬜
 
 ### M13 · Generación mensual de devengos, idempotente
 - **Tipo:** `motor` · **Depende de:** M12
 - **Extra al DoD:** correr el corte dos veces deja **el mismo estado** (R20).
   Congela `base_capital` y `tasa` al generarse (R18).
-- **Estado:** 🚫
+- **Estado:** ⬜
 
 ### M14 · Cálculo sobre capital vigente (base viva)
 - **Tipo:** `motor` · **Depende de:** M13
 - **Extra al DoD:** base = `inversiones.monto_actual` o monto vigente del
   préstamo (R3). Moratorios fuera del reparto (R8). Casos resueltos primero, en
   rojo, antes del motor.
-- **Estado:** 🚫
+- **Estado:** ⬜
 
 ### M15 · Aplicación FIFO por origen
 - **Tipo:** `motor` · **Depende de:** M13
 - **Extra al DoD:** R16 es lo más fácil de implementar mal. El dinero del
   préstamo A **no** cubre lo del préstamo B. Caso de dos préstamos del mismo
   referenciador, uno pagando, en verde.
-- **Estado:** 🚫
+- **Estado:** ⬜
 
 ### M16 · Lectura de montos con Decimal, sin `parseFloat`
 - **Tipo:** `logic` · **Depende de:** M13
 - **Extra al DoD:** aplica **solo a lo nuevo** (devengos y aplicación de pagos).
   El legacy no se refactoriza en esta tarea. Montos leídos como string.
-- **Estado:** 🚫
+- **Estado:** ⬜
 
 ---
 
-# Bloque C — cuentas por pagar inversionistas · 🚫 BLOQUEADO
+# Bloque C — cuentas por pagar inversionistas · desbloqueado 2026-09-09
 
 ### M17 · Aceptar concepto `comision` además de `rendimiento`
-- **Tipo:** `logic` · **Depende de:** M12 · **Estado:** 🚫
+- **Tipo:** `logic` · **Depende de:** M12 · **Estado:** ⬜
 - **Extra al DoD:** un pago por concepto, no se juntan (R17).
 
 ### M19 · Registrar pago con forma, cuenta, comprobante y autorización
-- **Tipo:** `logic` · **Depende de:** M15, M17 · **Estado:** 🚫
+- **Tipo:** `logic` · **Depende de:** M15, M17 · **Estado:** ⬜
 - **Extra al DoD:** `autorizado_por` y comprobante **obligatorios** (R19).
   `pago_cuenta_coherente`: si no fue efectivo, exige cuenta.
 
 ### M18 · Pantalla de pendientes
-- **Tipo:** `ui` · **Depende de:** M19 · **Estado:** 🚫
+- **Tipo:** `ui` · **Depende de:** M19 · **Estado:** ⬜
 - **Extra al DoD:** Carlos selecciona, el sistema no decide (R14). Dentro de la
   línea el periodo no se elige: FIFO forzado (R15). Totales en centavos enteros.
 
 ### M20 · Filtro inversionistas / referenciadores
-- **Tipo:** `ui` · **Depende de:** M18 · **Estado:** 🚫
+- **Tipo:** `ui` · **Depende de:** M18 · **Estado:** ⬜
 
 ---
 
@@ -339,9 +352,9 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 20 (incluye M25–M27 extra) | 19 ✅ · 1 ❌ (M8) · **Bloque A completo** |
-| B — motor de comisiones | 5 | 🚫 bloqueado |
-| C — cuentas por pagar | 4 | 🚫 bloqueado |
+| A — inversionistas/referenciadores | 22 (incluye M25–M29 extra) | 19 ✅ · 1 ❌ (M8) · 2 ⬜ (M28, M29 — de ⛔4/⛔5) |
+| B — motor de comisiones | 5 | 5 ⬜ (siguiente: M12) |
+| C — cuentas por pagar | 4 | 4 ⬜ (tras Bloque B) |
 
-## Lo que se decide antes de tocar el Bloque B
-Las 3 respuestas de Carlos desbloquean 9 tareas.
+## Bloques B y C desbloqueados el 2026-09-09
+Reglas R22–R24 decididas por Sebastian; Carlos valida al final del release.

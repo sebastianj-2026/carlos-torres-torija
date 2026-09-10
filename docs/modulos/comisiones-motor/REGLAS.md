@@ -1,9 +1,7 @@
 # Reglas de cálculo — motor de comisiones
 
-> # 🚫 MÓDULO BLOQUEADO
->
-> Este archivo tiene **3 reglas sin definir**. Ninguna tarea que lo lea puede
-> arrancar. Ver `docs/PARA-CARLOS-referenciadores.md`.
+> ✅ **Módulo desbloqueado el 2026-09-09.** Las 3 reglas pendientes las resolvió
+> **Sebastian** (R22–R24 abajo); Carlos las valida al final del release.
 >
 > **Archivo sagrado.** Baja rotación. Solo se abre en tareas `motor` o `logic`
 > del Bloque B/C del backlog.
@@ -54,19 +52,26 @@ autorizó.
 
 ---
 
-## ⛔ REGLA NO DEFINIDA · Orden dentro del mismo mes
-Cuando no alcanza para cubrir el mes completo: ¿primero el inversionista y luego
-el referenciador, o prorrata entre ambos?
-Se asumió inversionista primero. **CONFIRMAR con Carlos.**
+## Reglas resueltas el 2026-09-09 (Sebastian; Carlos valida al final)
 
-## ⛔ REGLA NO DEFINIDA · Oficina en rojo
-Cuando las comisiones exceden lo cobrado: ¿se paga completo y la oficina absorbe,
-o se paga hasta lo cobrado y el resto se devenga?
-Se asumió lo segundo, por coherencia con R11. **CONFIRMAR con Carlos.**
+### R22 · Sin orden automático entre beneficiarios
+Cuando no alcanza en el mes, **el sistema no reparte ni prioriza**: muestra
+todos los pendientes (inversionista y referenciador) y **la oficina decide cuál
+liquidar y en qué orden**, pago por pago. No hay prelación programada — es la
+extensión natural de R14/R21. Dentro de cada línea sigue aplicando R15 (FIFO
+forzado de periodos).
 
-## ⛔ REGLA NO DEFINIDA · Redondeo
-¿A cuántos decimales y quién se queda con el centavo del residuo?
-Sin esto la invarianza de suma no cierra. **CONFIRMAR con Carlos.**
+### R23 · La oficina nunca absorbe automáticamente
+No existe pago automático que obligue a la oficina a poner dinero. Lo que no se
+paga **permanece devengado sin límite de tiempo** (R11, R13) hasta que la
+oficina decida liquidarlo (R21). "Absorber" solo ocurre si la oficina
+explícitamente registra pagos por encima de lo cobrado — decisión humana, no
+regla del motor.
+
+### R24 · Redondeo a 2 decimales; el residuo es de la oficina
+Todo cálculo se redondea a **centavos (2 decimales)** y el residuo del reparto
+queda **del lado de la oficina**. Invarianza dura: la suma de las partes más el
+residuo debe cuadrar exacto con el total cobrado, cada mes.
 
 ---
 
