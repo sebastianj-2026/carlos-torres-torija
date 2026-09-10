@@ -381,9 +381,17 @@ Si no cumple → se parte. No se negocia.
   400 verificados, datos de prueba borrados. 3 archivos.
 
 ### M19 · Registrar pago con forma, cuenta, comprobante y autorización
-- **Tipo:** `logic` · **Depende de:** M15, M17 · **Estado:** ⬜
+- **Tipo:** `logic` · **Depende de:** M15, M17, M30 · **Estado:** ✅
 - **Extra al DoD:** `autorizado_por` y comprobante **obligatorios** (R19).
   `pago_cuenta_coherente`: si no fue efectivo, exige cuenta.
+- **Cierre:** `POST /api/pagos-devengo` — **solo administrador**
+  (`roleMiddleware`, coherente con ⛔4=A). Transacción con `FOR UPDATE` sobre la
+  línea, aplica `aplicarPagoFifo` (R15/R16), escribe `pagos_devengo` +
+  `pago_aplicaciones` y actualiza devengos. `autorizado_por` = sesión (R19);
+  espejo de `pago_cuenta_coherente` en 400 legible. **Monto que excede la línea
+  se rechaza** (el sobrante no tiene destino legal — R16/R22). Smoke E2E:
+  parcial→`parcial`, exceso→400 con sobrante exacto, sin cuenta→400,
+  resto exacto→`pagado`, línea sale de pendientes. Datos borrados. 2 archivos.
 
 ### M18 · Pantalla de pendientes
 - **Tipo:** `ui` · **Depende de:** M19 · **Estado:** ⬜
@@ -401,7 +409,7 @@ Si no cumple → se parte. No se negocia.
 |---|---|---|
 | A — inversionistas/referenciadores | 22 (incluye M25–M29 extra) | 19 ✅ · 1 ❌ (M8) · 2 ⬜ (M28, M29 — de ⛔4/⛔5) |
 | B — motor de comisiones | 5 | **5 ✅ · Bloque B completo** |
-| C — cuentas por pagar | 5 (incluye M30 data) | 2 ✅ · 3 ⬜ (siguiente: M19) |
+| C — cuentas por pagar | 5 (incluye M30 data) | 3 ✅ · 2 ⬜ (siguiente: M18) |
 
 ## Bloques B y C desbloqueados el 2026-09-09
 Reglas R22–R24 decididas por Sebastian; Carlos valida al final del release.
