@@ -6,6 +6,10 @@
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
 **Última actualización:** 2026-09-09 (cierre de M22 · **Bloque A completo**; B y C siguen 🚫 por las 3 ⛔ de Carlos)
+**Migraciones M1/M2/M9/M10/M11 APLICADAS a Neon el 2026-09-09** (por Claude, con
+autorización explícita de Sebastian — excepción puntual a la prohibición 7).
+Verificado: tablas con 0 filas y 3 constraints, `asignado_a` fuera,
+`tasa_referenciador` en `NUMERIC(5,2)`. Pendiente: verificación visual 375/768/1440.
 
 ---
 
@@ -91,12 +95,9 @@ M13–M15 estén verdes.**
       en todos los controllers. El check `dinero-sin-float` sale ROJO.
       **Desactivado como bloqueante** (no está en `CHECKS_EXTRA`). La regla nueva
       (M16) aplica **solo a lo nuevo**: el legacy se ataca en ticket propio.
-- [ ] **Dos escalas de tasa** en la misma tabla: `tasa_interes_mensual` es
-      `NUMERIC(5,2)` (2.00 = 2%) y `tasa_referenciador` era `NUMERIC(6,4)`
-      (0.0050 = 0.5%). **M11 escribió la migración que las unifica** (`× 100` →
-      `NUMERIC(5,2)`), **sin aplicar a Neon**: hasta que Sebastian la corra, la DB
-      sigue en la escala vieja — cuidado al leer. El form legacy que la escribe se
-      alinea en **M21** (ver BACKLOG).
+- [x] ~~**Dos escalas de tasa**~~ — resuelta el 2026-09-09: M11 aplicada a Neon
+      (`tasa_referenciador` ya es `NUMERIC(5,2)`, 0.50 = 0.5%) y M21 alineó el
+      form legacy. Todo el sistema usa porcentaje con 2 decimales.
 - [ ] **Backend con tests solo del motor descartado.** 14 tests, todos de
       `modules/comisiones`. Cero tests de los controllers en producción.
 - [ ] **Sin script de lint.** Solo `eslintConfig` de CRA en build. `CMD_LINT` vacío.

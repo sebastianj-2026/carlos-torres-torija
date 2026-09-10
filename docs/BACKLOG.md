@@ -37,8 +37,7 @@ Si no cumple → se parte. No se negocia.
 - **Extra al DoD:** tabla con sus dos índices. `inversionista_id` **nullable**
   (forma 3). Trae `.down.sql`. Aplicación a Neon es MANUAL vía
   `scripts/apply-migration.js` — documentar el paso en el commit.
-- **Estado:** ✅ — `.up`/`.down` escritas. ⚠️ **Sin aplicar a Neon**: la aplica
-  Sebastian a mano (comando en el commit).
+- **Estado:** ✅ — `.up`/`.down` escritas. **Aplicada a Neon el 2026-09-09.**
 
 ### M2 · Migración: tabla `referencias` + copia de datos
 - **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** M1
@@ -53,14 +52,14 @@ Si no cumple → se parte. No se negocia.
   **Copia diferida:** hoy hay **0 filas** con `referenciador_id` (verificado en
   Neon); el copiado real exige puente `inversionista→referenciador` + escala de
   tasa (M11), sin definir. La migración trae una **guarda** que falla si aparecen
-  filas. ⚠️ **Sin aplicar a Neon.**
+  filas. **Aplicada a Neon el 2026-09-09.**
 
 ### M9 · Migración: `numero_cuenta` y `banco` en inversionistas
 - **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** —
 - **Lee:** `docs/modulos/inversionistas/DATOS.md`
 - **Extra al DoD:** ambas columnas **opcionales**. Nada las vuelve obligatorias.
   Trae `.down.sql`.
-- **Estado:** ✅ — `numero_cuenta`/`banco` opcionales, con `.down.sql`. ⚠️ **Sin aplicar a Neon.**
+- **Estado:** ✅ — `numero_cuenta`/`banco` opcionales, con `.down.sql`. **Aplicada a Neon el 2026-09-09.**
 
 > **M10 se partió en tres (2026-08-19).** El `DROP` no podía correr: ~8 archivos
 > en backend y frontend leen `asignado_a`. Primero deja de leerse (M10a, M10b),
@@ -95,7 +94,7 @@ Si no cumple → se parte. No se negocia.
 - **Estado:** ✅ — `.up`/`.down` escritas. `.up` respalda valores no nulos en
   `_respaldo_asignado_a` antes del `DROP COLUMN IF EXISTS`; la reversa restaura
   estructura (CHECK fiel: `'sebastian'`,`'abril'`) + datos. Grep de `asignado_a`
-  en código limpio. ⚠️ **Sin aplicar a Neon**: la aplica Sebastian a mano.
+  en código limpio. **Aplicada a Neon el 2026-09-09.**
 
 ### M11 · Migración: unificar escala de `tasa_referenciador`
 - **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** M2
@@ -108,7 +107,7 @@ Si no cumple → se parte. No se negocia.
 - **Estado:** ✅ — `.up` respalda valores no nulos en `_respaldo_tasa_referenciador`
   y convierte `NUMERIC(6,4)→(5,2)` (`× 100`); reversa simétrica (`/ 100`) suelta el
   respaldo. Guardas de idempotencia por `numeric_scale`. **0 filas hoy** (verificado
-  en Neon). ⚠️ **Sin aplicar a Neon** — la aplica Sebastian a mano.
+  en Neon). **Aplicada a Neon el 2026-09-09.**
 
 ### M3 · Alta y edición de referenciador
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M1
@@ -132,8 +131,7 @@ Si no cumple → se parte. No se negocia.
   en código; P3 vía captura del `UNIQUE` (23505) → 409 en español. `fecha_inicio`
   la pone el servidor (`CURRENT_DATE`). `PATCH` sólo estado/tasa/fecha_fin/notas
   (R9), no mueve origen ni referenciador. `tasa` como string. 4 archivos.
-  ⚠️ La tabla `referencias` (M2) sigue **sin aplicar a Neon**: el endpoint 500ará
-  en runtime hasta que Sebastian la aplique.
+  `referencias` aplicada a Neon el 2026-09-09 — el endpoint ya corre.
 
 ### M5 · Lista con filtro de las tres formas de ganar
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M3
@@ -146,7 +144,7 @@ Si no cumple → se parte. No se negocia.
   endpoint, decisión de M3). Baja por `activo` (P6) con confirmación de dos
   clics. "Referidos activos" muestra `—` (el backend no expone el conteo aún).
   Botón de alta deshabilitado hasta M22; detalle hasta M7. 5 archivos + ruta
-  (App.tsx, del borrador previo). ⚠️ En runtime 500a hasta aplicar M1 a Neon.
+  (App.tsx, del borrador previo). M1 aplicada a Neon el 2026-09-09 — corre en runtime.
 
 ### M6 · Columnas de deuda en la lista
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M5
@@ -234,8 +232,7 @@ Si no cumple → se parte. No se negocia.
 - **Estado:** ✅ — `GET /:id` devuelve `data.referencias[]` con `origen_nombre`
   (join `inversiones→inversionistas` / `prestamos→clientes` en servidor), orden
   `fecha_inicio DESC`. Tasas como string (NUMERIC de `pg` sin tocar).
-  `ReferenciaConOrigen` en el model. 2 archivos. ⚠️ 500a en runtime hasta
-  aplicar M2 a Neon (mismo aviso que M4).
+  `ReferenciaConOrigen` en el model. 2 archivos. M2 aplicada a Neon el 2026-09-09 — corre en runtime.
 
 ### M24 · Referencias con id navegable del origen
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M23
