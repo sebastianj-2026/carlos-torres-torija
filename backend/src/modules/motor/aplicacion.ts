@@ -29,13 +29,7 @@ export interface ResultadoAplicacion {
   sobrante: string;
 }
 
-const aCentavos = (s: string): bigint => {
-  const [entero, dec = ''] = s.trim().split('.');
-  return BigInt(entero) * 100n + BigInt((dec + '00').slice(0, 2));
-};
-
-const deCentavos = (c: bigint): string =>
-  `${c / 100n}.${(c % 100n).toString().padStart(2, '0')}`;
+import { aCentavos, deCentavos } from './dinero';
 
 export function aplicarPagoFifo(slots: DevengoSlot[], monto: string): ResultadoAplicacion {
   // R16 hard guard: every slot must belong to the same line.

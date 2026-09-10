@@ -6,6 +6,7 @@
  * Commission accruals (referrer, living base per R3) arrive in M14.
  * Money: exact integer cents via BigInt — strings in, strings out (no floats).
  */
+import { aCentavos, deCentavos, montoPorTasa } from './dinero';
 
 export interface InversionFuente {
   id: string;
@@ -27,25 +28,7 @@ export interface DevengoCandidato {
   monto_devengado: string;
 }
 
-/** "250000.00" → 25000000n (cents). Accepts up to 2 decimals. */
-const aCentavos = (s: string): bigint => {
-  const [entero, dec = ''] = s.trim().split('.');
-  return BigInt(entero) * 100n + BigInt((dec + '00').slice(0, 2));
-};
-
-/** 25000000n → "250000.00" */
-const deCentavos = (c: bigint): string => {
-  const abs = c < 0n ? -c : c;
-  const signo = c < 0n ? '-' : '';
-  return `${signo}${abs / 100n}.${(abs % 100n).toString().padStart(2, '0')}`;
-};
-
-/**
- * monto = base × tasa / 100, half-up to the cent (R24).
- * baseCents × tasaCents needs /10000 (both carry ×100); half-up adds 5000.
- */
-const montoDevengado = (baseCents: bigint, tasaCents: bigint): bigint =>
-  (baseCents * tasaCents + 5000n) / 10000n;
+const montoDevengado = montoPorTasa;
 
 export interface ReferenciaFuente {
   id: string;

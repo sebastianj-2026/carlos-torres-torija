@@ -343,7 +343,14 @@ Si no cumple → se parte. No se negocia.
 - **Tipo:** `logic` · **Depende de:** M13
 - **Extra al DoD:** aplica **solo a lo nuevo** (devengos y aplicación de pagos).
   El legacy no se refactoriza en esta tarea. Montos leídos como string.
-- **Estado:** ⬜
+- **Estado:** ✅ — módulo canónico `modules/motor/dinero.ts` (`aCentavos`/
+  `deCentavos`/`montoPorTasa`: string ↔ BigInt centavos, half-up R24, **regex
+  estricta** — los helpers previos tragaban `"1.2.3"` en silencio); corte y
+  aplicación lo importan (duplicados fuera). Grep verificado: cero `parseFloat`
+  en lo nuevo; el único `Number()` es validación de rango tras regex en
+  `tasaValida` (sin aritmética de dinero). 5 tests nuevos (25/25 motor).
+  Se optó por BigInt centavos en vez de lib Decimal: exacto y sin dependencia.
+  4 archivos.
 
 ---
 
@@ -373,7 +380,7 @@ Si no cumple → se parte. No se negocia.
 | Bloque | Tareas | Estado |
 |---|---|---|
 | A — inversionistas/referenciadores | 22 (incluye M25–M29 extra) | 19 ✅ · 1 ❌ (M8) · 2 ⬜ (M28, M29 — de ⛔4/⛔5) |
-| B — motor de comisiones | 5 | 4 ✅ · 1 ⬜ (siguiente: M16) |
+| B — motor de comisiones | 5 | **5 ✅ · Bloque B completo** |
 | C — cuentas por pagar | 4 | 4 ⬜ (tras Bloque B) |
 
 ## Bloques B y C desbloqueados el 2026-09-09
