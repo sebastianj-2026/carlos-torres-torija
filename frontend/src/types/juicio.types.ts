@@ -9,7 +9,7 @@ export const ETIQUETAS_ETAPA: Record<EtapaProcesal, string> = {
 
 export const COLORES_ETAPA: Record<EtapaProcesal, string> = {
   demanda:       'bg-blue-100 text-blue-700',
-  emplazamiento: 'bg-orange-100 text-orange-700',
+  emplazamiento: 'bg-sky-100 text-sky-700',
   pruebas:       'bg-purple-100 text-purple-700',
   sentencia:     'bg-red-100 text-red-700',
 };

@@ -34,8 +34,8 @@ const Header: React.FC<HeaderProps> = ({ onAbrirMenuMobile }) => {
         </div>
 
         {/* Avatar */}
-        <div className="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
-          <span className="text-orange-600 font-bold text-sm uppercase">
+        <div className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center shrink-0">
+          <span className="text-sky-600 font-bold text-sm uppercase">
             {usuario?.nombre?.charAt(0) ?? 'U'}
           </span>
         </div>
@@ -44,7 +44,7 @@ const Header: React.FC<HeaderProps> = ({ onAbrirMenuMobile }) => {
         <button
           onClick={logout}
           className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs sm:text-sm font-medium
-                     bg-orange-500 text-white hover:bg-orange-600
+                     bg-sky-500 text-white hover:bg-sky-600
                      transition-colors duration-150 shrink-0"
         >
           <LogOut size={15} />

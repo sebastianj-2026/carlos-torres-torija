@@ -23,7 +23,7 @@ const configTipo: Record<TipoMovimiento, {
 }> = {
   pago_interes:    { etiqueta: 'Pago de interés',  color: 'bg-green-100',  colorTexto: 'text-green-600', Icono: ArrowDownLeft  },
   aporte_capital:  { etiqueta: 'Aporte de capital', color: 'bg-blue-100',   colorTexto: 'text-blue-600',  Icono: ArrowUpLeft    },
-  retiro_capital:  { etiqueta: 'Retiro de capital', color: 'bg-orange-100', colorTexto: 'text-orange-600',Icono: ArrowUpRight   },
+  retiro_capital:  { etiqueta: 'Retiro de capital', color: 'bg-sky-100', colorTexto: 'text-sky-600',Icono: ArrowUpRight   },
 };
 
 interface HistorialMovimientosProps {

@@ -126,7 +126,7 @@ const ListaPrestamos: React.FC = () => {
           <button
             onClick={() => navigate('/prestamos/nuevo')}
             className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium
-                       bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors"
+                       bg-sky-500 text-white rounded-xl hover:bg-sky-600 transition-colors"
           >
             <Plus size={16} />
             Nuevo préstamo

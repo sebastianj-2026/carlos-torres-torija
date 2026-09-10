@@ -20,8 +20,8 @@ const Inicio: React.FC = () => {
       </div>
 
       {/* Banner informativo */}
-      <div className="bg-gradient-to-r from-orange-500 to-orange-400 rounded-2xl p-6 mb-8
-                      text-white shadow-lg shadow-orange-500/20">
+      <div className="bg-gradient-to-r from-sky-500 to-sky-400 rounded-2xl p-6 mb-8
+                      text-white shadow-lg shadow-sky-500/20">
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -31,10 +31,10 @@ const Inicio: React.FC = () => {
           </div>
           <div>
             <p className="font-semibold">Panel de Trabajo</p>
-            <p className="text-orange-100 text-sm">OFICINA TS — Sistema Financiero</p>
+            <p className="text-sky-100 text-sm">PrestaFácil — Sistema Financiero</p>
           </div>
         </div>
-        <p className="text-orange-100 text-sm">
+        <p className="text-sky-100 text-sm">
           Accede a los módulos operativos desde el menú lateral. Cualquier duda consulta con el administrador.
         </p>
       </div>

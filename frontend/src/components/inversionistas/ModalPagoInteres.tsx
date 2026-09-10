@@ -110,14 +110,14 @@ const ModalPagoInteres: React.FC<ModalPagoInteresProps> = ({
         {/* Cuerpo */}
         <div className="px-6 py-5 space-y-4 overflow-y-auto flex-1">
           {/* Banner de interés calculado */}
-          <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-xl border border-orange-100">
-            <div className="w-9 h-9 bg-orange-100 rounded-xl flex items-center justify-center shrink-0">
-              <Calculator size={16} className="text-orange-500" />
+          <div className="flex items-center gap-3 p-3 bg-sky-50 rounded-xl border border-sky-100">
+            <div className="w-9 h-9 bg-sky-100 rounded-xl flex items-center justify-center shrink-0">
+              <Calculator size={16} className="text-sky-500" />
             </div>
             <div>
-              <p className="text-xs text-orange-600 font-medium">Interés calculado</p>
-              <p className="text-lg font-bold text-orange-700">{formatearMoneda(interesCalculado)}</p>
-              <p className="text-xs text-orange-500">
+              <p className="text-xs text-sky-600 font-medium">Interés calculado</p>
+              <p className="text-lg font-bold text-sky-700">{formatearMoneda(interesCalculado)}</p>
+              <p className="text-xs text-sky-500">
                 {formatearMoneda(montoActual)} × {tasa}%
               </p>
             </div>
@@ -135,7 +135,7 @@ const ModalPagoInteres: React.FC<ModalPagoInteresProps> = ({
               value={datos.monto}
               onChange={(e) => handleCambio('monto', e.target.value)}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
               placeholder="0.00"
             />
           </div>
@@ -149,7 +149,7 @@ const ModalPagoInteres: React.FC<ModalPagoInteresProps> = ({
               value={datos.forma_pago}
               onChange={(e) => handleCambio('forma_pago', e.target.value)}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
             >
               <option value="">Seleccionar...</option>
               <option value="efectivo">Efectivo</option>
@@ -165,7 +165,7 @@ const ModalPagoInteres: React.FC<ModalPagoInteresProps> = ({
                 value={datos.periodo_mes}
                 onChange={(e) => handleCambio('periodo_mes', e.target.value)}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                           focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                           focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
               >
                 {MESES.map((m) => (
                   <option key={m.valor} value={m.valor}>{m.etiqueta}</option>
@@ -179,7 +179,7 @@ const ModalPagoInteres: React.FC<ModalPagoInteresProps> = ({
                 value={datos.periodo_anio}
                 onChange={(e) => handleCambio('periodo_anio', e.target.value)}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                           focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                           focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
                 min="2020"
                 max="2099"
               />
@@ -194,7 +194,7 @@ const ModalPagoInteres: React.FC<ModalPagoInteresProps> = ({
               onChange={(e) => handleCambio('notas', e.target.value)}
               rows={2}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm resize-none
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
               placeholder="Observaciones opcionales..."
             />
           </div>
@@ -217,8 +217,8 @@ const ModalPagoInteres: React.FC<ModalPagoInteresProps> = ({
           <button
             onClick={handleGuardar}
             disabled={guardando}
-            className="px-5 py-2 text-sm font-medium bg-orange-500 text-white rounded-xl
-                       hover:bg-orange-600 transition-colors disabled:opacity-60"
+            className="px-5 py-2 text-sm font-medium bg-sky-500 text-white rounded-xl
+                       hover:bg-sky-600 transition-colors disabled:opacity-60"
           >
             {guardando ? 'Guardando...' : 'Registrar pago'}
           </button>

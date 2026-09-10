@@ -86,14 +86,14 @@ const IngresosExtrasTab: React.FC = () => {
             <label className="block text-xs text-slate-500 mb-1">Descripción del movimiento *</label>
             <input value={form.notas_explicativas} onChange={e => set('notas_explicativas', e.target.value)}
               placeholder="Ej. Venta de activo, reembolso proveedor…"
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
           </div>
 
           <div>
             <label className="block text-xs text-slate-500 mb-1">Persona (opcional)</label>
             <input value={form.persona_nombre} onChange={e => set('persona_nombre', e.target.value)}
               placeholder="Nombre de quien realiza el pago"
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -101,12 +101,12 @@ const IngresosExtrasTab: React.FC = () => {
               <label className="block text-xs text-slate-500 mb-1">Monto *</label>
               <input type="number" value={form.monto_ingresado} onChange={e => set('monto_ingresado', e.target.value)}
                 placeholder="0.00"
-                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
             </div>
             <div>
               <label className="block text-xs text-slate-500 mb-1">Fecha *</label>
               <input type="date" value={form.semana_corte} onChange={e => set('semana_corte', e.target.value)}
-                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
             </div>
           </div>
 
@@ -114,7 +114,7 @@ const IngresosExtrasTab: React.FC = () => {
             <div>
               <label className="block text-xs text-slate-500 mb-1">Método de pago *</label>
               <select value={form.metodo_pago} onChange={e => set('metodo_pago', e.target.value as MetodoPago)}
-                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300">
+                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300">
                 {METODOS.map(m => <option key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>)}
               </select>
             </div>
@@ -122,7 +122,7 @@ const IngresosExtrasTab: React.FC = () => {
               <label className="block text-xs text-slate-500 mb-1">Cuenta destino *</label>
               <input value={form.cuenta_destino} onChange={e => set('cuenta_destino', e.target.value)}
                 placeholder="Ej. Caja, BBVA ****1234"
-                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+                className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
             </div>
           </div>
 
@@ -133,14 +133,14 @@ const IngresosExtrasTab: React.FC = () => {
             </label>
             <input value={form.url_comprobante} onChange={e => set('url_comprobante', e.target.value)}
               placeholder="https://s3.amazonaws.com/bucket/archivo.pdf"
-              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+              className="w-full border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
             <p className="text-[11px] text-slate-400 mt-1">
               Sube el archivo a S3 / Storage y pega la URL aquí.
             </p>
           </div>
 
           <button onClick={guardar} disabled={guardando}
-            className="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50">
+            className="w-full py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-sm font-medium transition-colors disabled:opacity-50">
             {guardando ? 'Guardando…' : 'Registrar Ingreso Extraordinario'}
           </button>
         </div>

@@ -69,7 +69,7 @@ const VACÍO_SERIE = {
 
 interface Props { centroCosto: string; mes: number; anio: number; }
 
-const INPUT = 'w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400';
+const INPUT = 'w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400';
 
 const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
   const mostrarKpis = centroCosto === 'Oficina' || centroCosto === 'Abril';
@@ -282,7 +282,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
           </button>
           <button
             onClick={abrirNueva}
-            className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-xl shadow-sm shadow-orange-500/25"
+            className="flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium rounded-xl shadow-sm shadow-sky-500/25"
           >
             <Plus size={16} /> + Gasto
           </button>
@@ -431,13 +431,13 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   <div className="flex gap-1 mt-1">
                     <select value={form.categoria_id}
                       onChange={e => setForm(f => ({ ...f, categoria_id: e.target.value }))}
-                      className="flex-1 min-w-0 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white">
+                      className="flex-1 min-w-0 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white">
                       <option value="">Seleccionar</option>
                       {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                     </select>
                     <button type="button" onClick={() => { setNuevaCat(''); setNuevaCatColor('#94a3b8'); setModalCat(true); }}
                       title="Nueva categoría"
-                      className="px-2 py-2 border border-slate-200 rounded-xl hover:bg-orange-50 hover:border-orange-300 text-slate-400 hover:text-orange-500 transition-colors">
+                      className="px-2 py-2 border border-slate-200 rounded-xl hover:bg-sky-50 hover:border-sky-300 text-slate-400 hover:text-sky-500 transition-colors">
                       <Plus size={15} />
                     </button>
                   </div>
@@ -446,7 +446,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   <label className="text-xs text-slate-500">Proveedor</label>
                   <select value={form.proveedor_id}
                     onChange={e => setForm(f => ({ ...f, proveedor_id: e.target.value }))}
-                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white">
+                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white">
                     <option value="">Sin proveedor</option>
                     {proveedores.map(p => <option key={p.id} value={p.id}>{p.nombre_razon_social}</option>)}
                   </select>
@@ -471,7 +471,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   <label className="text-xs text-slate-500">Método de Pago *</label>
                   <select value={form.metodo_pago}
                     onChange={e => setForm(f => ({ ...f, metodo_pago: e.target.value as MetodoPago }))}
-                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white">
+                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white">
                     <option value="">Seleccionar método</option>
                     {METODOS_PAGO.map(m => (
                       <option key={m} value={m} className="capitalize">{m.charAt(0).toUpperCase() + m.slice(1)}</option>
@@ -496,7 +496,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                 <textarea value={form.notas}
                   onChange={e => setForm(f => ({ ...f, notas: e.target.value }))}
                   rows={2}
-                  className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none" />
+                  className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 resize-none" />
               </div>
             </div>
             <div className="flex gap-3 mt-5">
@@ -505,7 +505,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                 Cancelar
               </button>
               <button onClick={guardar} disabled={guardando}
-                className="flex-1 py-2 text-sm bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium disabled:opacity-50">
+                className="flex-1 py-2 text-sm bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-medium disabled:opacity-50">
                 {guardando ? 'Guardando…' : 'Guardar'}
               </button>
             </div>
@@ -535,7 +535,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   <div className="flex gap-1 mt-1">
                     <select value={formSerie.categoria_id}
                       onChange={e => setFormSerie(f => ({ ...f, categoria_id: e.target.value }))}
-                      className="flex-1 min-w-0 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white">
+                      className="flex-1 min-w-0 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white">
                       <option value="">Seleccionar</option>
                       {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
                     </select>
@@ -545,7 +545,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   <label className="text-xs text-slate-500">Proveedor</label>
                   <select value={formSerie.proveedor_id}
                     onChange={e => setFormSerie(f => ({ ...f, proveedor_id: e.target.value }))}
-                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white">
+                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white">
                     <option value="">Sin proveedor</option>
                     {proveedores.map(p => <option key={p.id} value={p.id}>{p.nombre_razon_social}</option>)}
                   </select>
@@ -582,7 +582,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                 <textarea value={formSerie.notas}
                   onChange={e => setFormSerie(f => ({ ...f, notas: e.target.value }))}
                   rows={2}
-                  className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none" />
+                  className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 resize-none" />
               </div>
               {formSerie.total_cuotas && formSerie.monto_por_cuota && (
                 <p className="text-xs text-slate-400 bg-blue-50 px-3 py-2 rounded-lg">
@@ -617,7 +617,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
             <input value={nuevaCat} onChange={e => setNuevaCat(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && guardarCategoria()}
               placeholder="Nombre de la categoría" autoFocus
-              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 mb-3" />
+              className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 mb-3" />
             <div className="flex items-center gap-3 mb-4">
               <label className="text-xs text-slate-500 shrink-0">Color:</label>
               <input type="color" value={nuevaCatColor}
@@ -631,7 +631,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                 Cancelar
               </button>
               <button onClick={guardarCategoria} disabled={!nuevaCat.trim() || guardandoCat}
-                className="flex-1 py-2 text-sm bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium disabled:opacity-50">
+                className="flex-1 py-2 text-sm bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-medium disabled:opacity-50">
                 {guardandoCat ? 'Guardando…' : 'Agregar'}
               </button>
             </div>
@@ -657,14 +657,14 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                   <label className="text-xs text-slate-500">{lbl}</label>
                   <input defaultValue={(modalDocs as any)[field] ?? ''}
                     onBlur={e => editarCuenta(modalDocs.id, { [field]: e.target.value } as any)}
-                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400"
+                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400"
                     placeholder="https://…" />
                 </div>
               ))}
               <div>
                 <label className="text-xs text-slate-500">URL Comprobante de pago</label>
                 <input value={urlComp} onChange={e => setUrlComp(e.target.value)}
-                  className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400"
                   placeholder="https://…" />
               </div>
             </div>
@@ -674,7 +674,7 @@ const CuentasPorPagarTab: React.FC<Props> = ({ centroCosto, mes, anio }) => {
                 Cerrar
               </button>
               <button onClick={adjuntarDocs}
-                className="flex-1 py-2 text-sm bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium">
+                className="flex-1 py-2 text-sm bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-medium">
                 Guardar URLs
               </button>
             </div>

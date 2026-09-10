@@ -1,5 +1,5 @@
 // ================================================================
-// OFICINA TS — Módulo de Tesorería (frontend types)
+// PrestaFácil — Módulo de Tesorería (frontend types)
 // ================================================================
 
 export type TipoMovimiento = 'entrada' | 'salida';

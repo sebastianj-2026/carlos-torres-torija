@@ -60,7 +60,7 @@ const PanelDeudaCliente: React.FC<PanelDeudaClienteProps> = ({ clienteId, nombre
   if (cargando) {
     return (
       <div className="flex justify-center items-center py-16">
-        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -91,14 +91,14 @@ const PanelDeudaCliente: React.FC<PanelDeudaClienteProps> = ({ clienteId, nombre
             </div>
           </div>
         </div>
-        <div className="bg-orange-50 rounded-xl p-4 border border-orange-100">
+        <div className="bg-sky-50 rounded-xl p-4 border border-sky-100">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-orange-100 flex items-center justify-center">
-              <DollarSign size={16} className="text-orange-600" />
+            <div className="w-9 h-9 rounded-lg bg-sky-100 flex items-center justify-center">
+              <DollarSign size={16} className="text-sky-600" />
             </div>
             <div>
-              <p className="text-xs text-orange-500">Deuda Total Activa</p>
-              <p className="text-base font-bold text-orange-700">{fmt(deuda?.total_activo ?? 0)}</p>
+              <p className="text-xs text-sky-500">Deuda Total Activa</p>
+              <p className="text-base font-bold text-sky-700">{fmt(deuda?.total_activo ?? 0)}</p>
             </div>
           </div>
         </div>
@@ -145,7 +145,7 @@ const PanelDeudaCliente: React.FC<PanelDeudaClienteProps> = ({ clienteId, nombre
                     <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => abrirModal(p)}
-                        className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white text-xs font-semibold rounded-lg transition-colors"
+                        className="px-3 py-1 bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold rounded-lg transition-colors"
                       >
                         Abonar
                       </button>

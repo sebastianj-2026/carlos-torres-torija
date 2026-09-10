@@ -6,7 +6,7 @@ import { ResumenFlujoCaja, FlujoCajaCategoria, FlujoCajaOrigen } from '../../typ
 const ORIGEN_CFG: Record<string, { label: string; color: string; bar: string }> = {
   Prestamo:        { label: 'Préstamos',      color: 'text-blue-700',   bar: 'bg-blue-500'   },
   Inmueble:        { label: 'Inmobiliaria',   color: 'text-purple-700', bar: 'bg-purple-500' },
-  Cancha:          { label: 'Cancha',         color: 'text-orange-700', bar: 'bg-orange-500' },
+  Cancha:          { label: 'Cancha',         color: 'text-sky-700', bar: 'bg-sky-500' },
   Estacionamiento: { label: 'Estacionamiento',color: 'text-emerald-700',bar: 'bg-emerald-500'},
 };
 

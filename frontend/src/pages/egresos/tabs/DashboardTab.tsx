@@ -9,7 +9,7 @@ import { StatsEgresos, AlertasEgresos, CuentaPorPagar } from '../../../types/egr
 const fmt = (n: number) =>
   new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(n);
 
-const COLORES = ['#f97316', '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#84cc16'];
+const COLORES = ['#0ea5e9', '#3b82f6', '#10b981', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#84cc16'];
 
 interface Props {
   stats: StatsEgresos | null;
@@ -47,8 +47,8 @@ const DashboardTab: React.FC<Props> = ({ stats, alertas, cargando }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center">
-              <DollarSign size={18} className="text-orange-500" />
+            <div className="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center">
+              <DollarSign size={18} className="text-sky-500" />
             </div>
             <div>
               <p className="text-xs text-slate-400">Próximos 30 días</p>
@@ -126,7 +126,7 @@ const DashboardTab: React.FC<Props> = ({ stats, alertas, cargando }) => {
                   <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
                   <Tooltip formatter={(v) => fmt(Number(v))} />
                   <Legend />
-                  <Bar dataKey="total" fill="#f97316" radius={[6, 6, 0, 0]} name="Total pagado" />
+                  <Bar dataKey="total" fill="#0ea5e9" radius={[6, 6, 0, 0]} name="Total pagado" />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -141,7 +141,7 @@ const DashboardTab: React.FC<Props> = ({ stats, alertas, cargando }) => {
           </h3>
           <div className="space-y-2">
             {(alertas?.vencidas ?? []).map(c => <FilaAlerta key={c.id} cuenta={c} color="bg-red-50 border-red-200" />)}
-            {(alertas?.hoy ?? []).map(c => <FilaAlerta key={c.id} cuenta={c} color="bg-orange-50 border-orange-200" />)}
+            {(alertas?.hoy ?? []).map(c => <FilaAlerta key={c.id} cuenta={c} color="bg-sky-50 border-sky-200" />)}
             {(alertas?.maniana ?? []).map(c => <FilaAlerta key={c.id} cuenta={c} color="bg-amber-50 border-amber-200" />)}
             {(alertas?.proximas ?? []).map(c => <FilaAlerta key={c.id} cuenta={c} color="bg-slate-50 border-slate-200" />)}
           </div>

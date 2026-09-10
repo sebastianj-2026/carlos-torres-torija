@@ -109,7 +109,7 @@ const ModalAgregarFondos: React.FC<ModalAgregarFondosProps> = ({
               value={datos.monto}
               onChange={(e) => handleCambio('monto', e.target.value)}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
               placeholder="0.00"
             />
           </div>
@@ -123,7 +123,7 @@ const ModalAgregarFondos: React.FC<ModalAgregarFondosProps> = ({
               value={datos.forma_pago}
               onChange={(e) => handleCambio('forma_pago', e.target.value)}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
             >
               <option value="">Seleccionar...</option>
               <option value="efectivo">Efectivo</option>
@@ -139,7 +139,7 @@ const ModalAgregarFondos: React.FC<ModalAgregarFondosProps> = ({
               onChange={(e) => handleCambio('notas', e.target.value)}
               rows={2}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm resize-none
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
               placeholder="Observaciones opcionales..."
             />
           </div>
@@ -162,8 +162,8 @@ const ModalAgregarFondos: React.FC<ModalAgregarFondosProps> = ({
           <button
             onClick={handleGuardar}
             disabled={guardando}
-            className="px-5 py-2 text-sm font-medium bg-orange-500 text-white rounded-xl
-                       hover:bg-orange-600 transition-colors disabled:opacity-60"
+            className="px-5 py-2 text-sm font-medium bg-sky-500 text-white rounded-xl
+                       hover:bg-sky-600 transition-colors disabled:opacity-60"
           >
             {guardando ? 'Guardando...' : 'Agregar fondos'}
           </button>

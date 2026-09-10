@@ -107,7 +107,7 @@ const ChecklistDocumentosPrestamo: React.FC<ChecklistDocumentosPrestamoPros> = (
             <button
               onClick={() => { setModoEditar(true); setExito(false); }}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium
-                         text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-50 transition-colors"
+                         text-sky-600 border border-sky-200 rounded-lg hover:bg-sky-50 transition-colors"
             >
               <Pencil size={12} />
               Editar
@@ -190,7 +190,7 @@ const ChecklistDocumentosPrestamo: React.FC<ChecklistDocumentosPrestamoPros> = (
             onClick={handleGuardar}
             disabled={guardando}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium
-                       bg-orange-500 text-white rounded-xl hover:bg-orange-600
+                       bg-sky-500 text-white rounded-xl hover:bg-sky-600
                        transition-colors disabled:opacity-60"
           >
             <Save size={14} />

@@ -28,7 +28,7 @@ const Header: React.FC<{ nombre: string }> = ({ nombre }) => {
             className="flex items-center gap-2 hover:opacity-80 transition-opacity shrink-0"
           >
             <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
-              <span className="text-orange-500 font-black text-xs">OTS</span>
+              <span className="text-sky-500 font-black text-xs">PF</span>
             </div>
           </button>
           <span className="text-slate-300 shrink-0">/</span>
@@ -42,8 +42,8 @@ const Header: React.FC<{ nombre: string }> = ({ nombre }) => {
           <span className="text-sm font-medium text-slate-700 truncate">{nombre}</span>
         </div>
         <div className="flex items-center gap-3 shrink-0">
-          <div className="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center">
-            <span className="text-orange-600 font-bold text-sm uppercase">
+          <div className="w-9 h-9 rounded-full bg-sky-100 flex items-center justify-center">
+            <span className="text-sky-600 font-bold text-sm uppercase">
               {usuario?.nombre?.charAt(0) ?? 'U'}
             </span>
           </div>
@@ -112,7 +112,7 @@ const SelectorEstatus: React.FC<{
           </button>
         ))}
         {cambiando && (
-          <div className="w-5 h-5 border-2 border-orange-400 border-t-transparent rounded-full animate-spin self-center" />
+          <div className="w-5 h-5 border-2 border-sky-400 border-t-transparent rounded-full animate-spin self-center" />
         )}
       </div>
       {error && <p className="text-xs text-red-500 mt-1.5">{error}</p>}
@@ -164,7 +164,7 @@ const ExpedienteCliente: React.FC = () => {
       <div className="min-h-screen bg-slate-50">
         <Header nombre="Cargando..." />
         <div className="flex justify-center items-center h-64">
-          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
         </div>
       </div>
     );
@@ -203,8 +203,8 @@ const ExpedienteCliente: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div className="flex items-start gap-4 w-full sm:w-auto">
               {/* Avatar */}
-              <div className="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center shrink-0">
-                <span className="text-orange-600 font-black text-xl uppercase">
+              <div className="w-14 h-14 rounded-2xl bg-sky-100 flex items-center justify-center shrink-0">
+                <span className="text-sky-600 font-black text-xl uppercase">
                   {expediente.nombres.charAt(0)}
                 </span>
               </div>
@@ -261,7 +261,7 @@ const ExpedienteCliente: React.FC = () => {
               onClick={() => setTabActiva(tab.id)}
               className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
                 tabActiva === tab.id
-                  ? 'bg-orange-500 text-white shadow-sm'
+                  ? 'bg-sky-500 text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
               }`}
             >

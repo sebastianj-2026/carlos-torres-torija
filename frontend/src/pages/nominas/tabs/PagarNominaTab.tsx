@@ -161,7 +161,7 @@ const PagarNominaTab: React.FC = () => {
         <div>
           <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Empleado *</label>
           <select value={form.empleado_id} onChange={e => set('empleado_id', e.target.value)}
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white">
+            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-white">
             <option value="">— Selecciona —</option>
             {empleados.filter(e => e.estatus !== 'Inactivo').map(e => (
               <option key={e.id} value={e.id}>
@@ -176,12 +176,12 @@ const PagarNominaTab: React.FC = () => {
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Semana inicio *</label>
             <input type="date" value={form.semana_inicio} max={hoy} onChange={e => set('semana_inicio', e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
           </div>
           <div>
             <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Semana fin *</label>
             <input type="date" value={form.semana_fin} max={hoy} onChange={e => set('semana_fin', e.target.value)}
-              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+              className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
           </div>
         </div>
 
@@ -192,10 +192,10 @@ const PagarNominaTab: React.FC = () => {
             <input type="number" min="0" step="0.5" value={form.horas_extras}
               onChange={e => set('horas_extras', e.target.value)}
               placeholder="0"
-              className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+              className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
             <select value={form.tipo_hora_extra} onChange={e => set('tipo_hora_extra', e.target.value as TipoHoraExtra)}
               disabled={!form.horas_extras || parseFloat(form.horas_extras) <= 0}
-              className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white disabled:opacity-40">
+              className="border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-white disabled:opacity-40">
               <option value="Normal">Normal (×1)</option>
               <option value="Doble">Doble (×2)</option>
               <option value="Triple">Triple (×3)</option>
@@ -248,7 +248,7 @@ const PagarNominaTab: React.FC = () => {
                 <input type="number" min="0" step="0.01" value={form.descuento_prestamo}
                   onChange={e => set('descuento_prestamo', e.target.value)}
                   placeholder="0"
-                  className="w-full border border-slate-200 rounded-xl pl-6 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white" />
+                  className="w-full border border-slate-200 rounded-xl pl-6 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-white" />
               </div>
             </div>
           </div>
@@ -258,7 +258,7 @@ const PagarNominaTab: React.FC = () => {
         <div>
           <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Forma de pago</label>
           <select value={form.forma_pago} onChange={e => set('forma_pago', e.target.value)}
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white">
+            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-white">
             <option value="efectivo">Efectivo</option>
             <option value="transferencia">Transferencia</option>
           </select>
@@ -271,11 +271,11 @@ const PagarNominaTab: React.FC = () => {
           </label>
           <input value={form.notas} onChange={e => set('notas', e.target.value)}
             placeholder="Observaciones…"
-            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+            className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
         </div>
 
         <button onClick={pagar} disabled={saving || !form.empleado_id}
-          className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-40">
+          className="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-sm font-semibold transition-colors disabled:opacity-40">
           {saving ? 'Procesando…' : 'Registrar Pago'}
         </button>
       </div>
@@ -339,7 +339,7 @@ const PagarNominaTab: React.FC = () => {
                 )}
                 <div className="border-t border-slate-200 pt-2 flex justify-between">
                   <span className="font-bold text-slate-800">Total a pagar</span>
-                  <span className="font-black text-xl text-orange-600">{fmt(preview.total)}</span>
+                  <span className="font-black text-xl text-sky-600">{fmt(preview.total)}</span>
                 </div>
               </div>
             </div>

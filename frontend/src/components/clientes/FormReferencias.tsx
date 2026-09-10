@@ -116,7 +116,7 @@ const FormReferencias: React.FC<FormReferenciasProps> = ({ clienteId, referencia
 
       {/* Formulario inline */}
       {mostrarFormulario && (
-        <div className="border border-orange-200 bg-orange-50/50 rounded-xl p-4 space-y-3">
+        <div className="border border-sky-200 bg-sky-50/50 rounded-xl p-4 space-y-3">
           <p className="text-sm font-medium text-slate-700">Nueva referencia</p>
 
           <div>
@@ -126,7 +126,7 @@ const FormReferencias: React.FC<FormReferenciasProps> = ({ clienteId, referencia
               value={form.nombre_completo}
               onChange={(e) => handleCambio('nombre_completo', e.target.value)}
               className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
             />
           </div>
 
@@ -137,13 +137,13 @@ const FormReferencias: React.FC<FormReferenciasProps> = ({ clienteId, referencia
               value={form.telefono}
               onChange={(e) => handleCambio('telefono', e.target.value)}
               className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
             />
             <select
               value={form.relacion}
               onChange={(e) => handleCambio('relacion', e.target.value)}
               className="px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white text-slate-700
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
             >
               <option value="">Relación</option>
               {RELACIONES.map((r) => (
@@ -165,8 +165,8 @@ const FormReferencias: React.FC<FormReferenciasProps> = ({ clienteId, referencia
             <button
               onClick={handleAgregar}
               disabled={guardando}
-              className="px-4 py-1.5 text-sm font-medium rounded-lg bg-orange-500 text-white
-                         hover:bg-orange-600 disabled:opacity-50 transition-colors flex items-center gap-1.5"
+              className="px-4 py-1.5 text-sm font-medium rounded-lg bg-sky-500 text-white
+                         hover:bg-sky-600 disabled:opacity-50 transition-colors flex items-center gap-1.5"
             >
               {guardando && (
                 <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -181,8 +181,8 @@ const FormReferencias: React.FC<FormReferenciasProps> = ({ clienteId, referencia
       {!mostrarFormulario && (
         <button
           onClick={() => setMostrarFormulario(true)}
-          className="w-full py-2.5 text-sm text-orange-600 border border-dashed border-orange-300
-                     rounded-xl hover:bg-orange-50 transition-colors flex items-center justify-center gap-2"
+          className="w-full py-2.5 text-sm text-sky-600 border border-dashed border-sky-300
+                     rounded-xl hover:bg-sky-50 transition-colors flex items-center justify-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

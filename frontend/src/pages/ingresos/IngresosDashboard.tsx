@@ -51,7 +51,7 @@ const IngresosDashboard: React.FC = () => {
           {tab === 'dashboard' && (
             <button
               onClick={() => setRefreshDash(k => k + 1)}
-              className="flex items-center gap-1.5 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-medium transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded-xl text-sm font-medium transition-colors"
             >
               <RefreshCw size={14} /> Actualizar
             </button>

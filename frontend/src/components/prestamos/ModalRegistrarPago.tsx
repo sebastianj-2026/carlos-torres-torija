@@ -108,8 +108,8 @@ const ModalRegistrarPago: React.FC<ModalRegistrarPagoProps> = ({ prestamo, onCer
         <div className="px-6 py-5 space-y-4 overflow-y-auto flex-1">
           {/* Info del préstamo */}
           <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
-            <div className="w-9 h-9 bg-orange-100 rounded-xl flex items-center justify-center shrink-0">
-              <Calculator size={16} className="text-orange-500" />
+            <div className="w-9 h-9 bg-sky-100 rounded-xl flex items-center justify-center shrink-0">
+              <Calculator size={16} className="text-sky-500" />
             </div>
             <div>
               <p className="text-xs text-slate-500 font-medium">Saldo pendiente</p>
@@ -130,7 +130,7 @@ const ModalRegistrarPago: React.FC<ModalRegistrarPagoProps> = ({ prestamo, onCer
               value={datos.tipo_pago}
               onChange={(e) => cambio('tipo_pago', e.target.value)}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
             >
               <option value="">Seleccionar...</option>
               <option value="interes">Interés mensual</option>
@@ -151,7 +151,7 @@ const ModalRegistrarPago: React.FC<ModalRegistrarPagoProps> = ({ prestamo, onCer
               value={datos.monto}
               onChange={(e) => cambio('monto', e.target.value)}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
               placeholder="0.00"
             />
           </div>
@@ -165,7 +165,7 @@ const ModalRegistrarPago: React.FC<ModalRegistrarPagoProps> = ({ prestamo, onCer
               value={datos.forma_pago}
               onChange={(e) => cambio('forma_pago', e.target.value)}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
             >
               <option value="">Seleccionar...</option>
               <option value="efectivo">Efectivo</option>
@@ -182,7 +182,7 @@ const ModalRegistrarPago: React.FC<ModalRegistrarPagoProps> = ({ prestamo, onCer
                 value={datos.periodo_mes}
                 onChange={(e) => cambio('periodo_mes', e.target.value)}
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                           focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                           focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
               >
                 {MESES.map((m) => (
                   <option key={m.valor} value={m.valor}>{m.etiqueta}</option>
@@ -198,7 +198,7 @@ const ModalRegistrarPago: React.FC<ModalRegistrarPagoProps> = ({ prestamo, onCer
                 min="2020"
                 max="2099"
                 className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm
-                           focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                           focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
               />
             </div>
           </div>
@@ -211,7 +211,7 @@ const ModalRegistrarPago: React.FC<ModalRegistrarPagoProps> = ({ prestamo, onCer
               onChange={(e) => cambio('notas', e.target.value)}
               rows={2}
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm resize-none
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent"
               placeholder="Observaciones opcionales..."
             />
           </div>
@@ -233,8 +233,8 @@ const ModalRegistrarPago: React.FC<ModalRegistrarPagoProps> = ({ prestamo, onCer
           <button
             onClick={handleGuardar}
             disabled={guardando}
-            className="px-5 py-2 text-sm font-medium bg-orange-500 text-white rounded-xl
-                       hover:bg-orange-600 transition-colors disabled:opacity-60"
+            className="px-5 py-2 text-sm font-medium bg-sky-500 text-white rounded-xl
+                       hover:bg-sky-600 transition-colors disabled:opacity-60"
           >
             {guardando ? 'Guardando...' : 'Registrar pago'}
           </button>

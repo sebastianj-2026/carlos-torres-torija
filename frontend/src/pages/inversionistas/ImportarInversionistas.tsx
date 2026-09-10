@@ -151,12 +151,12 @@ const ImportarInversionistas: React.FC = () => {
             placeholder={`FABIO TORRESINI\t1010000\t12650\t2-ene-26\nJOSE VERDUZCO\t4000000\t40000\t9-ene-26`}
             rows={10}
             className="w-full border border-slate-200 rounded-xl px-4 py-3 text-xs font-mono text-slate-700
-                       placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-400 resize-none"
+                       placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-400 resize-none"
           />
           <button
             onClick={parsear}
             disabled={!texto.trim()}
-            className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-40
+            className="px-5 py-2.5 bg-sky-500 hover:bg-sky-600 disabled:opacity-40
                        text-white font-semibold rounded-xl text-sm transition-colors"
           >
             Previsualizar ({parsearTexto(texto).length} filas detectadas)
@@ -187,14 +187,14 @@ const ImportarInversionistas: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filas.map((f, i) => (
-                    <tr key={i} className={`hover:bg-slate-50 ${editando === i ? 'bg-orange-50' : ''}`}>
+                    <tr key={i} className={`hover:bg-slate-50 ${editando === i ? 'bg-sky-50' : ''}`}>
                       <td className="px-4 py-2 text-xs sm:text-sm">
                         {editando === i
                           ? <input
                               autoFocus
                               value={f.nombres}
                               onChange={e => actualizarFila(i, 'nombres', e.target.value)}
-                              className="w-full border border-orange-300 rounded-lg px-2 py-1 text-xs focus:outline-none"
+                              className="w-full border border-sky-300 rounded-lg px-2 py-1 text-xs focus:outline-none"
                             />
                           : <span className="font-medium text-slate-800">{f.nombres}</span>
                         }
@@ -204,7 +204,7 @@ const ImportarInversionistas: React.FC = () => {
                           ? <input
                               value={f.apellido_paterno}
                               onChange={e => actualizarFila(i, 'apellido_paterno', e.target.value)}
-                              className="w-full border border-orange-300 rounded-lg px-2 py-1 text-xs focus:outline-none"
+                              className="w-full border border-sky-300 rounded-lg px-2 py-1 text-xs focus:outline-none"
                             />
                           : <span className="text-slate-700">{f.apellido_paterno}</span>
                         }
@@ -213,7 +213,7 @@ const ImportarInversionistas: React.FC = () => {
                       <td className="px-4 py-2 text-right text-slate-500 text-xs sm:text-sm">{fmt(f.pago_mensual)}</td>
                       <td className="px-4 py-2 text-right text-xs sm:text-sm">
                         {f.tasa > 0
-                          ? <span className="font-semibold text-orange-600">{f.tasa.toFixed(2)}%</span>
+                          ? <span className="font-semibold text-sky-600">{f.tasa.toFixed(2)}%</span>
                           : <span className="text-slate-300">—</span>
                         }
                       </td>
@@ -228,7 +228,7 @@ const ImportarInversionistas: React.FC = () => {
                       <td className="px-4 py-2 text-center text-xs sm:text-sm">
                         <button
                           onClick={() => setEditando(editando === i ? null : i)}
-                          className="p-1 rounded text-slate-400 hover:text-orange-600 hover:bg-orange-50 transition-colors"
+                          className="p-1 rounded text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition-colors"
                         >
                           {editando === i ? <CheckCircle size={14} className="text-green-500" /> : <Pencil size={13} />}
                         </button>
@@ -242,7 +242,7 @@ const ImportarInversionistas: React.FC = () => {
                     <td className="px-4 py-3 text-right font-bold text-slate-800">
                       {fmt(filas.reduce((s, f) => s + f.capital, 0))}
                     </td>
-                    <td className="px-4 py-3 text-right font-bold text-orange-600">
+                    <td className="px-4 py-3 text-right font-bold text-sky-600">
                       {fmt(filas.reduce((s, f) => s + f.pago_mensual, 0))}
                     </td>
                     <td colSpan={3} />
@@ -262,7 +262,7 @@ const ImportarInversionistas: React.FC = () => {
             <button
               onClick={importar}
               disabled={importando}
-              className="flex-1 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50
+              className="flex-1 py-2.5 bg-sky-500 hover:bg-sky-600 disabled:opacity-50
                          text-white font-semibold rounded-xl text-sm transition-colors"
             >
               {importando ? 'Importando…' : `Importar ${filas.length} inversionistas`}
@@ -313,7 +313,7 @@ const ImportarInversionistas: React.FC = () => {
             )}
             <button
               onClick={() => navigate('/inversionistas')}
-              className="flex-1 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl text-sm transition-colors"
+              className="flex-1 py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-semibold rounded-xl text-sm transition-colors"
             >
               Ver inversionistas
             </button>

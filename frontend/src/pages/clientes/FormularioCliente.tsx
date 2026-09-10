@@ -19,9 +19,9 @@ const Stepper: React.FC<{ pasoActual: number; pasos: string[] }> = ({ pasoActual
             <div
               className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all ${
                 completado
-                  ? 'bg-orange-500 border-orange-500 text-white'
+                  ? 'bg-sky-500 border-sky-500 text-white'
                   : activo
-                  ? 'bg-white border-orange-500 text-orange-500'
+                  ? 'bg-white border-sky-500 text-sky-500'
                   : 'bg-white border-slate-200 text-slate-400'
               }`}
             >
@@ -31,12 +31,12 @@ const Stepper: React.FC<{ pasoActual: number; pasos: string[] }> = ({ pasoActual
                 </svg>
               ) : num}
             </div>
-            <span className={`text-xs mt-1.5 font-medium hidden sm:block ${activo ? 'text-orange-600' : 'text-slate-400'}`}>
+            <span className={`text-xs mt-1.5 font-medium hidden sm:block ${activo ? 'text-sky-600' : 'text-slate-400'}`}>
               {nombre}
             </span>
           </div>
           {idx < pasos.length - 1 && (
-            <div className={`h-0.5 w-12 sm:w-16 mx-1 mb-5 transition-colors ${completado ? 'bg-orange-400' : 'bg-slate-200'}`} />
+            <div className={`h-0.5 w-12 sm:w-16 mx-1 mb-5 transition-colors ${completado ? 'bg-sky-400' : 'bg-slate-200'}`} />
           )}
         </React.Fragment>
       );
@@ -58,7 +58,7 @@ const Campo: React.FC<{
 }> = ({ label, name, value, onChange, tipo = 'text', requerido, placeholder, mayusculas, error }) => (
   <div>
     <label className="block text-xs font-medium text-slate-600 mb-1.5">
-      {label} {requerido && <span className="text-orange-500">*</span>}
+      {label} {requerido && <span className="text-sky-500">*</span>}
     </label>
     <input
       type={tipo}
@@ -70,7 +70,7 @@ const Campo: React.FC<{
                  transition-all duration-150 ${
                    error
                      ? 'border-red-300 focus:ring-red-400'
-                     : 'border-slate-200 focus:ring-orange-400'
+                     : 'border-slate-200 focus:ring-sky-400'
                  }`}
     />
     {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
@@ -99,7 +99,7 @@ const CampoFecha: React.FC<{
   return (
     <div>
       <label className="block text-xs font-medium text-slate-600 mb-1.5">
-        {label} {requerido && <span className="text-orange-500">*</span>}
+        {label} {requerido && <span className="text-sky-500">*</span>}
       </label>
       <input
         type="text"
@@ -108,7 +108,7 @@ const CampoFecha: React.FC<{
         placeholder="DD/MM/AAAA"
         maxLength={10}
         className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-800
-                   placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-400
+                   placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-400
                    focus:border-transparent transition-all duration-150"
       />
     </div>
@@ -328,7 +328,7 @@ const FormularioCliente: React.FC = () => {
       <div className="min-h-screen bg-slate-50">
         
         <div className="flex justify-center items-center h-64">
-          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
         </div>
       </div>
     );
@@ -437,7 +437,7 @@ const FormularioCliente: React.FC = () => {
                     rows={2}
                     className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white
                                text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2
-                               focus:ring-orange-400 focus:border-transparent resize-none"
+                               focus:ring-sky-400 focus:border-transparent resize-none"
                   />
                 </div>
               </div>
@@ -530,7 +530,7 @@ const FormularioCliente: React.FC = () => {
               <button
                 onClick={paso === 4 ? handleGuardar : handleSiguiente}
                 disabled={cargando || hayErroresEnPaso(paso)}
-                className="flex items-center gap-2 px-5 py-2 bg-orange-500 hover:bg-orange-600
+                className="flex items-center gap-2 px-5 py-2 bg-sky-500 hover:bg-sky-600
                            text-white text-sm font-medium rounded-lg shadow-sm
                            disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-150"
               >

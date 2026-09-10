@@ -77,8 +77,8 @@ const TablaPrestamos: React.FC<TablaPrestamosProps> = ({
     if (!campo) return null;
     if (ordenarPor !== campo) return <ChevronsUpDown size={12} className="text-slate-300" />;
     return direccion === 'asc'
-      ? <ChevronUp size={12} className="text-orange-500" />
-      : <ChevronDown size={12} className="text-orange-500" />;
+      ? <ChevronUp size={12} className="text-sky-500" />
+      : <ChevronDown size={12} className="text-sky-500" />;
   };
 
   const alignClass = (a?: string) =>
@@ -158,7 +158,7 @@ const TablaPrestamos: React.FC<TablaPrestamosProps> = ({
 
                       {/* Día de pago */}
                       <td className="hidden sm:table-cell px-3 py-3 text-center whitespace-nowrap">
-                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-orange-50 text-orange-600 text-xs font-bold">
+                        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-sky-50 text-sky-600 text-xs font-bold">
                           {p.dia_pago}
                         </span>
                       </td>
@@ -173,7 +173,7 @@ const TablaPrestamos: React.FC<TablaPrestamosProps> = ({
                         <div className="flex items-center gap-1.5">
                           <div className="flex-1 bg-slate-100 rounded-full h-1.5 min-w-[48px]">
                             <div
-                              className="bg-orange-400 h-1.5 rounded-full transition-all"
+                              className="bg-sky-400 h-1.5 rounded-full transition-all"
                               style={{ width: `${Math.min(pct, 100)}%` }}
                             />
                           </div>
@@ -194,7 +194,7 @@ const TablaPrestamos: React.FC<TablaPrestamosProps> = ({
                       <td className="px-3 py-3">
                         <button
                           onClick={(e) => { e.stopPropagation(); navigate(`/prestamos/${p.id}`); }}
-                          className="p-1.5 text-slate-400 hover:text-orange-500 rounded-lg hover:bg-orange-50 transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-sky-500 rounded-lg hover:bg-sky-50 transition-colors"
                         >
                           <Eye size={15} />
                         </button>
@@ -227,7 +227,7 @@ const TablaPrestamos: React.FC<TablaPrestamosProps> = ({
                   key={p}
                   onClick={() => onCambiarPagina(p)}
                   className={`w-8 h-8 text-xs rounded-lg font-medium transition-colors ${
-                    p === pagina ? 'bg-orange-500 text-white' : 'text-slate-500 hover:bg-slate-100'
+                    p === pagina ? 'bg-sky-500 text-white' : 'text-slate-500 hover:bg-slate-100'
                   }`}
                 >
                   {p}
