@@ -319,7 +319,13 @@ Si no cumple → se parte. No se negocia.
 - **Extra al DoD:** base = `inversiones.monto_actual` o monto vigente del
   préstamo (R3). Moratorios fuera del reparto (R8). Casos resueltos primero, en
   rojo, antes del motor.
-- **Estado:** ⬜
+- **Estado:** ✅ — `devengosComision` en el corte: base viva = `monto_actual` /
+  `saldo_pendiente` al momento del corte, tasa de `referencias.tasa`, congeladas
+  (R18). Casos C8–C13 (TDD rojo→verde, 12 tests ✅). **Origen vivo:** inversión
+  solo `activo`; préstamo `activo/atrasado/en_juicio` sí devengan (R9+R11),
+  `liquidado/cancelado` no — ⚠️ criterio derivado de reglas, marcado para
+  validación de Carlos al final. Integración Neon: 6 devengos, 2ª corrida 0,
+  limpieza total. 4 archivos.
 
 ### M15 · Aplicación FIFO por origen
 - **Tipo:** `motor` · **Depende de:** M13
@@ -362,7 +368,7 @@ Si no cumple → se parte. No se negocia.
 | Bloque | Tareas | Estado |
 |---|---|---|
 | A — inversionistas/referenciadores | 22 (incluye M25–M29 extra) | 19 ✅ · 1 ❌ (M8) · 2 ⬜ (M28, M29 — de ⛔4/⛔5) |
-| B — motor de comisiones | 5 | 2 ✅ · 3 ⬜ (siguiente: M14) |
+| B — motor de comisiones | 5 | 3 ✅ · 2 ⬜ (siguiente: M15) |
 | C — cuentas por pagar | 4 | 4 ⬜ (tras Bloque B) |
 
 ## Bloques B y C desbloqueados el 2026-09-09

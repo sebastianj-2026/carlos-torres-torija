@@ -47,6 +47,61 @@ const deCentavos = (c: bigint): string => {
 const montoDevengado = (baseCents: bigint, tasaCents: bigint): bigint =>
   (baseCents * tasaCents + 5000n) / 10000n;
 
+export interface ReferenciaFuente {
+  id: string;
+  referenciador_id: string;
+  tipo_referido: 'inversion' | 'prestamo';
+  origen_id: string;
+  tasa: string;            // referencias.tasa, NUMERIC(5,2) as string
+  estado: string;          // referencias.estado
+  base_vigente: string;    // inversiones.monto_actual | prestamos.saldo_pendiente
+  origen_estatus: string;  // estatus of the origin row
+}
+
+export interface DevengoComisionCandidato {
+  referenciador_id: string;
+  concepto: 'comision';
+  origen_tipo: 'inversion' | 'prestamo';
+  origen_id: string;
+  periodo_mes: number;
+  periodo_anio: number;
+  base_capital: string;
+  tasa: string;
+  monto_devengado: string;
+}
+
+// C12: the referral accrues while the origin contract is alive (R9, R11).
+// Loans keep accruing when late or in court — unpaid debt accumulates (R11).
+const origenVivo = (tipo: 'inversion' | 'prestamo', estatus: string): boolean =>
+  tipo === 'inversion'
+    ? estatus === 'activo'
+    : estatus === 'activo' || estatus === 'atrasado' || estatus === 'en_juicio';
+
+export function devengosComision(
+  referencias: ReferenciaFuente[],
+  mes: number,
+  anio: number,
+): DevengoComisionCandidato[] {
+  return [...referencias]
+    .filter((r) => r.estado === 'activa' && origenVivo(r.tipo_referido, r.origen_estatus))
+    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+    .flatMap((r) => {
+      const monto = montoDevengado(aCentavos(r.base_vigente), aCentavos(r.tasa));
+      if (monto <= 0n) return []; // C4: a $0.00 accrual is not debt
+      return [{
+        referenciador_id: r.referenciador_id,
+        concepto: 'comision' as const,
+        origen_tipo: r.tipo_referido,
+        origen_id: r.origen_id,
+        periodo_mes: mes,
+        periodo_anio: anio,
+        base_capital: deCentavos(aCentavos(r.base_vigente)), // frozen (R18)
+        tasa: deCentavos(aCentavos(r.tasa)),
+        monto_devengado: deCentavos(monto),
+      }];
+    });
+}
+
 export function devengosRendimiento(
   inversiones: InversionFuente[],
   mes: number,

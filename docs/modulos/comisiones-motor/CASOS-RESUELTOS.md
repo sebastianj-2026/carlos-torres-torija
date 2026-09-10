@@ -49,3 +49,40 @@ activa). Los de `comision` (referenciador, base viva del origen, R3) entran en
 ### C7 · Idempotencia (integración, DB)
 - Corte 9/2026 corrido dos veces → la segunda inserta **0** filas
   (`devengos_idempotente`, R20). El estado de la tabla es idéntico.
+
+## Comisiones sobre capital vigente — base viva (M14)
+
+Devengos de `comision` para el referenciador, uno por **referencia activa**
+(R16: una línea por origen). Base = capital vigente del origen **al momento del
+corte** (R3), congelada al generarse (R18). La tasa sale de `referencias.tasa`.
+
+### C8 · Comisión sobre inversión referida
+- Referencia activa a inversión con `monto_actual = 250000.00`, `tasa = 0.50`
+- → devengo: concepto `comision`, origen `inversion`, `base_capital = 250000.00`,
+  `tasa = 0.50`, `monto_devengado = 1250.00`
+
+### C9 · Comisión sobre préstamo referido
+- Referencia activa a préstamo con `saldo_pendiente = 100000.00`, `tasa = 0.75`
+- → devengo: origen `prestamo`, `base_capital = 100000.00`,
+  `monto_devengado = 750.00`
+- **El monto vigente del préstamo es `saldo_pendiente`** (capital, no interés).
+
+### C10 · Base viva (R3): el corte usa el capital del momento
+- Mismo préstamo, el mes siguiente `saldo_pendiente = 80000.00`
+- → `monto_devengado = 600.00`. El devengo del mes anterior no se recalcula
+  (R18: congelado).
+
+### C11 · Referencia no activa no genera
+- `estado = terminada` o `cancelada` → fuera del corte (R9: liquidación
+  anticipada corta la comisión).
+
+### C12 · El origen debe estar vivo
+- Inversión referida: genera solo con `estatus = activo` (mismo criterio que C5).
+- Préstamo referido: genera con `activo`, `atrasado` y `en_juicio` — el contrato
+  sigue vivo y R11 manda: lo que no se cobra **se devenga y acumula** igual.
+  `liquidado` y `cancelado` no generan (R9).
+
+### C13 · Moratorios fuera (R8)
+- La base es **capital vigente** (`monto_actual` / `saldo_pendiente`), nunca
+  incluye moratorios ni intereses. Los moratorios son 100% de la oficina y no
+  generan comisión.
