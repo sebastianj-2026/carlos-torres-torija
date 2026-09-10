@@ -394,9 +394,18 @@ Si no cumple → se parte. No se negocia.
   resto exacto→`pagado`, línea sale de pendientes. Datos borrados. 2 archivos.
 
 ### M18 · Pantalla de pendientes
-- **Tipo:** `ui` · **Depende de:** M19 · **Estado:** ⬜
+- **Tipo:** `ui` · **Depende de:** M19 · **Estado:** ✅
 - **Extra al DoD:** Carlos selecciona, el sistema no decide (R14). Dentro de la
   línea el periodo no se elige: FIFO forzado (R15). Totales en centavos enteros.
+- **Cierre:** pestaña "Devengos" en el Hub de Egresos
+  (`PendientesDevengosTab`). Checkbox por línea (R14); periodos visibles solo
+  lectura en orden FIFO (R15); *Seleccionado* y *Quedaría* en vivo con BigInt
+  centavos; forma/cuenta/comprobante antes de habilitar Pagar (R19, comprobante
+  vía `FileDropZone`); un POST por línea (R17); solo admin puede pagar. En 375px
+  tarjetas + barra de total fija abajo. Verificado 1440/375, consola limpia,
+  fixtures borrados. Nota: `tsconfig` frontend subió `target` es5→ES2020
+  (BigInt); CRA transpila vía browserslist, typecheck y build verdes.
+  4 archivos.
 
 ### M20 · Filtro inversionistas / referenciadores
 - **Tipo:** `ui` · **Depende de:** M18 · **Estado:** ⬜
@@ -409,7 +418,7 @@ Si no cumple → se parte. No se negocia.
 |---|---|---|
 | A — inversionistas/referenciadores | 22 (incluye M25–M29 extra) | 19 ✅ · 1 ❌ (M8) · 2 ⬜ (M28, M29 — de ⛔4/⛔5) |
 | B — motor de comisiones | 5 | **5 ✅ · Bloque B completo** |
-| C — cuentas por pagar | 5 (incluye M30 data) | 3 ✅ · 2 ⬜ (siguiente: M18) |
+| C — cuentas por pagar | 5 (incluye M30 data) | 4 ✅ · 1 ⬜ (siguiente: M20) |
 
 ## Bloques B y C desbloqueados el 2026-09-09
 Reglas R22–R24 decididas por Sebastian; Carlos valida al final del release.

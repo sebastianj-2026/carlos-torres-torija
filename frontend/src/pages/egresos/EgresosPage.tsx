@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Building2, TrendingUp } from 'lucide-react';
+import { Building2, TrendingUp, HandCoins } from 'lucide-react';
 import NavigadorTemporal       from '../../components/pagos/NavigadorTemporal';
 import CuentasPorPagarTab      from './tabs/CuentasPorPagarTab';
 import CuentasInversionistasTab from './tabs/CuentasInversionistasTab';
+import PendientesDevengosTab   from './tabs/PendientesDevengosTab';
 
 const TABS = [
   { id: 'oficina',        label: 'Gastos Oficina',    Icono: Building2,  centro: 'Oficina'       },
   { id: 'inversionistas', label: 'CxP Inversionistas', Icono: TrendingUp, centro: 'Inversionistas'},
+  { id: 'devengos',       label: 'Devengos',           Icono: HandCoins,  centro: undefined       },
 ] as const;
 
 type TabId = typeof TABS[number]['id'];
@@ -57,6 +59,7 @@ const EgresosPage: React.FC = () => {
       </div>
 
       {active.id === 'inversionistas' && <CuentasInversionistasTab mes={mes} anio={anio} />}
+      {active.id === 'devengos' && <PendientesDevengosTab />}
       {active.id === 'oficina' && (
         <CuentasPorPagarTab centroCosto={active.centro!} mes={mes} anio={anio} key={active.id} />
       )}
