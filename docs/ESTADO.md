@@ -120,8 +120,15 @@ M13–M15 estén verdes.**
       `otros` del dashboard ya lee dato real. `pensiones_activas=0` es
       definitivo (módulo eliminado). Obsoletas movidas a `_to_delete/database/`.
       Detalle en `docs/modulos/dashboard/DATOS.md`.
-- [ ] **Sin e2e/responsive.** No existe `e2e/responsive.spec.ts`; responsive se
-      verifica a ojo con playwright-mcp. `CMD_E2E_RESPONSIVE` vacío.
+- [x] ~~**Sin e2e/responsive.**~~ — resuelta el 2026-09-09:
+      `frontend/e2e/responsive.spec.ts` (@playwright/test con el Chrome
+      instalado, `channel`, sin descarga de navegadores): 7 pantallas × 3
+      viewports = 21 tests — cero scroll horizontal, cero error de consola,
+      evidencia PNG en `e2e/__screens__/` (gitignored). Sesión con JWT firmado
+      localmente contra un admin real de la DB. Cableado a
+      `CMD_E2E_RESPONSIVE`; levanta/reusa los dev servers solo
+      (`webServer` de playwright). **El perfil `ui` del gate quedó 7/7, 0 sin
+      declarar.**
 - [x] ~~**`docs/DISENO.md` con marcas `{{TODO}}`**~~ — resuelta el 2026-09-09:
       tokens semánticos extraídos del uso real (slate/sky), tipografía sistema,
       inventario completo de `shared/` (incluye `RoleGuard`, que faltaba).

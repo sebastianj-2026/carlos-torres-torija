@@ -72,7 +72,7 @@ CMD_MIGRATE_DOWN=""
 CMD_SEED=""
 
 # Sin suite e2e/playwright todavía. Deuda.
-CMD_E2E_RESPONSIVE=""
+CMD_E2E_RESPONSIVE="npm run test:e2e --prefix frontend"
 
 # Casos resueltos del motor de comisiones (T-001).
 CMD_TEST_CASOS="npm test --prefix backend -- casos-resueltos"

@@ -26,3 +26,6 @@ Thumbs.db
 # Graphify cache
 graphify-out/cache/
 .vercel
+
+# Evidencia e2e del gate (se regenera)
+e2e/__screens__/
