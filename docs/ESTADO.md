@@ -9,7 +9,13 @@
 **Migraciones M1/M2/M9/M10/M11 APLICADAS a Neon el 2026-09-09** (por Claude, con
 autorización explícita de Sebastian — excepción puntual a la prohibición 7).
 Verificado: tablas con 0 filas y 3 constraints, `asignado_a` fuera,
-`tasa_referenciador` en `NUMERIC(5,2)`. Pendiente: verificación visual 375/768/1440.
+`tasa_referenciador` en `NUMERIC(5,2)`.
+**Verificación visual 2026-09-09 (playwright, sesión JWT local):** lista M5/M6 y
+form M22 en 375/768/1440 — cero scroll horizontal, cero error de consola,
+tarjetas en 375, dropzone→botón, deuda en `—`; M21 con hint `0.50 = 0.5%`.
+**Pendiente:** detalle M7 y edición M22 — exigen una fila en `referenciadores`
+(hoy 0). Hallazgo legacy ajeno al release: la tarjeta de inversión del perfil
+pinta "Inicio: Invalid Date · Vence: Invalid Date".
 
 ---
 
