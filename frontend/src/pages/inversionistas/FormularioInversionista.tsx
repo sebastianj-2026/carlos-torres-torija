@@ -39,7 +39,8 @@ interface CampoProps {
   requerido?: boolean;
   placeholder?: string;
 }
-const Campo: React.FC<CampoProps> = ({
+// Shared with FormularioReferenciador (P5: reuse, don't duplicate)
+export const Campo: React.FC<CampoProps> = ({
   label, valor, onChange, tipo = 'text', requerido = false, placeholder,
 }) => (
   <div>

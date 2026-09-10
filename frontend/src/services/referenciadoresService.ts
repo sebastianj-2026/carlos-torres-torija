@@ -57,6 +57,47 @@ export const obtenerReferenciador = async (id: string): Promise<ReferenciadorDet
 };
 
 // ----------------------------------------------------------------
+// Alta y edición de referenciador (M22) — POST/PATCH /api/referenciadores
+// ----------------------------------------------------------------
+export interface DatosReferenciador {
+  nombres: string;
+  apellido_paterno: string;
+  apellido_materno?: string;
+  telefono?: string;
+  correo?: string;
+  direccion?: string;
+  url_ine?: string;
+  numero_cuenta?: string;
+  banco?: string;
+}
+
+export const crearReferenciador = async (
+  datos: DatosReferenciador
+): Promise<ReferenciadorResumen> => {
+  const respuesta = await apiClient.post<Envelope<ReferenciadorResumen>>(
+    '/referenciadores',
+    datos
+  );
+  if (!respuesta.data.success || !respuesta.data.data) {
+    throw new Error(respuesta.data.error ?? 'No se pudo crear el referenciador.');
+  }
+  return respuesta.data.data;
+};
+
+export const editarReferenciador = async (
+  id: string,
+  datos: Partial<DatosReferenciador>
+): Promise<void> => {
+  const respuesta = await apiClient.patch<Envelope<ReferenciadorResumen>>(
+    `/referenciadores/${id}`,
+    datos
+  );
+  if (!respuesta.data.success) {
+    throw new Error(respuesta.data.error ?? 'No se pudo actualizar el referenciador.');
+  }
+};
+
+// ----------------------------------------------------------------
 // Baja de referenciador (P6): cambia estado, nunca DELETE
 // PATCH /api/referenciadores/:id
 // ----------------------------------------------------------------

@@ -138,12 +138,10 @@ const DetalleReferenciador: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-2 self-start">
-          {/* El formulario de edición llega en M22 */}
           <button
-            disabled
-            title="Pendiente: formulario de edición de referenciador (M22)"
-            className="flex items-center gap-2 px-4 py-2.5 bg-slate-200 text-slate-400
-                       text-sm font-medium rounded-xl cursor-not-allowed"
+            onClick={() => navigate(`/referenciadores/${id}/editar`)}
+            className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600
+                       border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors"
           >
             <Pencil size={15} />
             Editar

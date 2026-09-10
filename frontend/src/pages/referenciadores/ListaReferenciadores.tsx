@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Search, X } from 'lucide-react';
 import { PersonaLista, FiltroForma } from '../../types/referenciador.types';
 import {
@@ -38,6 +39,7 @@ const FORMAS: { valor: FiltroForma; etiqueta: string }[] = [
 ];
 
 const ListaReferenciadores: React.FC = () => {
+  const navigate = useNavigate();
   const [personas, setPersonas]   = useState<PersonaLista[]>([]);
   const [cargando, setCargando]   = useState(true);
   const [error, setError]         = useState<string | null>(null);
@@ -113,12 +115,10 @@ const ListaReferenciadores: React.FC = () => {
               : 'Quién trajo a quién, con o sin capital propio'}
           </p>
         </div>
-        {/* El formulario de alta llega en M22; mientras, el botón se ve pero no navega. */}
         <button
-          disabled
-          title="Pendiente: formulario de alta de referenciador (M22)"
-          className="flex items-center gap-2 px-4 py-2.5 bg-slate-200 text-slate-400
-                     text-sm font-medium rounded-xl cursor-not-allowed self-start"
+          onClick={() => navigate('/referenciadores/nuevo')}
+          className="flex items-center gap-2 px-4 py-2.5 bg-sky-500 text-white
+                     text-sm font-medium rounded-xl hover:bg-sky-600 transition-colors self-start"
         >
           <Plus size={16} />
           Nuevo referenciador

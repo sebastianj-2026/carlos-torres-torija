@@ -5,7 +5,7 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-09-09 (cierre de M21 · siguiente: M22)
+**Última actualización:** 2026-09-09 (cierre de M22 · **Bloque A completo**; B y C siguen 🚫 por las 3 ⛔ de Carlos)
 
 ---
 
@@ -35,7 +35,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| inversionistas / referenciadores | 🟡 en curso — Bloque A corriendo (15 ✅ · 1 ❌ / 17) | — | préstamos (lectura) | M21 · form legacy a escala nueva (2026-09-09) |
+| inversionistas / referenciadores | 🟡 Bloque A **completo** (17 ✅ · 1 ❌ / 18); espera Bloques B/C | — | préstamos (lectura) | M22 · form de alta/edición de referenciador (2026-09-09) |
 | comisiones-motor | 🚫 bloqueado — 3 reglas sin definir | 14 ✅ (del motor descartado, sirven de referencia) | inversionistas | split de REGLAS 2026-08-19 |
 | dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
@@ -168,6 +168,7 @@ M13–M15 estén verdes.**
 | 2026-09-08 | M6 · columnas de deuda | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. `—` con tooltip mientras M12 esté bloqueada (nunca `0.00`); orden *se le debe* desc comparando NUMERIC como string, sin float. 4 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-09-08 | M23 · GET con referencias | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `referencias[]` + `origen_nombre` por join en servidor, una fila por origen (R16). 2 archivos. ⚠️ 500a hasta aplicar M2 a Neon. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-09-08 | M24 · id navegable del origen | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `origen_inversionista_id` en `referencias[]` para que M7 navegue a `/inversionistas/:id`; préstamos ya navegaban con `prestamo_id`. 2 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
+| 2026-09-09 | M22 · form alta/edición referenciador | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. Reusa `Campo` (P5) y `FileDropZone accept` PDF (M25); alta crea forma 3 (FLUJOS §2 no lista `inversionista_id` — la liga a inversionista queda fuera del form). **6 archivos, excepción a ≤5 autorizada.** Verificación visual pendiente de aplicar M1/M2 a Neon. |
 | 2026-09-09 | M25 · FileDropZone prop `accept` | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas` (shared sin docs propios). Tarea propia de componente compartido (prohibición 2), nacida de M22; default intacto. 1 archivo. **Cadena de tareas en la misma sesión por instrucción explícita.** |
 | 2026-09-09 | M8 · alerta inversión sin préstamo | ❌ descartada | Sin código. La liga se hace desde préstamos al crear el préstamo (`participantes_prestamo`); la condición del banner no puede darse. Decisión de Sebastian en sesión. |
 | 2026-09-09 | M21 · form legacy a escala nueva | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. Tasa referidor a % con 2 decimales (`0.50 = 0.5%`), string pass-through. 1 archivo. **Cadena de tareas en la misma sesión por instrucción explícita.** |

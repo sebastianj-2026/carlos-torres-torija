@@ -201,7 +201,12 @@ Si no cumple → se parte. No se negocia.
   (P5). INE solo PDF vía `FileDropZone`; cuenta y banco nunca bloquean el
   guardado. En 375px la zona de arrastre se vuelve botón. Al terminar, habilita
   el botón de alta en la lista de M5.
-- **Estado:** ⬜
+- **Estado:** ✅ — `/referenciadores/nuevo` y `/:id/editar` con
+  `FormularioReferenciador`, que reusa `Campo` del form de inversionista (P5) y
+  `FileDropZone` con `accept` solo PDF (M25). Cuenta y banco opcionales, nunca
+  bloquean. Botón de alta (M5) y Editar (M7) habilitados. **6 archivos —
+  excepción a ≤5 autorizada por Sebastian** (habilitar botones sin form deja UI
+  muerta; misma lógica que M10b).
 
 ### M25 · FileDropZone con prop `accept` opcional
 - **Módulo:** shared · **Tipo:** `ui` · **Depende de:** —
@@ -316,7 +321,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 18 (incluye M25 shared) | 16 ✅ · 1 ❌ (M8) · 1 ⬜ (siguiente: M22 — desbloqueada) |
+| A — inversionistas/referenciadores | 18 (incluye M25 shared) | 17 ✅ · 1 ❌ (M8) · **Bloque A completo** |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 
