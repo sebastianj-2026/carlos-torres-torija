@@ -142,7 +142,6 @@ const PagarNominaTab: React.FC = () => {
     }
   };
 
-  const empleadoSeleccionado = empleados.find(e => e.id === form.empleado_id);
   const enVacaciones = preCalculo?.empleado.estatus === 'Vacaciones';
 
   return (

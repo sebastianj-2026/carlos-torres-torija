@@ -54,7 +54,7 @@ fi
 CMD_TYPECHECK="(cd backend && node_modules/.bin/tsc --noEmit) && (cd frontend && node_modules/.bin/tsc --noEmit)"
 
 # Sin script de lint en ningún lado (solo eslintConfig de CRA en build). Deuda.
-CMD_LINT=""
+CMD_LINT="npm run lint --prefix frontend"
 
 # Backend con Vitest (T-001 montó el harness). `npm test` = `vitest run` (una vez).
 # El front sigue con craco test pero su smoke default está roto por RRD v7 (deuda).
