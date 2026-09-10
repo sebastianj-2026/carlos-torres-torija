@@ -14,9 +14,6 @@ CREATE TABLE inversionistas (
   telefono            VARCHAR(15),
   correo              VARCHAR(100),
 
-  -- Asignación interna
-  asignado_a          VARCHAR(20) CHECK (asignado_a IN ('sebastian', 'abril')),
-
   -- Documento de identidad (URL opcional, subida de archivo posterior)
   url_ine             TEXT,
 
