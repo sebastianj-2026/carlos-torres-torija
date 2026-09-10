@@ -294,10 +294,14 @@ Si no cumple → se parte. No se negocia.
 > depende de nada de aquí.
 
 ### M12 · Migración: tabla `devengos` + índice de idempotencia
-- **Tipo:** `data` · **Depende de:** M2 + ⛔1 ⛔2 ⛔3
+- **Tipo:** `data` · **Depende de:** M2 + R22–R24
 - **Extra al DoD:** `devengos_idempotente` UNIQUE a nivel BD (R20),
   `dev_un_beneficiario`, `dev_no_sobrepago`, índice FIFO. Con `.down.sql`.
-- **Estado:** ⬜
+- **Estado:** ✅ — tabla nueva conforme a DATOS.md. La `devengos` huérfana del
+  módulo descartado (0 filas) se **renombró** a `devengos_descartado` con sus
+  índices (nada se borra). Ciclo up→down→up→up verificado; pruebas funcionales:
+  duplicado → 23505, sin beneficiario y sobrepago rechazados por CHECK.
+  **Aplicada a Neon el 2026-09-09.**
 
 ### M13 · Generación mensual de devengos, idempotente
 - **Tipo:** `motor` · **Depende de:** M12
@@ -353,7 +357,7 @@ Si no cumple → se parte. No se negocia.
 | Bloque | Tareas | Estado |
 |---|---|---|
 | A — inversionistas/referenciadores | 22 (incluye M25–M29 extra) | 19 ✅ · 1 ❌ (M8) · 2 ⬜ (M28, M29 — de ⛔4/⛔5) |
-| B — motor de comisiones | 5 | 5 ⬜ (siguiente: M12) |
+| B — motor de comisiones | 5 | 1 ✅ · 4 ⬜ (siguiente: M13) |
 | C — cuentas por pagar | 4 | 4 ⬜ (tras Bloque B) |
 
 ## Bloques B y C desbloqueados el 2026-09-09
