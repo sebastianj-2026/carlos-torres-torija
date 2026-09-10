@@ -105,6 +105,15 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
     setDatos((prev) => ({ ...prev, tasa_interes_mensual: limpio }));
   };
 
+  // Percentage with 2 decimals — 0.50 means 0.5% (NUMERIC(5,2) scale, M11)
+  const handleTasaRefChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9.]/g, '');
+    const partes = raw.split('.');
+    let limpio = partes[0];
+    if (partes.length > 1) limpio += '.' + partes[1].slice(0, 2);
+    setTasaRef(limpio);
+  };
+
   const handleGuardar = async () => {
     const monto = parseFloat(datos.monto_inicial.replace(/,/g, '')) || 0;
     const tasa  = parseFloat(datos.tasa_interes_mensual) || 0;
@@ -137,7 +146,7 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
         fecha_vencimiento:    datos.fecha_vencimiento,
         notas:                datos.notas,
         referenciador_id:     referidor ? referidor.id : undefined,
-        tasa_referenciador:   referidor ? String(tasaReferidor) : undefined,
+        tasa_referenciador:   referidor ? tasaRef.trim() : undefined,
       } as never);
       onExito();
     } catch (err: unknown) {
@@ -292,10 +301,11 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
                 type="text"
                 inputMode="decimal"
                 value={tasaRef}
-                onChange={(e) => setTasaRef(e.target.value.replace(/[^0-9.]/g, ''))}
-                placeholder="Ej: 0.5"
+                onChange={handleTasaRefChange}
+                placeholder="Ej: 0.50"
                 className={inputCls}
               />
+              <p className="mt-1 text-[11px] text-slate-400">0.50 = 0.5% mensual</p>
             </div>
           </div>
         ) : (

@@ -105,14 +105,12 @@ cubre lo de otro.
 
 ---
 
-## 5 · Alerta de inversión sin préstamo ligado (M8)
+## 5 · Alerta de inversión sin préstamo ligado (M8) — ❌ descartada
 
-En la lista y en el detalle de inversiones: banner discreto en la fila de una
-inversión `activa` que no tiene préstamo ligado.
-
-> ⚠️ Esta inversión no está ligada a ningún préstamo.
-
-**Avisa, no bloquea.** No impide guardar, no cambia estados, no manda correo.
+**Descartada el 2026-09-09 (Sebastian).** La liga se hace desde **préstamos** al
+crear el préstamo (`participantes_prestamo`, por inversionista); no existe liga
+por inversión en el schema y no hay inversiones "no ligadas" que detectar. No se
+implementa.
 
 ---
 

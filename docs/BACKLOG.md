@@ -173,9 +173,10 @@ Si no cumple → se parte. No se negocia.
 
 ### M8 · Alerta de inversión activa sin préstamo ligado
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M5
-- **Lee:** `docs/DISENO.md` + `docs/modulos/inversionistas/FLUJOS.md`
-- **Extra al DoD:** avisa, **no bloquea**. No cambia estados ni impide guardar.
-- **Estado:** ⬜
+- **Estado:** ❌ **descartada (2026-09-09, Sebastian).** La liga se hace desde
+  **préstamos** al crear el préstamo (`participantes_prestamo`, por
+  inversionista); no existe liga por inversión en el schema y no hay inversiones
+  "no ligadas" que detectar — la condición del banner no puede darse.
 
 ### M21 · Alinear el form legacy de referidor a la escala nueva
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M11
@@ -186,7 +187,9 @@ Si no cumple → se parte. No se negocia.
   no hay urgencia, pero se cierra antes de crear un referido por esa ruta.
 - **Extra al DoD:** el form captura y muestra la tasa como % con 2 decimales
   (`0.50 = 0.5%`). El INSERT del controller ya es pass-through — no toca escala.
-- **Estado:** ⬜
+- **Estado:** ✅ — input limitado a 2 decimales, placeholder `0.50`, hint
+  "0.50 = 0.5% mensual"; el valor viaja como string capturado (sin
+  `String(parseFloat(...))`). 1 archivo (`PerfilInversionista.tsx`).
 
 ### M22 · Formulario de alta y edición de referenciador
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M3
@@ -301,7 +304,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 17 | 14 ✅ · 3 ⬜ (siguiente: M8 — desbloqueada) |
+| A — inversionistas/referenciadores | 17 | 15 ✅ · 1 ❌ (M8) · 1 ⬜ (siguiente: M22 — desbloqueada) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 
