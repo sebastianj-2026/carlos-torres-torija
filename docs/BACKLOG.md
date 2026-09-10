@@ -356,6 +356,19 @@ Si no cumple → se parte. No se negocia.
 
 # Bloque C — cuentas por pagar inversionistas · desbloqueado 2026-09-09
 
+### M30 · Migración: tablas `pagos_devengo` + `pago_aplicaciones`
+- **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** M12
+- **Por qué:** MODULO.md las lista como tablas nuevas y M17/M19 las necesitan;
+  ninguna tarea del Bloque C las creaba. Spec: `DATOS.md` § Pagos.
+- **Extra al DoD:** `pago_un_beneficiario`, `pago_cuenta_coherente`, comprobante
+  y `autorizado_por` NOT NULL (R19), `UNIQUE (pago_id, devengo_id)`. La huérfana
+  `pago_aplicaciones` del módulo descartado (0 filas) se renombra, no se borra.
+  Con `.down.sql`.
+- **Estado:** ✅ — ambas tablas conforme a DATOS.md; huérfana renombrada a
+  `pago_aplicaciones_descartado` con sus índices. Ciclo up→down→up→up verde;
+  reversa aborta si hay filas (no borra pagos reales). **Aplicada a Neon el
+  2026-09-09.**
+
 ### M17 · Aceptar concepto `comision` además de `rendimiento`
 - **Tipo:** `logic` · **Depende de:** M12 · **Estado:** ⬜
 - **Extra al DoD:** un pago por concepto, no se juntan (R17).
