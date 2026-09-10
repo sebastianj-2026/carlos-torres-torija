@@ -19,7 +19,7 @@ C están bloqueados por 3 reglas que faltan de Carlos.
 ## Stack
 - **Frontend:** React 19 + CRA/CRACO + TypeScript 4.9 + Tailwind + react-router 7 + recharts. Deploy: Vercel.
 - **Backend:** Express 5 + ts-node + `pg` (SQL crudo, sin ORM) + JWT/bcrypt. Deploy: Railway.
-- **DB:** PostgreSQL (Neon). Migraciones SQL planas en `database/`, aplicadas **a mano** vía `scripts/apply-migration.js`.
+- **DB:** PostgreSQL (Neon, **desarrollo**). Migraciones SQL planas en `database/`, aplicadas por Claude vía `scripts/apply-migration.js` (ver prohibición 7).
 
 ---
 
@@ -62,8 +62,12 @@ pregunta antes: casi siempre significa que la tarea está mal clasificada.
 4. **No arranques una tarea 🚫.** Están bloqueadas a propósito.
 5. **No corras deploy.** Nunca. El gate llega a "listo para deploy" y ahí para.
 6. **No cierres una tarea con el gate rojo.**
-7. **No apliques migraciones a Neon.** Las escribes con su `.down.sql` y
-   documentas el comando; **las aplica Sebastian, a mano**.
+7. **Migraciones a Neon (dev): las aplica Claude** vía
+   `node scripts/apply-migration.js <archivo.sql>`, siempre con su `.down.sql`
+   escrito antes y verificación de conteos/schema después. Si una migración
+   convierte o borra datos, respaldo en tabla `_respaldo_*` dentro del `.up`.
+   Cuando exista una DB de producción, esta regla se revierte: ahí aplica
+   Sebastian a mano.
 8. **No borres nada de `_to_delete/`.** Es la carpeta de descarte, la vacía
    Sebastian.
 
