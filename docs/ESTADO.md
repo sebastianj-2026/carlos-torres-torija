@@ -5,7 +5,7 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-09-09 (⛔1–⛔5 resueltas por Sebastian → **Bloques B y C desbloqueados**; siguiente: M12. Carlos valida las reglas al final del release)
+**Última actualización:** 2026-09-09 · **Bloques A, B y C COMPLETOS** (M12–M20 y M30 en un día). Quedan M28/M29 (⛔4/⛔5) y la validación de Carlos: R22–R24 + criterio de M14 (préstamo atrasado/en_juicio devenga).
 **Migraciones M1/M2/M9/M10/M11 APLICADAS a Neon el 2026-09-09** (por Claude, con
 autorización explícita de Sebastian — excepción puntual a la prohibición 7).
 Verificado: tablas con 0 filas y 3 constraints, `asignado_a` fuera,
@@ -171,6 +171,7 @@ M13–M15 estén verdes.**
 | 2026-09-08 | M6 · columnas de deuda | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. `—` con tooltip mientras M12 esté bloqueada (nunca `0.00`); orden *se le debe* desc comparando NUMERIC como string, sin float. 4 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-09-08 | M23 · GET con referencias | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `referencias[]` + `origen_nombre` por join en servidor, una fila por origen (R16). 2 archivos. ⚠️ 500a hasta aplicar M2 a Neon. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-09-08 | M24 · id navegable del origen | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `origen_inversionista_id` en `referencias[]` para que M7 navegue a `/inversionistas/:id`; préstamos ya navegaban con `prestamo_id`. 2 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
+| 2026-09-09 | M20 · filtro inv/referenciadores | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. Filtro client-side verificado en navegador (6→2→4→6). **Bloque C completo.** |
 | 2026-09-09 | M18 · pantalla de pendientes | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. Pestaña Devengos en Hub de Egresos; R14/R15/R17/R19 en la UI; totales BigInt. Verificación visual 1440/375 con datos sembrados y borrados. `tsconfig` frontend target→ES2020 (BigInt); hizo falta limpiar `node_modules/.cache` del checker de CRA. |
 | 2026-09-09 | M19 · registrar pago de devengos | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. POST transaccional con FIFO del motor; solo admin; comprobante+autorización obligatorios (R19); exceso de monto → 400 (R16/R22: el sobrante no tiene destino legal). Smoke E2E contra Neon, datos borrados. |
 | 2026-09-09 | M17 · pendientes con concepto comision | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. GET de pendientes por línea (R16/R15); R17 estructural en la respuesta. Smoke contra Neon con datos temporales, borrados al final. |

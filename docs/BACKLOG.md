@@ -408,7 +408,11 @@ Si no cumple → se parte. No se negocia.
   4 archivos.
 
 ### M20 · Filtro inversionistas / referenciadores
-- **Tipo:** `ui` · **Depende de:** M18 · **Estado:** ⬜
+- **Tipo:** `ui` · **Depende de:** M18 · **Estado:** ✅ — tres botones
+  ([Todos] [Inversionistas] [Referenciadores]) primero que la lista,
+  client-side sobre `beneficiario_tipo`. El *quedaría* sigue siendo global:
+  el filtro cambia lo visible, no la deuda. Verificado en navegador
+  (6→2→4→6 líneas). 1 archivo.
 
 ---
 
@@ -418,7 +422,7 @@ Si no cumple → se parte. No se negocia.
 |---|---|---|
 | A — inversionistas/referenciadores | 22 (incluye M25–M29 extra) | 19 ✅ · 1 ❌ (M8) · 2 ⬜ (M28, M29 — de ⛔4/⛔5) |
 | B — motor de comisiones | 5 | **5 ✅ · Bloque B completo** |
-| C — cuentas por pagar | 5 (incluye M30 data) | 4 ✅ · 1 ⬜ (siguiente: M20) |
+| C — cuentas por pagar | 5 (incluye M30 data) | **5 ✅ · Bloque C completo** |
 
 ## Bloques B y C desbloqueados el 2026-09-09
 Reglas R22–R24 decididas por Sebastian; Carlos valida al final del release.

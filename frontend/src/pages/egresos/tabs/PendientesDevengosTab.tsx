@@ -32,6 +32,8 @@ const PendientesDevengosTab: React.FC = () => {
   const [cargando, setCargando]   = useState(true);
   const [error, setError]         = useState<string | null>(null);
   const [seleccion, setSeleccion] = useState<Set<string>>(new Set());
+  // M20: filtro por tipo de beneficiario — client-side, la línea ya trae el tipo
+  const [filtro, setFiltro]       = useState<'' | 'inversionista' | 'referenciador'>('');
 
   // Datos del pago (R19) — aplican a cada línea seleccionada; un pago por línea
   const [formaPago, setFormaPago]   = useState<'efectivo' | 'transferencia' | 'deposito'>('efectivo');
@@ -56,7 +58,13 @@ const PendientesDevengosTab: React.FC = () => {
 
   useEffect(() => { cargar(); }, [cargar]);
 
-  // Totales en centavos enteros (M16): seleccionado y "quedaría", en vivo
+  const visibles = useMemo(
+    () => (filtro ? lineas.filter((l) => l.beneficiario_tipo === filtro) : lineas),
+    [lineas, filtro],
+  );
+
+  // Totales en centavos enteros (M16): seleccionado y "quedaría", en vivo.
+  // El pendiente total es GLOBAL — el filtro cambia lo visible, no la deuda.
   const { totalPendiente, totalSeleccionado } = useMemo(() => {
     let pendiente = 0n;
     let seleccionado = 0n;
@@ -143,6 +151,26 @@ const PendientesDevengosTab: React.FC = () => {
         </button>
       </div>
 
+      {/* M20: filtro por tipo — lo primero que se ve, no un menú escondido */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {([
+          ['', 'Todos'],
+          ['inversionista', 'Inversionistas'],
+          ['referenciador', 'Referenciadores'],
+        ] as const).map(([valor, etiqueta]) => (
+          <button
+            key={valor}
+            onClick={() => setFiltro(valor)}
+            className={`px-3.5 py-1.5 rounded-xl text-sm font-medium border transition-colors
+              ${filtro === valor
+                ? 'bg-sky-500 text-white border-sky-500'
+                : 'bg-white text-slate-600 border-slate-200 hover:border-sky-300'}`}
+          >
+            {etiqueta}
+          </button>
+        ))}
+      </div>
+
       {error && (
         <p className="text-sm text-red-600 bg-red-50 px-4 py-2.5 rounded-xl mb-4">{error}</p>
       )}
@@ -152,13 +180,13 @@ const PendientesDevengosTab: React.FC = () => {
         </p>
       )}
 
-      {lineas.length === 0 && !error ? (
+      {visibles.length === 0 && !error ? (
         <div className="text-center py-12 text-slate-400 text-sm bg-white rounded-2xl border border-slate-100">
-          Sin devengos pendientes.
+          {filtro ? 'Sin pendientes de ese tipo.' : 'Sin devengos pendientes.'}
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-6">
-          {lineas.map((l) => {
+          {visibles.map((l) => {
             const clave = claveLinea(l);
             const activa = seleccion.has(clave);
             return (
