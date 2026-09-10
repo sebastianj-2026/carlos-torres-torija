@@ -203,6 +203,18 @@ Si no cumple → se parte. No se negocia.
   el botón de alta en la lista de M5.
 - **Estado:** ⬜
 
+### M25 · FileDropZone con prop `accept` opcional
+- **Módulo:** shared · **Tipo:** `ui` · **Depende de:** —
+- **Por qué:** M22 exige INE **solo PDF** rechazado antes de subir, vía
+  `FileDropZone`; el componente aceptaba PDF/JPG/PNG fijo. Tocar
+  `components/shared/` es tarea propia (prohibición 2) — se saca de M22.
+- **Extra al DoD:** prop opcional `accept` (lista de MIME); **sin prop, el
+  comportamiento actual no cambia** (PDF/JPG/PNG). Rechazo antes de subir, con
+  mensaje en español; el texto de ayuda refleja los tipos permitidos.
+- **Estado:** ✅ — prop `accept?: string[]` con default `PDF/JPG/PNG` (sin prop,
+  cero cambio de conducta); rechazo por MIME antes de subir con mensaje en
+  español; texto de ayuda y `accept` del input derivados de la prop. 1 archivo.
+
 ### M23 · Detalle de referenciador devuelve sus referencias
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M3, M4
 - **Lee:** `docs/modulos/inversionistas/MODULO.md` + `REGLAS.md`
@@ -304,7 +316,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 17 | 15 ✅ · 1 ❌ (M8) · 1 ⬜ (siguiente: M22 — desbloqueada) |
+| A — inversionistas/referenciadores | 18 (incluye M25 shared) | 16 ✅ · 1 ❌ (M8) · 1 ⬜ (siguiente: M22 — desbloqueada) |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 
