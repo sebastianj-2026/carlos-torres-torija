@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.routes';
 import clientesRoutes from './routes/clientes.routes';
 import { inversionistasRouter, inversionesRouter } from './routes/inversionistas.routes';
 import { referenciadoresRouter, referenciasRouter } from './routes/referenciadores.routes';
+import { pagosDevengoRouter } from './routes/pagos_devengo.routes';
 import { personasRouter } from './routes/personas.routes';
 import { comisionesRouter } from './routes/comisiones.routes';
 import { prestamosRouter, moratoriosRouter } from './routes/prestamos.routes';
@@ -70,6 +71,7 @@ app.use('/api/inversionistas', inversionistasRouter);
 app.use('/api/inversiones', inversionesRouter);
 app.use('/api/referenciadores', referenciadoresRouter);
 app.use('/api/referencias', referenciasRouter);
+app.use('/api/pagos-devengo', pagosDevengoRouter);
 
 // Rutas de personas (slice: personas + aportaciones)
 app.use('/api/personas', personasRouter);

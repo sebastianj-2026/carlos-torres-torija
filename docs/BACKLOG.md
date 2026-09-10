@@ -370,8 +370,15 @@ Si no cumple → se parte. No se negocia.
   2026-09-09.**
 
 ### M17 · Aceptar concepto `comision` además de `rendimiento`
-- **Tipo:** `logic` · **Depende de:** M12 · **Estado:** ⬜
+- **Tipo:** `logic` · **Depende de:** M12, M30 · **Estado:** ✅
 - **Extra al DoD:** un pago por concepto, no se juntan (R17).
+- **Cierre:** `GET /api/pagos-devengo/pendientes` — devengos pendientes/parciales
+  de **ambos conceptos**, agrupados por línea (beneficiario+concepto+origen,
+  R16), slots FIFO dentro de la línea (R15), `total_pendiente` en centavos
+  BigInt, filtros `concepto`/beneficiario, envelope estándar. La respuesta ya
+  viene partida por línea → el pago por concepto (R17) es estructural. Smoke:
+  6 líneas, mismo referenciador con inversión y préstamo separados, filtro y
+  400 verificados, datos de prueba borrados. 3 archivos.
 
 ### M19 · Registrar pago con forma, cuenta, comprobante y autorización
 - **Tipo:** `logic` · **Depende de:** M15, M17 · **Estado:** ⬜
@@ -394,7 +401,7 @@ Si no cumple → se parte. No se negocia.
 |---|---|---|
 | A — inversionistas/referenciadores | 22 (incluye M25–M29 extra) | 19 ✅ · 1 ❌ (M8) · 2 ⬜ (M28, M29 — de ⛔4/⛔5) |
 | B — motor de comisiones | 5 | **5 ✅ · Bloque B completo** |
-| C — cuentas por pagar | 4 | 4 ⬜ (tras Bloque B) |
+| C — cuentas por pagar | 5 (incluye M30 data) | 2 ✅ · 3 ⬜ (siguiente: M19) |
 
 ## Bloques B y C desbloqueados el 2026-09-09
 Reglas R22–R24 decididas por Sebastian; Carlos valida al final del release.
