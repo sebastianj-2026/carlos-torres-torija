@@ -24,8 +24,10 @@ Vence: Invalid Date".
 
 ## Dónde está el proyecto hoy
 
-Sistema legacy **vivo en producción** (préstamos, inversionistas, ingresos/egresos,
-tesorería, nómina, juicios). Encima de él entra un release: **referenciadores**.
+Sistema legacy funcional, **aún en desarrollo — no hay producción** (la DB Neon
+es de desarrollo con seed demo; corregido 2026-09-09). Módulos: préstamos,
+inversionistas, ingresos/egresos, tesorería, nómina, juicios. Encima entra un
+release: **referenciadores**.
 
 El release se re-especificó el **2026-08-19**. La versión anterior creaba módulos
 `personas` y `comisiones` **paralelos** al de inversionistas. Eso estaba mal: el
@@ -50,11 +52,11 @@ los referenciadores **sin capital**, y todo el cálculo.
 |---|---|---|---|---|
 | inversionistas / referenciadores | 🟡 Bloque A **completo** (17 ✅ · 1 ❌ / 18); espera Bloques B/C | — | préstamos (lectura) | M22 · form de alta/edición de referenciador (2026-09-09) |
 | comisiones-motor | 🚫 bloqueado — 3 reglas sin definir | 14 ✅ (del motor descartado, sirven de referencia) | inversionistas | split de REGLAS 2026-08-19 |
-| dashboard | ✅ producción (legacy), documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
-| auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ producción (legacy) | 0 | — | sin spec de metodología |
+| dashboard | ✅ legacy funcional, documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
+| auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ legacy funcional | 0 | — | sin spec de metodología |
 | ~~personas~~ / ~~comisiones~~ | ❌ DESCARTADOS como módulos | 14 | — | docs en `_to_delete/`; ver "Código huérfano" |
 
-Estados: `⬜ pendiente` · `🟡 en curso` · `✅ producción` · `🚫 bloqueado` · `❌ descartado`
+Estados: `⬜ pendiente` · `🟡 en curso` · `✅ legacy funcional` · `🚫 bloqueado` · `❌ descartado`
 
 ---
 

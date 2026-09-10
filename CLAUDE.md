@@ -7,7 +7,9 @@
 ## Qué es esto en una línea
 Sistema de gestión financiera (préstamos, inversionistas, ingresos/egresos,
 tesorería, nómina, juicios) para la oficina de Carlos Torres Torija.
-**Está en producción.** Lo que se toca aquí es dinero de gente real.
+**Aún en desarrollo — no hay producción.** La DB (Neon) es de desarrollo, con
+datos demo del seed; se puede crear dato de prueba sin miedo. El rigor de las
+reglas se mantiene: el destino del sistema es manejar dinero de gente real.
 
 ## Release en curso
 **Referenciadores** — rama `rediseno-referidor-inversionista`.
