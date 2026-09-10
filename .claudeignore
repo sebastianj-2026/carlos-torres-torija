@@ -70,3 +70,8 @@ frontend/package-lock.json
 backend/package-lock.json
 yarn.lock
 pnpm-lock.yaml
+
+# ── 11. DESCARTADO ───────────────────────────────────────────────
+# Docs de los módulos personas/comisiones, descartados el 2026-08-19.
+# Se conservan por si hay que consultarlos a mano; Claude no los lee.
+_to_delete/

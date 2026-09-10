@@ -131,7 +131,7 @@ const ChecklistDocumentos: React.FC<ChecklistDocumentosProps> = ({
                     type="checkbox"
                     checked={estado[tipo].entregado}
                     onChange={(e) => handleCambio(tipo, 'entregado', e.target.checked)}
-                    className="w-3.5 h-3.5 accent-orange-500"
+                    className="w-3.5 h-3.5 accent-sky-500"
                   />
                   Físico entregado
                 </label>
@@ -163,7 +163,7 @@ const ChecklistDocumentos: React.FC<ChecklistDocumentosProps> = ({
                 checked={estado[tipo].entregado}
                 onChange={(e) => handleCambio(tipo, 'entregado', e.target.checked)}
                 disabled={soloLectura}
-                className="w-4 h-4 accent-orange-500 cursor-pointer disabled:cursor-not-allowed"
+                className="w-4 h-4 accent-sky-500 cursor-pointer disabled:cursor-not-allowed"
               />
             </div>
             <div className="flex justify-center w-24">
@@ -211,8 +211,8 @@ const ChecklistDocumentos: React.FC<ChecklistDocumentosProps> = ({
             <button
               onClick={handleGuardar}
               disabled={guardando || !modificado}
-              className="px-4 py-2 text-sm font-medium rounded-lg bg-orange-500 text-white
-                         hover:bg-orange-600 disabled:opacity-40 disabled:cursor-not-allowed
+              className="px-4 py-2 text-sm font-medium rounded-lg bg-sky-500 text-white
+                         hover:bg-sky-600 disabled:opacity-40 disabled:cursor-not-allowed
                          transition-colors duration-150 flex items-center gap-2"
             >
               {guardando && (

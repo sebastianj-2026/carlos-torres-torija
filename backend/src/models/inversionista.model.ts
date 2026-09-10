@@ -3,8 +3,6 @@
 // Interfaces TypeScript para las tablas de la base de datos
 // ================================================================
 
-export type AsignadoA = 'sebastian' | 'abril';
-
 export type EstatusInversion = 'activo' | 'pausado' | 'liquidado' | 'vencido';
 
 export type FormaIngreso = 'efectivo' | 'deposito';
@@ -23,7 +21,6 @@ export interface Inversionista {
   apellido_materno: string | null;
   telefono: string | null;
   correo: string | null;
-  asignado_a: AsignadoA | null;
   url_ine: string | null;
   capital_aportado_total: string;
   capital_disponible: string;
@@ -39,7 +36,6 @@ export interface InversionistaResumen {
   apellido_paterno: string;
   apellido_materno: string | null;
   telefono: string | null;
-  asignado_a: AsignadoA | null;
   capital_aportado_total: string;
   capital_disponible: string;
   // Calculados en el query
@@ -110,7 +106,6 @@ export interface CrearInversionistaDto {
   apellido_materno?: string;
   telefono?: string;
   correo?: string;
-  asignado_a?: AsignadoA;
   url_ine?: string;
   // Wallet: capital inicial al registrar
   monto_aportado_inicial?: number;
@@ -130,6 +125,8 @@ export interface CrearInversionDto {
   fecha_inicio: string;
   fecha_vencimiento?: string;
   notas?: string;
+  referenciador_id?: string;      // otro inversionista que refirió esta inversión
+  tasa_referenciador?: number;    // % mensual de comisión del referidor
 }
 
 export type EditarInversionDto = Partial<CrearInversionDto>;

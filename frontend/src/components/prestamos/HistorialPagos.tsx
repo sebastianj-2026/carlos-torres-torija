@@ -18,7 +18,7 @@ const CONFIG_TIPO: Record<TipoPago, {
   interes:            { etiqueta: 'Pago de interés',    color: 'bg-green-100',  colorTexto: 'text-green-700',  Icono: TrendingDown  },
   capital:            { etiqueta: 'Abono a capital',    color: 'bg-blue-100',   colorTexto: 'text-blue-700',   Icono: Landmark      },
   moratorio:          { etiqueta: 'Pago de moratorio',  color: 'bg-red-100',    colorTexto: 'text-red-700',    Icono: AlertTriangle },
-  interes_anticipado: { etiqueta: 'Interés anticipado', color: 'bg-orange-100', colorTexto: 'text-orange-700', Icono: CalendarClock },
+  interes_anticipado: { etiqueta: 'Interés anticipado', color: 'bg-sky-100', colorTexto: 'text-sky-700', Icono: CalendarClock },
 };
 
 interface HistorialPagosProps {

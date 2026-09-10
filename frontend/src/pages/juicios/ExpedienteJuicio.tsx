@@ -46,7 +46,7 @@ const calcularDiasFecha = (fecha: string | null): { diff: number; clase: string;
   const diff = Math.ceil((obj.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
   if (diff < 0)  return { diff, clase: 'text-red-600 font-bold', texto: `VENCIDA hace ${Math.abs(diff)} días` };
   if (diff === 0) return { diff, clase: 'text-red-500 font-bold', texto: 'HOY' };
-  if (diff <= 7)  return { diff, clase: 'text-orange-600 font-bold', texto: `en ${diff} días` };
+  if (diff <= 7)  return { diff, clase: 'text-sky-600 font-bold', texto: `en ${diff} días` };
   if (diff <= 30) return { diff, clase: 'text-yellow-600', texto: `en ${diff} días` };
   return { diff, clase: 'text-slate-600', texto: fmtFecha(fecha) };
 };
@@ -112,7 +112,7 @@ const TabInformacion: React.FC<{
         value={form[key]}
         onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
         className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg
-                   focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                   focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white"
       />
     </div>
   );
@@ -156,7 +156,7 @@ const TabInformacion: React.FC<{
           onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))}
           rows={4}
           className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg
-                     focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white resize-none"
+                     focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white resize-none"
         />
       </div>
 
@@ -171,8 +171,8 @@ const TabInformacion: React.FC<{
       <button
         onClick={handleGuardar}
         disabled={guardando}
-        className="flex items-center gap-2 px-5 py-2.5 bg-orange-500 text-white text-sm
-                   font-semibold rounded-lg hover:bg-orange-600 disabled:opacity-50 transition-colors"
+        className="flex items-center gap-2 px-5 py-2.5 bg-sky-500 text-white text-sm
+                   font-semibold rounded-lg hover:bg-sky-600 disabled:opacity-50 transition-colors"
       >
         <Save size={15} />
         {guardando ? 'Guardando...' : 'Guardar cambios'}
@@ -235,9 +235,9 @@ const TabGastos: React.FC<{
           <p className="text-xs text-slate-500">Saldo préstamo</p>
           <p className="text-base font-bold text-slate-700">{fmt(deudaBase)}</p>
         </div>
-        <div className="bg-orange-50 rounded-xl px-4 py-3">
+        <div className="bg-sky-50 rounded-xl px-4 py-3">
           <p className="text-xs text-slate-500">Total gastos legales</p>
-          <p className="text-base font-bold text-orange-600">{fmt(totalGastos)}</p>
+          <p className="text-base font-bold text-sky-600">{fmt(totalGastos)}</p>
         </div>
         <div className="bg-red-50 rounded-xl px-4 py-3 col-span-2 md:col-span-1">
           <p className="text-xs text-slate-500">Deuda total del cliente</p>
@@ -256,7 +256,7 @@ const TabGastos: React.FC<{
             onChange={(e) => setForm((f) => ({ ...f, concepto: e.target.value }))}
             required
             className="px-3 py-2 text-sm border border-slate-200 rounded-lg
-                       focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                       focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white"
           />
           <input
             type="number"
@@ -266,14 +266,14 @@ const TabGastos: React.FC<{
             min="0.01" step="0.01"
             required
             className="px-3 py-2 text-sm border border-slate-200 rounded-lg
-                       focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                       focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white"
           />
           <input
             type="date"
             value={form.fecha}
             onChange={(e) => setForm((f) => ({ ...f, fecha: e.target.value }))}
             className="px-3 py-2 text-sm border border-slate-200 rounded-lg
-                       focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                       focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white"
           />
           <input
             type="text"
@@ -281,15 +281,15 @@ const TabGastos: React.FC<{
             value={form.notas}
             onChange={(e) => setForm((f) => ({ ...f, notas: e.target.value }))}
             className="px-3 py-2 text-sm border border-slate-200 rounded-lg
-                       focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                       focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white"
           />
         </div>
         {error && <p className="text-xs text-red-600">{error}</p>}
         <button
           type="submit"
           disabled={guardando}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white text-sm
-                     font-semibold rounded-lg hover:bg-orange-600 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-sky-500 text-white text-sm
+                     font-semibold rounded-lg hover:bg-sky-600 disabled:opacity-50 transition-colors"
         >
           <Plus size={14} />
           {guardando ? 'Registrando...' : 'Agregar gasto'}
@@ -316,7 +316,7 @@ const TabGastos: React.FC<{
                 <tr key={g.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{fmtFecha(g.fecha)}</td>
                   <td className="px-4 py-3 font-medium text-slate-700">{g.concepto}</td>
-                  <td className="px-4 py-3 text-right font-semibold text-orange-600">{fmt(g.monto)}</td>
+                  <td className="px-4 py-3 text-right font-semibold text-sky-600">{fmt(g.monto)}</td>
                   <td className="px-4 py-3 text-slate-400 text-xs hidden sm:table-cell">{g.notas ?? '—'}</td>
                   <td className="px-4 py-3 text-right">
                     <button
@@ -431,7 +431,7 @@ const TabArchivero: React.FC<{
             className="flex items-center gap-2 px-4 py-2.5 border border-slate-200 bg-white
                        rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors"
           >
-            <FileText size={14} className="text-orange-500" />
+            <FileText size={14} className="text-sky-500" />
             Expediente completo del préstamo
           </Link>
         </div>
@@ -451,10 +451,10 @@ const TabArchivero: React.FC<{
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               className="px-3 py-2 text-sm border border-slate-200 rounded-lg
-                         focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                         focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white"
             />
             <label className="flex items-center gap-2 px-3 py-2 border border-dashed border-slate-300
-                              rounded-lg cursor-pointer hover:border-orange-400 transition-colors bg-white">
+                              rounded-lg cursor-pointer hover:border-sky-400 transition-colors bg-white">
               <Upload size={14} className="text-slate-400" />
               <span className="text-sm text-slate-500 truncate">
                 {archivo ? archivo.name : 'Seleccionar PDF...'}
@@ -470,8 +470,8 @@ const TabArchivero: React.FC<{
           <button
             type="submit"
             disabled={!archivo || subiendo}
-            className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white text-sm
-                       font-semibold rounded-lg hover:bg-orange-600 disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-sky-500 text-white text-sm
+                       font-semibold rounded-lg hover:bg-sky-600 disabled:opacity-50 transition-colors"
           >
             <Upload size={14} />
             {subiendo ? 'Cargando...' : 'Subir documento'}
@@ -576,14 +576,14 @@ const TabBitacora: React.FC<{
           rows={3}
           required
           className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg
-                     focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white resize-none"
+                     focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white resize-none"
         />
         {error && <p className="text-xs text-red-600">{error}</p>}
         <button
           type="submit"
           disabled={guardando}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white text-sm
-                     font-semibold rounded-lg hover:bg-orange-600 disabled:opacity-50 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-sky-500 text-white text-sm
+                     font-semibold rounded-lg hover:bg-sky-600 disabled:opacity-50 transition-colors"
         >
           <Plus size={14} />
           {guardando ? 'Registrando...' : 'Agregar entrada'}
@@ -597,9 +597,9 @@ const TabBitacora: React.FC<{
         <ol className="relative border-l border-slate-200 space-y-6 ml-2 sm:ml-3">
           {bitacora.map((entrada) => (
             <li key={entrada.id} className="ml-4 sm:ml-6">
-              <span className="absolute -left-2.5 w-5 h-5 bg-orange-100 rounded-full border-2
-                               border-orange-400 flex items-center justify-center">
-                <span className="w-1.5 h-1.5 bg-orange-500 rounded-full" />
+              <span className="absolute -left-2.5 w-5 h-5 bg-sky-100 rounded-full border-2
+                               border-sky-400 flex items-center justify-center">
+                <span className="w-1.5 h-1.5 bg-sky-500 rounded-full" />
               </span>
               <div className="bg-white border border-slate-200 rounded-xl px-4 py-3">
                 <div className="flex items-center gap-2 mb-1.5">

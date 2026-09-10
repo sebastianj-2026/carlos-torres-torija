@@ -148,7 +148,7 @@ const EmpleadosTab: React.FC = () => {
       <div className="flex items-center justify-between">
         <p className="text-sm text-slate-500">{empleados.length} empleados</p>
         <button onClick={openNew}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl transition-colors">
+          className="flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold rounded-xl transition-colors">
           <Plus size={15} /> Nuevo empleado
         </button>
       </div>
@@ -166,7 +166,7 @@ const EmpleadosTab: React.FC = () => {
               <div key={k}>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">{lbl}</label>
                 <input type={t} value={form[k]} onChange={e => set(k, e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
               </div>
             ))}
             <div>
@@ -174,13 +174,13 @@ const EmpleadosTab: React.FC = () => {
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">$</span>
                 <input type="number" min="0" step="0.01" value={form.sueldo_semanal} onChange={e => set('sueldo_semanal', e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl pl-6 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+                  className="w-full border border-slate-200 rounded-xl pl-6 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
               </div>
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Estatus</label>
               <select value={form.estatus} onChange={e => set('estatus', e.target.value as EstatusEmpleado)}
-                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white">
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-white">
                 <option value="Activo">Activo</option>
                 <option value="Inactivo">Inactivo</option>
                 <option value="Vacaciones">Vacaciones</option>
@@ -189,22 +189,22 @@ const EmpleadosTab: React.FC = () => {
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Días vac. / año</label>
               <input type="number" min="0" value={form.dias_vacaciones_totales} onChange={e => set('dias_vacaciones_totales', e.target.value)}
-                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Fecha de ingreso</label>
               <input type="date" value={form.fecha_ingreso} onChange={e => set('fecha_ingreso', e.target.value)}
-                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
             </div>
             <div className="sm:col-span-2">
               <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Notas</label>
               <input value={form.notas} onChange={e => set('notas', e.target.value)}
-                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+                className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
             </div>
           </div>
           <div className="flex gap-3">
             <button onClick={guardar} disabled={saving}
-              className="flex items-center gap-2 px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold rounded-xl disabled:opacity-40 transition-colors">
+              className="flex items-center gap-2 px-5 py-2.5 bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold rounded-xl disabled:opacity-40 transition-colors">
               <Check size={14} /> {saving ? 'Guardando…' : 'Guardar'}
             </button>
             <button onClick={() => setShowForm(false)}
@@ -233,7 +233,7 @@ const EmpleadosTab: React.FC = () => {
                     <p className="text-xs text-slate-400 truncate">{e.puesto}</p>
                   </div>
                   <select value={e.estatus} onChange={ev => handleEstatus(e, ev.target.value as EstatusEmpleado)}
-                    className={`shrink-0 text-xs font-semibold border rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white cursor-pointer ${ESTATUS_COLOR[e.estatus]}`}>
+                    className={`shrink-0 text-xs font-semibold border rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-sky-300 bg-white cursor-pointer ${ESTATUS_COLOR[e.estatus]}`}>
                     <option value="Activo">Activo</option>
                     <option value="Inactivo">Inactivo</option>
                     <option value="Vacaciones">Vacaciones</option>
@@ -269,7 +269,7 @@ const EmpleadosTab: React.FC = () => {
                       disabled={!e.activo_imss}
                       onChange={ev => setImssEdit(p => ({ ...p, [e.id]: ev.target.value }))}
                       onBlur={() => handleImssMonto(e)}
-                      className="w-20 pl-5 pr-1 py-1 border border-slate-200 rounded-lg text-xs text-right focus:outline-none focus:ring-1 focus:ring-orange-300 disabled:opacity-30 bg-white"
+                      className="w-20 pl-5 pr-1 py-1 border border-slate-200 rounded-lg text-xs text-right focus:outline-none focus:ring-1 focus:ring-sky-300 disabled:opacity-30 bg-white"
                     />
                   </div>
                   <span className="text-[10px] text-slate-400">/mes</span>

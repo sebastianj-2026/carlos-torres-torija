@@ -32,7 +32,7 @@ const TablaClientes: React.FC<TablaClientesProps> = ({ datos, cargando, onCambia
     return (
       <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-12 flex justify-center items-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-8 h-8 border-2 border-sky-500 border-t-transparent rounded-full animate-spin" />
           <p className="text-sm text-slate-400">Cargando clientes...</p>
         </div>
       </div>
@@ -78,7 +78,7 @@ const TablaClientes: React.FC<TablaClientesProps> = ({ datos, cargando, onCambia
             {datos.clientes.map((cliente) => (
               <tr
                 key={cliente.id}
-                className="hover:bg-orange-50/40 transition-colors duration-100 cursor-pointer"
+                className="hover:bg-sky-50/40 transition-colors duration-100 cursor-pointer"
                 onClick={() => navigate(`/clientes/${cliente.id}`)}
               >
                 <td className="px-3 py-3 font-medium truncate max-w-0">
@@ -153,7 +153,7 @@ const TablaClientes: React.FC<TablaClientesProps> = ({ datos, cargando, onCambia
                   onClick={() => onCambiarPagina(p)}
                   className={`w-8 h-8 text-xs rounded-lg font-medium transition-colors ${
                     p === datos.pagina
-                      ? 'bg-orange-500 text-white'
+                      ? 'bg-sky-500 text-white'
                       : 'text-slate-500 hover:bg-slate-100'
                   }`}
                 >

@@ -33,7 +33,7 @@ const BuscadorClientes: React.FC<BuscadorClientesProps> = ({ filtros, onChange }
           onChange={(e) => onChange({ buscar: e.target.value, pagina: 1 })}
           className="w-full pl-9 pr-4 py-2.5 text-sm border border-slate-200 rounded-lg
                      bg-white text-slate-800 placeholder-slate-400
-                     focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent
+                     focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent
                      transition-all duration-150"
         />
         {filtros.buscar && (
@@ -53,7 +53,7 @@ const BuscadorClientes: React.FC<BuscadorClientesProps> = ({ filtros, onChange }
         value={filtros.estatus}
         onChange={(e) => onChange({ estatus: e.target.value as EstatusCliente | '', pagina: 1 })}
         className="px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white text-slate-700
-                   focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent
+                   focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent
                    transition-all duration-150 min-w-[180px]"
       >
         {ESTATUS_OPCIONES.map((op) => (

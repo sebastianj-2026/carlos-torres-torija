@@ -20,14 +20,13 @@ import FormularioCliente from './pages/clientes/FormularioCliente';
 import ExpedienteCliente from './pages/clientes/ExpedienteCliente';
 
 // Módulo inversionistas
+import ListaReferenciadores from './pages/referenciadores/ListaReferenciadores';
+import DetalleReferenciador from './pages/referenciadores/DetalleReferenciador';
+import FormularioReferenciador from './pages/referenciadores/FormularioReferenciador';
 import ListaInversionistas from './pages/inversionistas/ListaInversionistas';
 import PerfilInversionista from './pages/inversionistas/PerfilInversionista';
 import FormularioInversionista from './pages/inversionistas/FormularioInversionista';
 import ImportarInversionistas from './pages/inversionistas/ImportarInversionistas';
-import CapturaAportacion from './pages/personas/CapturaAportacion';
-import CorteMes from './pages/comisiones/CorteMes';
-import PagosPendientes from './pages/comisiones/PagosPendientes';
-import EstadoCuenta from './pages/comisiones/EstadoCuenta';
 
 // Módulo préstamos
 import ListaPrestamos from './pages/prestamos/ListaPrestamos';
@@ -145,58 +144,44 @@ const App: React.FC = () => {
             }
           />
 
-          {/* Personas — captura de aportación con referidor (solo administrador) */}
+          {/* Referenciadores — todos los roles */}
           <Route
-            path="/personas/aportacion"
+            path="/referenciadores"
             element={
               <ProtectedRoute>
-                <RoleGuard rolesPermitidos={['administrador']}>
-                  <Layout>
-                    <CapturaAportacion />
-                  </Layout>
-                </RoleGuard>
+                <Layout>
+                  <ListaReferenciadores />
+                </Layout>
               </ProtectedRoute>
             }
           />
-
-          {/* Comisiones — corte del mes (solo administrador) */}
           <Route
-            path="/comisiones/corte"
+            path="/referenciadores/nuevo"
             element={
               <ProtectedRoute>
-                <RoleGuard rolesPermitidos={['administrador']}>
-                  <Layout>
-                    <CorteMes />
-                  </Layout>
-                </RoleGuard>
+                <Layout>
+                  <FormularioReferenciador />
+                </Layout>
               </ProtectedRoute>
             }
           />
-
-          {/* Comisiones — pagos pendientes (solo administrador) */}
           <Route
-            path="/comisiones/pendientes"
+            path="/referenciadores/:id/editar"
             element={
               <ProtectedRoute>
-                <RoleGuard rolesPermitidos={['administrador']}>
-                  <Layout>
-                    <PagosPendientes />
-                  </Layout>
-                </RoleGuard>
+                <Layout>
+                  <FormularioReferenciador />
+                </Layout>
               </ProtectedRoute>
             }
           />
-
-          {/* Comisiones — estado de cuenta por persona (solo administrador) */}
           <Route
-            path="/comisiones/estado-cuenta"
+            path="/referenciadores/:id"
             element={
               <ProtectedRoute>
-                <RoleGuard rolesPermitidos={['administrador']}>
-                  <Layout>
-                    <EstadoCuenta />
-                  </Layout>
-                </RoleGuard>
+                <Layout>
+                  <DetalleReferenciador />
+                </Layout>
               </ProtectedRoute>
             }
           />

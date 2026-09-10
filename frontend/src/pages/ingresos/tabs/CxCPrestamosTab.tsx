@@ -82,9 +82,9 @@ const ModalCobroPrestamo: React.FC<ModalCobroProps> = ({ prestamo, mes, anio, on
               <p className="text-[11px] text-slate-400 uppercase tracking-wide">Capital</p>
               <p className="font-bold text-slate-700">{fmt(prestamo.capital_prestado)}</p>
             </div>
-            <div className="bg-orange-50 rounded-xl p-3">
+            <div className="bg-sky-50 rounded-xl p-3">
               <p className="text-[11px] text-slate-400 uppercase tracking-wide">Interés</p>
-              <p className="font-bold text-orange-600">{fmt(prestamo.monto_interes)}</p>
+              <p className="font-bold text-sky-600">{fmt(prestamo.monto_interes)}</p>
             </div>
             <div className="bg-emerald-50 rounded-xl p-3">
               <p className="text-[11px] text-slate-400 uppercase tracking-wide">Pendiente</p>
@@ -164,7 +164,7 @@ const FilaPrestamo: React.FC<FilaProps> = ({ prestamo: p, onCobrar }) => (
       <p className="text-xs text-slate-400">Folio {p.folio} · {p.tasa_interes_mensual}% mensual</p>
     </td>
     <td className="px-4 py-3 text-right text-sm text-blue-700 font-semibold hidden sm:table-cell">{fmt(p.capital_prestado)}</td>
-    <td className="px-4 py-3 text-right text-sm font-bold text-orange-600">{fmt(p.monto_interes)}</td>
+    <td className="px-4 py-3 text-right text-sm font-bold text-sky-600">{fmt(p.monto_interes)}</td>
     <td className="px-4 py-3 text-center">
       <EstatusChip estatus={p.estatus_proyeccion} />
     </td>
@@ -303,7 +303,7 @@ const CxCPrestamosTab: React.FC<{ mes: number; anio: number }> = ({ mes, anio })
                   <th className="px-4 py-3 text-center hidden sm:table-cell">Día</th>
                   <th className="px-4 py-3 text-left">Cliente</th>
                   <th className="px-4 py-3 text-right text-blue-600 hidden sm:table-cell">Capital</th>
-                  <th className="px-4 py-3 text-right text-orange-500">Interés a Cobrar</th>
+                  <th className="px-4 py-3 text-right text-sky-500">Interés a Cobrar</th>
                   <th className="px-4 py-3 text-center">Estatus</th>
                   <th className="px-4 py-3 text-center">Acción</th>
                 </tr>
@@ -320,7 +320,7 @@ const CxCPrestamosTab: React.FC<{ mes: number; anio: number }> = ({ mes, anio })
                     <td className="px-4 py-3 text-right text-sm font-bold text-blue-700 hidden sm:table-cell">
                       {fmt(datos.prestamos.reduce((s, p) => s + p.capital_prestado, 0))}
                     </td>
-                    <td className="px-4 py-3 text-right text-sm font-bold text-orange-600">{fmt(t.total_esperado)}</td>
+                    <td className="px-4 py-3 text-right text-sm font-bold text-sky-600">{fmt(t.total_esperado)}</td>
                     <td />
                     <td />
                   </tr>

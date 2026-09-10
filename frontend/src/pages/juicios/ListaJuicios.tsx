@@ -47,7 +47,7 @@ const calcularAlerta = (fecha: string | null): AlertaFechaCritica | null => {
   if (diff <= 7) {
     return {
       texto: `en ${diff} día${diff !== 1 ? 's' : ''}`,
-      clase: 'bg-orange-100 text-orange-700 border border-orange-200',
+      clase: 'bg-sky-100 text-sky-700 border border-sky-200',
       icono: <AlertTriangle size={12} />,
     };
   }
@@ -75,7 +75,7 @@ const TarjetaJuicio: React.FC<{ juicio: JuicioResumen; onClick: () => void }> = 
     <article
       onClick={onClick}
       className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md
-                 hover:border-orange-200 transition-all duration-200 cursor-pointer overflow-hidden group"
+                 hover:border-sky-200 transition-all duration-200 cursor-pointer overflow-hidden group"
     >
       {/* Header */}
       <div className="px-5 pt-5 pb-4 border-b border-slate-100">
@@ -95,7 +95,7 @@ const TarjetaJuicio: React.FC<{ juicio: JuicioResumen; onClick: () => void }> = 
           )}
         </div>
 
-        <h3 className="text-lg font-bold text-slate-800 leading-snug group-hover:text-orange-600
+        <h3 className="text-lg font-bold text-slate-800 leading-snug group-hover:text-sky-600
                        transition-colors">
           {juicio.cliente_nombre}
         </h3>
@@ -163,7 +163,7 @@ const TarjetaJuicio: React.FC<{ juicio: JuicioResumen; onClick: () => void }> = 
 
       {/* Footer */}
       <div className="px-5 pb-4 flex justify-end">
-        <span className="text-xs text-orange-500 font-medium flex items-center gap-1
+        <span className="text-xs text-sky-500 font-medium flex items-center gap-1
                          group-hover:gap-2 transition-all duration-150">
           Ver expediente <ChevronRight size={13} />
         </span>
@@ -210,7 +210,7 @@ const ListaJuicios: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <Gavel size={22} className="text-orange-500" />
+            <Gavel size={22} className="text-sky-500" />
             Juicios — Recuperación Legal
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">
@@ -237,13 +237,13 @@ const ListaJuicios: React.FC = () => {
             onChange={(e) => setBuscar(e.target.value)}
             placeholder="Buscar cliente, folio, abogado..."
             className="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-lg
-                       focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white"
+                       focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white"
           />
         </div>
         <button
           type="submit"
-          className="px-4 py-2 bg-orange-500 text-white text-sm font-medium rounded-lg
-                     hover:bg-orange-600 transition-colors"
+          className="px-4 py-2 bg-sky-500 text-white text-sm font-medium rounded-lg
+                     hover:bg-sky-600 transition-colors"
         >
           Buscar
         </button>

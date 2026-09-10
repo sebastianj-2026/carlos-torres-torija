@@ -113,7 +113,7 @@ const ModalPagoFlash: React.FC<ModalPagoFlashProps> = ({ deuda, onCerrar, onExit
                   onChange={e => setMonto(e.target.value)}
                   placeholder="0.00"
                   required
-                  className="w-full pl-7 pr-4 py-3 border border-slate-200 rounded-xl text-base text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                  className="w-full pl-7 pr-4 py-3 border border-slate-200 rounded-xl text-base text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300"
                 />
               </div>
             </div>
@@ -123,10 +123,10 @@ const ModalPagoFlash: React.FC<ModalPagoFlashProps> = ({ deuda, onCerrar, onExit
               <div className={`rounded-xl px-4 py-2.5 flex items-center justify-between text-sm ${
                 nuevoSaldo === 0
                   ? 'bg-emerald-50 border border-emerald-200'
-                  : 'bg-orange-50 border border-orange-200'
+                  : 'bg-sky-50 border border-sky-200'
               }`}>
                 <span className="text-slate-600 font-medium">Nuevo saldo pendiente:</span>
-                <span className={`font-bold ${nuevoSaldo === 0 ? 'text-emerald-600' : 'text-orange-600'}`}>
+                <span className={`font-bold ${nuevoSaldo === 0 ? 'text-emerald-600' : 'text-sky-600'}`}>
                   {nuevoSaldo === 0 ? '¡Liquidado! ' : ''}{fmt(nuevoSaldo)}
                 </span>
               </div>
@@ -140,7 +140,7 @@ const ModalPagoFlash: React.FC<ModalPagoFlashProps> = ({ deuda, onCerrar, onExit
                 value={notas}
                 onChange={e => setNotas(e.target.value)}
                 placeholder="Referencia, folio de transferencia…"
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-300"
               />
             </div>
 
@@ -157,7 +157,7 @@ const ModalPagoFlash: React.FC<ModalPagoFlashProps> = ({ deuda, onCerrar, onExit
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-xl py-2.5 text-sm text-slate-500 hover:border-orange-300 hover:text-orange-500 transition-colors"
+                className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-xl py-2.5 text-sm text-slate-500 hover:border-sky-300 hover:text-sky-500 transition-colors"
               >
                 <Upload size={16} />
                 {archivo ? archivo.name : 'Subir PDF o imagen'}
@@ -179,7 +179,7 @@ const ModalPagoFlash: React.FC<ModalPagoFlashProps> = ({ deuda, onCerrar, onExit
               <button
                 type="submit"
                 disabled={enviando || !montoNum}
-                className="flex-1 py-2.5 bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 bg-sky-500 hover:bg-sky-600 disabled:opacity-50 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2"
               >
                 {enviando ? <Loader2 size={16} className="animate-spin" /> : null}
                 {enviando ? 'Guardando…' : 'Confirmar pago'}

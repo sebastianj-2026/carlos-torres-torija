@@ -15,7 +15,7 @@ const fmtFecha = (iso: string) =>
 
 const inputCls = `w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white
   text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2
-  focus:ring-orange-400 focus:border-transparent transition-all`;
+  focus:ring-sky-400 focus:border-transparent transition-all`;
 
 const DATOS_VACIOS: FormTraspasoData = {
   cuenta_origen_id: '',
@@ -123,7 +123,7 @@ const SeccionTraspasos: React.FC = () => {
         </p>
         <button
           onClick={abrirModal}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600
+          className="flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600
                      text-white text-sm font-medium rounded-xl shadow-sm transition-colors"
         >
           <Plus size={15} />
@@ -142,7 +142,7 @@ const SeccionTraspasos: React.FC = () => {
         <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center">
           <ArrowRightLeft size={32} className="text-slate-300 mx-auto mb-3" />
           <p className="text-slate-400 text-sm">Sin traspasos registrados.</p>
-          <button onClick={abrirModal} className="mt-3 text-orange-500 text-sm font-medium hover:underline">
+          <button onClick={abrirModal} className="mt-3 text-sky-500 text-sm font-medium hover:underline">
             Registrar primer traspaso
           </button>
         </div>
@@ -173,14 +173,14 @@ const SeccionTraspasos: React.FC = () => {
                   <td className="px-4 py-3 text-slate-500 max-w-[200px] truncate">
                     {t.concepto ?? '—'}
                   </td>
-                  <td className="px-4 py-3 text-right font-semibold text-orange-600 whitespace-nowrap">
+                  <td className="px-4 py-3 text-right font-semibold text-sky-600 whitespace-nowrap">
                     {fmt(t.monto)}
                   </td>
                   <td className="px-4 py-3 text-right">
                     {t.voucher_nombre && (
                       <button
                         onClick={() => verVoucher(t.id)}
-                        className="p-1.5 text-slate-400 hover:text-orange-500 rounded-lg hover:bg-orange-50 transition-colors"
+                        className="p-1.5 text-slate-400 hover:text-sky-500 rounded-lg hover:bg-sky-50 transition-colors"
                         title="Ver comprobante"
                       >
                         <ExternalLink size={14} />
@@ -238,7 +238,7 @@ const SeccionTraspasos: React.FC = () => {
               {/* Origen */}
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">
-                  Origen <span className="text-orange-500">*</span>
+                  Origen <span className="text-sky-500">*</span>
                 </label>
                 <select
                   value={form.cuenta_origen_id}
@@ -255,7 +255,7 @@ const SeccionTraspasos: React.FC = () => {
               {/* Destino */}
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">
-                  Destino <span className="text-orange-500">*</span>
+                  Destino <span className="text-sky-500">*</span>
                 </label>
                 <select
                   value={form.cuenta_destino_id}
@@ -272,7 +272,7 @@ const SeccionTraspasos: React.FC = () => {
               {/* Monto */}
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">
-                  Monto (MXN) <span className="text-orange-500">*</span>
+                  Monto (MXN) <span className="text-sky-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -288,7 +288,7 @@ const SeccionTraspasos: React.FC = () => {
               {/* Fecha */}
               <div>
                 <label className="block text-xs font-medium text-slate-600 mb-1">
-                  Fecha <span className="text-orange-500">*</span>
+                  Fecha <span className="text-sky-500">*</span>
                 </label>
                 <input
                   type="date"
@@ -321,7 +321,7 @@ const SeccionTraspasos: React.FC = () => {
                   onChange={(e) => setVoucher(e.target.files?.[0] ?? null)}
                   className="w-full text-sm text-slate-500 file:mr-3 file:py-1.5 file:px-3
                     file:rounded-lg file:border-0 file:text-xs file:font-medium
-                    file:bg-orange-50 file:text-orange-600 hover:file:bg-orange-100"
+                    file:bg-sky-50 file:text-sky-600 hover:file:bg-sky-100"
                 />
                 {voucher && (
                   <p className="text-[11px] text-slate-400 mt-1 truncate">{voucher.name}</p>
@@ -341,7 +341,7 @@ const SeccionTraspasos: React.FC = () => {
               <button
                 onClick={handleGuardar}
                 disabled={guardando}
-                className="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium
+                className="px-5 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium
                            rounded-xl transition-colors disabled:opacity-60"
               >
                 {guardando ? 'Registrando...' : 'Registrar traspaso'}

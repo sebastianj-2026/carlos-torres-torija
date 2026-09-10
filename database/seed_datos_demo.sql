@@ -111,20 +111,20 @@ BEGIN
   -- ================================================================
   -- 2. INVERSIONISTAS (4) + INVERSIONES
   -- ================================================================
-  INSERT INTO inversionistas (nombres, apellido_paterno, apellido_materno, telefono, correo, asignado_a)
-  VALUES ('Eduardo', 'Sánchez', 'Gutiérrez', '5511001001', 'eduardo.sg@gmail.com', 'sebastian')
+  INSERT INTO inversionistas (nombres, apellido_paterno, apellido_materno, telefono, correo)
+  VALUES ('Eduardo', 'Sánchez', 'Gutiérrez', '5511001001', 'eduardo.sg@gmail.com')
   RETURNING id INTO inv1;
 
-  INSERT INTO inversionistas (nombres, apellido_paterno, apellido_materno, telefono, correo, asignado_a)
-  VALUES ('Daniela', 'Romero', 'Luna', '5511002002', 'daniela.romero@gmail.com', 'sebastian')
+  INSERT INTO inversionistas (nombres, apellido_paterno, apellido_materno, telefono, correo)
+  VALUES ('Daniela', 'Romero', 'Luna', '5511002002', 'daniela.romero@gmail.com')
   RETURNING id INTO inv2;
 
-  INSERT INTO inversionistas (nombres, apellido_paterno, apellido_materno, telefono, correo, asignado_a)
-  VALUES ('Carlos', 'Jiménez', 'Peña', '3311003003', 'carlos.jp@gmail.com', 'abril')
+  INSERT INTO inversionistas (nombres, apellido_paterno, apellido_materno, telefono, correo)
+  VALUES ('Carlos', 'Jiménez', 'Peña', '3311003003', 'carlos.jp@gmail.com')
   RETURNING id INTO inv3;
 
-  INSERT INTO inversionistas (nombres, apellido_paterno, apellido_materno, telefono, correo, asignado_a)
-  VALUES ('Sofía', 'Navarro', 'Reyes', '3311004004', 'sofia.navarro@gmail.com', 'abril')
+  INSERT INTO inversionistas (nombres, apellido_paterno, apellido_materno, telefono, correo)
+  VALUES ('Sofía', 'Navarro', 'Reyes', '3311004004', 'sofia.navarro@gmail.com')
   RETURNING id INTO inv4;
 
   INSERT INTO inversiones (inversionista_id, monto_inicial, monto_actual, tasa_interes_mensual,

@@ -30,7 +30,7 @@ if [[ ! -f "${METODOLOGIA_ROOT:-}/base/gate.base.sh" ]]; then
 fi
 
 # Versión heredada que este proyecto acepta. La sube /auditar-proyecto, no sola.
-METODOLOGIA_VERSION="0.1.0"
+METODOLOGIA_VERSION="0.1.2"
 
 source "$METODOLOGIA_ROOT/perfiles/frontback-drizzle.sh"
 source "$METODOLOGIA_ROOT/base/gate.base.sh"
@@ -59,7 +59,9 @@ CMD_LINT=""
 # Backend con Vitest (T-001 montó el harness). `npm test` = `vitest run` (una vez).
 # El front sigue con craco test pero su smoke default está roto por RRD v7 (deuda).
 CMD_TEST="npm test --prefix backend"
-CMD_TEST_MODULO="npm test --prefix backend --"   # filtra por nombre de archivo/módulo
+# --passWithNoTests: un módulo sin tests pasa en vez de reventar. El repo hoy no
+# tiene tests por módulo (deuda en ESTADO); vitest sale 1 si el filtro no matchea.
+CMD_TEST_MODULO="npm test --prefix backend -- --passWithNoTests"   # filtra por nombre de archivo/módulo
 
 # Build de producción del front (craco). El del back es `tsc` vía build script.
 CMD_BUILD="npm run build --prefix frontend"

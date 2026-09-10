@@ -20,4 +20,11 @@ mismo patrón cuatro veces y lo pagas cuatro veces.
 
 | # | Fecha | Qué hizo mal | Veces | Estado | Dónde quedó |
 |---|---|---|---|---|---|
-| C-01 | | | | 👀 | |
+| C-01 | 2026-08-19 | El check `reglas de negocio definidas` usaba `grep -r` crudo sobre `docs/`: matcheaba la **prosa** que describe el criterio, no solo la marca. `DEFINICION-DE-LISTO.md` —que la metodología entrega a todo proyecto— disparaba el check contra sí misma. Gate rojo desde el día uno, sin una sola regla pendiente. | 1 | 🌎 | `gate.base.sh` v0.1.1: el marcador solo cuenta como **encabezado** |
+| C-02 | 2026-08-19 | El mismo check barría **todo** `docs/`, así que un módulo detenido por regla sin definir congelaba el repo entero — ninguna tarea de ningún otro módulo podía cerrar en verde. Contradice la propia metodología: *"un módulo bloqueado se detiene"*, no el proyecto. | 1 | 🌎 | `gate.base.sh` v0.1.1: si hay `GATE_MODULO`, el barrido se limita a ese módulo |
+| C-03 | 2026-08-19 | El perfil `ui` exigía `screenshots generados` en `$DIR_SCREENS` de forma incondicional. En un repo sin harness e2e (`CMD_E2E_RESPONSIVE` vacío) esos PNG no se pueden generar → el check nunca podía pasar. Mismo patrón que C-01: check que se rechaza a sí mismo. Bloqueó el cierre de M10b (`ui`). | 1 | 🌎 | `gate.base.sh` v0.1.2: `screenshots generados` solo corre si hay `CMD_E2E_RESPONSIVE` declarado |
+
+> Las dos subieron directo al piso 🌎 sin pasar por 🔒 ni ⚙️: no son un error de
+> criterio de Claude, son defectos del check heredado. Se descubrieron intentando
+> cerrar M1 con el Bloque B/C bloqueado. Cualquier proyecto que adopte la
+> metodología los hereda, así que arreglarlos abajo era pagarlos una sola vez.

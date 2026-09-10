@@ -191,8 +191,8 @@ const Dashboard: React.FC = () => {
 
   const egresosSlices: Slice[] = [
     { label: 'Abril',          value: bc.abril,          color: '#f43f5e' },
-    { label: 'Oficina',        value: bc.oficina,        color: '#fb923c' },
-    { label: 'Nóminas',        value: bc.nominas,        color: '#f97316' },
+    { label: 'Oficina',        value: bc.oficina,        color: '#38bdf8' },
+    { label: 'Nóminas',        value: bc.nominas,        color: '#0ea5e9' },
     { label: 'Inversionistas', value: bc.inversionistas, color: '#8b5cf6' },
     { label: 'Créditos',       value: bc.creditos,       color: '#ef4444' },
     { label: 'Extras',         value: bc.extras,         color: '#94a3b8' },

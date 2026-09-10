@@ -119,7 +119,7 @@ const ExpedientePrestamo: React.FC = () => {
     return (
       <div className="p-6 lg:p-8 text-center">
         <p className="text-red-600 mb-4">{error ?? 'Préstamo no encontrado.'}</p>
-        <button onClick={() => navigate('/prestamos')} className="text-orange-500 underline">
+        <button onClick={() => navigate('/prestamos')} className="text-sky-500 underline">
           Volver a la lista
         </button>
       </div>
@@ -182,7 +182,7 @@ const ExpedientePrestamo: React.FC = () => {
                       key={e}
                       onClick={() => handleCambiarEstatus(e)}
                       className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 capitalize
-                        ${expediente.estatus === e ? 'text-orange-600 font-semibold' : 'text-slate-700'}`}
+                        ${expediente.estatus === e ? 'text-sky-600 font-semibold' : 'text-slate-700'}`}
                     >
                       {ETIQUETAS_ESTATUS_PRESTAMO[e]}
                     </button>
@@ -204,7 +204,7 @@ const ExpedientePrestamo: React.FC = () => {
           <button
             onClick={() => setModalPago(true)}
             className="flex items-center gap-2 px-4 py-2 text-sm font-medium
-                       bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors"
+                       bg-sky-500 text-white rounded-xl hover:bg-sky-600 transition-colors"
           >
             <DollarSign size={14} />
             Registrar pago
@@ -225,7 +225,7 @@ const ExpedientePrestamo: React.FC = () => {
               </div>
               <div className="flex justify-between items-center">
                 <p className="text-xs text-slate-500">Saldo pendiente</p>
-                <p className="font-bold text-orange-600">{fmt(expediente.saldo_pendiente)}</p>
+                <p className="font-bold text-sky-600">{fmt(expediente.saldo_pendiente)}</p>
               </div>
 
               {/* Barra de progreso de pagos */}
@@ -237,7 +237,7 @@ const ExpedientePrestamo: React.FC = () => {
                   </span>
                 </div>
                 <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-orange-400 rounded-full transition-all" style={{ width: `${pct}%` }} />
+                  <div className="h-full bg-sky-400 rounded-full transition-all" style={{ width: `${pct}%` }} />
                 </div>
               </div>
 
@@ -310,7 +310,7 @@ const ExpedientePrestamo: React.FC = () => {
               <h3 className="font-semibold text-slate-700 text-sm mb-4">Distribución del capital</h3>
               {parseFloat(expediente.comision_gestion_pct) > 0 && (
                 <div className="mb-3 flex items-center justify-between text-xs bg-purple-50 border border-purple-100 rounded-lg px-3 py-2">
-                  <span className="text-purple-600 font-medium">Comisión de gestión (Oficina TS)</span>
+                  <span className="text-purple-600 font-medium">Comisión de gestión (PrestaFácil)</span>
                   <span className="font-bold text-purple-700">{expediente.comision_gestion_pct}%</span>
                 </div>
               )}
@@ -335,9 +335,9 @@ const ExpedientePrestamo: React.FC = () => {
                       if (part.es_oficina) {
                         const totalOficina = interesPropio + diferencialTotal;
                         return (
-                          <div key={part.id} className="rounded-xl p-3 border bg-orange-50/60 border-orange-100">
+                          <div key={part.id} className="rounded-xl p-3 border bg-sky-50/60 border-sky-100">
                             <div className="flex items-center justify-between mb-2">
-                              <p className="text-xs font-semibold text-orange-700">Oficina TS</p>
+                              <p className="text-xs font-semibold text-sky-700">PrestaFácil</p>
                               <span className="text-xs text-slate-400">{tasa}%</span>
                             </div>
                             <div className="space-y-1 text-xs text-slate-500">
@@ -346,13 +346,13 @@ const ExpedientePrestamo: React.FC = () => {
                                 <span>Interés propio: <span className="font-semibold">{fmt(interesPropio)}/mes</span></span>
                               </div>
                               {diferencialTotal > 0.009 && (
-                                <div className="flex justify-between text-orange-600">
+                                <div className="flex justify-between text-sky-600">
                                   <span>+ Diferencial de tasa (inversionistas)</span>
                                   <span className="font-semibold">+ {fmt(diferencialTotal)}/mes</span>
                                 </div>
                               )}
-                              <div className="flex justify-between font-bold text-green-700 border-t border-orange-100 pt-1 mt-1">
-                                <span>Total Oficina TS</span>
+                              <div className="flex justify-between font-bold text-green-700 border-t border-sky-100 pt-1 mt-1">
+                                <span>Total PrestaFácil</span>
                                 <span>{fmt(totalOficina)}/mes</span>
                               </div>
                             </div>
@@ -401,7 +401,7 @@ const ExpedientePrestamo: React.FC = () => {
                 onClick={() => setTabActiva(tab.id)}
                 className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg text-sm font-medium transition-all ${
                   tabActiva === tab.id
-                    ? 'bg-orange-500 text-white shadow-sm'
+                    ? 'bg-sky-500 text-white shadow-sm'
                     : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                 }`}
               >
@@ -419,7 +419,7 @@ const ExpedientePrestamo: React.FC = () => {
                   <button
                     onClick={() => setModalPago(true)}
                     className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium
-                               bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                               bg-sky-500 text-white rounded-lg hover:bg-sky-600 transition-colors"
                   >
                     <DollarSign size={12} />
                     Registrar
@@ -444,7 +444,7 @@ const ExpedientePrestamo: React.FC = () => {
                         <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Archivos PDF</p>
                         {completos
                           ? <span className="flex items-center gap-1 text-xs font-semibold text-green-600"><CheckCircle2 size={13} /> Completos</span>
-                          : <span className="flex items-center gap-1 text-xs font-semibold text-orange-500"><XCircle size={13} /> {TIPOS_PDF.filter((t) => !subidos.has(t)).length} pendiente(s)</span>
+                          : <span className="flex items-center gap-1 text-xs font-semibold text-sky-500"><XCircle size={13} /> {TIPOS_PDF.filter((t) => !subidos.has(t)).length} pendiente(s)</span>
                         }
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

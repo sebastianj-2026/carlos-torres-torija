@@ -51,7 +51,7 @@ const ProveedoresTab: React.FC = () => {
     <div>
       <div className="flex justify-end mb-5">
         <button onClick={() => abrir()}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium rounded-xl shadow-sm shadow-orange-500/25">
+          className="flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium rounded-xl shadow-sm shadow-sky-500/25">
           <Plus size={16} /> Nuevo proveedor
         </button>
       </div>
@@ -118,30 +118,30 @@ const ProveedoresTab: React.FC = () => {
               <div>
                 <label className="text-xs text-slate-500">Nombre / Razón Social *</label>
                 <input value={form.nombre_razon_social} onChange={e => setForm(f => ({ ...f, nombre_razon_social: e.target.value }))}
-                  className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                  className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500">RFC</label>
                   <input value={form.rfc} onChange={e => setForm(f => ({ ...f, rfc: e.target.value }))}
-                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-500">Banco</label>
                   <input value={form.banco} onChange={e => setForm(f => ({ ...f, banco: e.target.value }))}
-                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400" />
+                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500">CLABE</label>
                   <input value={form.clabe} onChange={e => setForm(f => ({ ...f, clabe: e.target.value }))} maxLength={18}
-                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 font-mono" />
+                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 font-mono" />
                 </div>
                 <div>
                   <label className="text-xs text-slate-500">Moneda</label>
                   <select value={form.moneda_defecto} onChange={e => setForm(f => ({ ...f, moneda_defecto: e.target.value }))}
-                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400 bg-white">
+                    className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-400 bg-white">
                     <option>MXN</option><option>USD</option>
                   </select>
                 </div>
@@ -150,7 +150,7 @@ const ProveedoresTab: React.FC = () => {
             <div className="flex gap-3 mt-5">
               <button onClick={() => setModal(false)} className="flex-1 py-2 text-sm border border-slate-200 rounded-xl hover:bg-slate-50">Cancelar</button>
               <button onClick={guardar} disabled={guardando}
-                className="flex-1 py-2 text-sm bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-medium disabled:opacity-50">
+                className="flex-1 py-2 text-sm bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-medium disabled:opacity-50">
                 {guardando ? 'Guardando…' : 'Guardar'}
               </button>
             </div>

@@ -120,11 +120,11 @@ const BankCard: React.FC<{
       <div className="flex items-center justify-between px-1">
         <div>
           <p className="text-[10px] text-slate-400 uppercase tracking-wide">Saldo actual</p>
-          <p className="text-xl font-bold text-orange-600">{fmt(c.saldo_actual)}</p>
+          <p className="text-xl font-bold text-sky-600">{fmt(c.saldo_actual)}</p>
         </div>
         <div className="flex gap-1">
           <button onClick={onEditar}
-            className="p-2 text-slate-400 hover:text-orange-500 rounded-xl hover:bg-orange-50 transition-colors">
+            className="p-2 text-slate-400 hover:text-sky-500 rounded-xl hover:bg-sky-50 transition-colors">
             <Pencil size={14} />
           </button>
           {esAdmin && (
@@ -259,7 +259,7 @@ const SeccionCuentas: React.FC = () => {
      placeholder-slate-300 focus:outline-none focus:ring-2 transition-all ${
        err
          ? 'border-red-300 focus:ring-red-400'
-         : 'border-slate-200 focus:ring-orange-400'
+         : 'border-slate-200 focus:ring-sky-400'
      }`;
 
   return (
@@ -275,7 +275,7 @@ const SeccionCuentas: React.FC = () => {
           )}
         </p>
         <button onClick={abrirCrear}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600
+          className="flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600
                      text-white text-sm font-medium rounded-xl shadow-sm transition-colors">
           <Plus size={15} /> Nueva cuenta
         </button>
@@ -292,7 +292,7 @@ const SeccionCuentas: React.FC = () => {
         <div className="bg-white rounded-2xl border border-slate-100 p-12 text-center">
           <Landmark size={32} className="text-slate-300 mx-auto mb-3" />
           <p className="text-slate-400 text-sm">Sin cuentas bancarias registradas.</p>
-          <button onClick={abrirCrear} className="mt-3 text-orange-500 text-sm font-medium hover:underline">
+          <button onClick={abrirCrear} className="mt-3 text-sky-500 text-sm font-medium hover:underline">
             Agregar primera cuenta
           </button>
         </div>
@@ -328,7 +328,7 @@ const SeccionCuentas: React.FC = () => {
               {/* Banco */}
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                  Banco <span className="text-orange-500">*</span>
+                  Banco <span className="text-sky-500">*</span>
                 </label>
                 <input value={form.banco}
                   onChange={e => setField('banco', e.target.value)}
@@ -339,7 +339,7 @@ const SeccionCuentas: React.FC = () => {
               {/* Titular */}
               <div>
                 <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                  Titular <span className="text-orange-500">*</span>
+                  Titular <span className="text-sky-500">*</span>
                 </label>
                 <input value={form.titular}
                   onChange={e => setField('titular', e.target.value)}
@@ -455,7 +455,7 @@ const SeccionCuentas: React.FC = () => {
                 Cancelar
               </button>
               <button onClick={handleGuardar} disabled={guardando}
-                className="flex-1 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-semibold
+                className="flex-1 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold
                            rounded-xl transition-colors disabled:opacity-60">
                 {guardando ? 'Guardando…' : editTarget ? 'Actualizar' : 'Crear cuenta'}
               </button>

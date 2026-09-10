@@ -4,8 +4,8 @@ import {
   ArrowLeft, Pencil, Plus, Phone, Mail, User,
   TrendingUp, History, ChevronDown, ChevronUp,
 } from 'lucide-react';
-import { PerfilInversionista as TPerfilInversionista, Inversion, EstatusInversion } from '../../types/inversionista.types';
-import { obtenerInversionista, cambiarEstatusInversion, crearInversion } from '../../services/inversionistasService';
+import { PerfilInversionista as TPerfilInversionista, Inversion, EstatusInversion, InversionistaResumen } from '../../types/inversionista.types';
+import { obtenerInversionista, cambiarEstatusInversion, crearInversion, listarInversionistas } from '../../services/inversionistasService';
 import { useAuth } from '../../context/AuthContext';
 import CardInversion from '../../components/inversionistas/CardInversion';
 import HistorialMovimientos from '../../components/inversionistas/HistorialMovimientos';
@@ -26,7 +26,7 @@ interface FormNuevaInversionProps {
 }
 
 const inputCls = `w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm
-  text-slate-800 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent`;
+  text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent`;
 
 const mostrarMoneda = (raw: string): string => {
   if (!raw) return '';
@@ -56,6 +56,24 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
   });
   const [guardando, setGuardando] = useState(false);
   const [error, setError]         = useState<string | null>(null);
+
+  // Referidor (otro inversionista) + su tasa de comisión.
+  const [referidor, setReferidor]     = useState<InversionistaResumen | null>(null);
+  const [qRef, setQRef]               = useState('');
+  const [resultadosRef, setResultRef] = useState<InversionistaResumen[]>([]);
+  const [tasaRef, setTasaRef]         = useState('');
+
+  useEffect(() => {
+    if (referidor || qRef.trim().length < 2) { setResultRef([]); return; }
+    let vivo = true;
+    const t = setTimeout(async () => {
+      try {
+        const r = await listarInversionistas({ buscar: qRef.trim() });
+        if (vivo) setResultRef(r.inversionistas.filter((i) => i.id !== inversionistaId));
+      } catch { if (vivo) setResultRef([]); }
+    }, 250);
+    return () => { vivo = false; clearTimeout(t); };
+  }, [qRef, referidor, inversionistaId]);
 
   // Día de pago y fecha de vencimiento se derivan de fecha_inicio
   useEffect(() => {
@@ -87,6 +105,15 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
     setDatos((prev) => ({ ...prev, tasa_interes_mensual: limpio }));
   };
 
+  // Percentage with 2 decimals — 0.50 means 0.5% (NUMERIC(5,2) scale, M11)
+  const handleTasaRefChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9.]/g, '');
+    const partes = raw.split('.');
+    let limpio = partes[0];
+    if (partes.length > 1) limpio += '.' + partes[1].slice(0, 2);
+    setTasaRef(limpio);
+  };
+
   const handleGuardar = async () => {
     const monto = parseFloat(datos.monto_inicial.replace(/,/g, '')) || 0;
     const tasa  = parseFloat(datos.tasa_interes_mensual) || 0;
@@ -99,6 +126,10 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
     }
     if (!datos.fecha_inicio) {
       setError('La fecha de inicio es obligatoria.'); return;
+    }
+    const tasaReferidor = parseFloat(tasaRef) || 0;
+    if (referidor && tasaReferidor <= 0) {
+      setError('Indica la tasa mensual del referidor.'); return;
     }
 
     setGuardando(true);
@@ -114,6 +145,8 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
         fecha_inicio:         datos.fecha_inicio,
         fecha_vencimiento:    datos.fecha_vencimiento,
         notas:                datos.notas,
+        referenciador_id:     referidor ? referidor.id : undefined,
+        tasa_referenciador:   referidor ? tasaRef.trim() : undefined,
       } as never);
       onExito();
     } catch (err: unknown) {
@@ -240,10 +273,68 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
           type="checkbox"
           checked={datos.tiene_pagare}
           onChange={(e) => setDatos((prev) => ({ ...prev, tiene_pagare: e.target.checked }))}
-          className="w-4 h-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400"
+          className="w-4 h-4 rounded border-slate-300 text-sky-500 focus:ring-sky-400"
         />
         <span className="text-sm text-slate-700">Tiene pagaré</span>
       </label>
+
+      {/* Referidor (otro inversionista) + su tasa */}
+      <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
+        <p className="text-xs font-medium text-slate-600">Referidor (opcional)</p>
+        {referidor ? (
+          <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+            <div className="flex-1 flex items-center justify-between gap-2 px-3 py-2 bg-sky-50 rounded-lg border border-sky-100">
+              <span className="text-sm text-slate-800">
+                {referidor.nombres} {referidor.apellido_paterno}
+              </span>
+              <button
+                type="button"
+                onClick={() => { setReferidor(null); setQRef(''); setTasaRef(''); }}
+                className="text-xs text-slate-400 hover:text-slate-700"
+              >
+                Quitar
+              </button>
+            </div>
+            <div className="sm:w-40">
+              <label className="block text-xs font-medium text-slate-600 mb-1">Tasa referidor (%)</label>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={tasaRef}
+                onChange={handleTasaRefChange}
+                placeholder="Ej: 0.50"
+                className={inputCls}
+              />
+              <p className="mt-1 text-[11px] text-slate-400">0.50 = 0.5% mensual</p>
+            </div>
+          </div>
+        ) : (
+          <div className="relative">
+            <input
+              type="text"
+              value={qRef}
+              onChange={(e) => setQRef(e.target.value)}
+              placeholder="Buscar inversionista que refirió…"
+              className={inputCls}
+            />
+            {resultadosRef.length > 0 && (
+              <ul className="absolute z-10 mt-1 w-full bg-white border border-slate-100 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                {resultadosRef.map((r) => (
+                  <li key={r.id}>
+                    <button
+                      type="button"
+                      onClick={() => { setReferidor(r); setResultRef([]); }}
+                      className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    >
+                      {r.nombres} {r.apellido_paterno}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+      </div>
 
       {/* Notas */}
       <div>
@@ -271,8 +362,8 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
         <button
           onClick={handleGuardar}
           disabled={guardando}
-          className="px-5 py-2 text-sm font-medium bg-orange-500 text-white rounded-xl
-                     hover:bg-orange-600 transition-colors disabled:opacity-60"
+          className="px-5 py-2 text-sm font-medium bg-sky-500 text-white rounded-xl
+                     hover:bg-sky-600 transition-colors disabled:opacity-60"
         >
           {guardando ? 'Guardando...' : 'Crear inversión'}
         </button>
@@ -365,7 +456,7 @@ const PerfilInversionista: React.FC = () => {
     return (
       <div className="p-6 lg:p-8 text-center">
         <p className="text-red-600 mb-4">{error ?? 'Inversionista no encontrado.'}</p>
-        <button onClick={() => navigate('/inversionistas')} className="text-orange-500 underline">
+        <button onClick={() => navigate('/inversionistas')} className="text-sky-500 underline">
           Volver a la lista
         </button>
       </div>
@@ -426,13 +517,6 @@ const PerfilInversionista: React.FC = () => {
                   <span className="text-slate-700">{perfil.correo}</span>
                 </div>
               )}
-              {perfil.asignado_a && (
-                <div className="flex items-center gap-2 text-sm">
-                  <User size={14} className="text-slate-400 shrink-0" />
-                  <span className="text-slate-500">Asignado a:</span>
-                  <span className="text-slate-700 capitalize">{perfil.asignado_a}</span>
-                </div>
-              )}
               <p className="text-xs text-slate-400">
                 Registrado: {new Date(perfil.fecha_registro).toLocaleDateString('es-MX')}
               </p>
@@ -442,7 +526,7 @@ const PerfilInversionista: React.FC = () => {
           {/* Resumen financiero */}
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
             <div className="flex items-center gap-2 mb-4">
-              <TrendingUp size={16} className="text-orange-400" />
+              <TrendingUp size={16} className="text-sky-400" />
               <h3 className="font-semibold text-slate-700 text-sm">Resumen</h3>
             </div>
             <div className="space-y-3">
@@ -452,7 +536,7 @@ const PerfilInversionista: React.FC = () => {
               </div>
               <div className="flex justify-between items-center">
                 <p className="text-xs text-slate-500">Inversiones activas</p>
-                <span className="w-6 h-6 rounded-full bg-orange-100 text-orange-600
+                <span className="w-6 h-6 rounded-full bg-sky-100 text-sky-600
                                  text-xs font-bold flex items-center justify-center">
                   {invActivas.length}
                 </span>
@@ -476,7 +560,7 @@ const PerfilInversionista: React.FC = () => {
               <button
                 onClick={() => setMostrarFormInv(!mostrarFormInv)}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium
-                           bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors"
+                           bg-sky-500 text-white rounded-xl hover:bg-sky-600 transition-colors"
               >
                 <Plus size={14} />
                 Nueva inversión
@@ -500,7 +584,7 @@ const PerfilInversionista: React.FC = () => {
               {esAdmin && (
                 <button
                   onClick={() => setMostrarFormInv(true)}
-                  className="mt-3 text-orange-500 text-sm hover:underline"
+                  className="mt-3 text-sky-500 text-sm hover:underline"
                 >
                   + Crear primera inversión
                 </button>
@@ -527,7 +611,7 @@ const PerfilInversionista: React.FC = () => {
                             key={e}
                             onClick={() => handleCambiarEstatus(inv, e)}
                             className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-50 capitalize
-                                       ${inv.estatus === e ? 'text-orange-600 font-semibold' : 'text-slate-700'}`}
+                                       ${inv.estatus === e ? 'text-sky-600 font-semibold' : 'text-slate-700'}`}
                           >
                             {e}
                           </button>

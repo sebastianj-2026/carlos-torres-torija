@@ -14,8 +14,7 @@ import {
   Receipt,
   Banknote,
   HardHat,
-  UserPlus,
-  CalendarClock,
+  UserCog,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -32,16 +31,13 @@ const itemsMenu: ItemMenu[] = [
   { etiqueta: 'Dashboard',          ruta: '/dashboard',       Icono: LayoutDashboard, soloAdmin: true },
   { etiqueta: 'Clientes',           ruta: '/clientes',        Icono: Users                            },
   { etiqueta: 'Inversionistas',     ruta: '/inversionistas',  Icono: TrendingUp                       },
+  { etiqueta: 'Referenciadores',    ruta: '/referenciadores', Icono: UserCog                          },
   { etiqueta: 'Préstamos',           ruta: '/prestamos',       Icono: FileText                         },
   { etiqueta: 'Caja Chica y Bancos', ruta: '/caja',           Icono: Wallet                           },
   { etiqueta: 'Gastos',             ruta: '/egresos',         Icono: Receipt                          },
   { etiqueta: 'Hub de Ingresos',    ruta: '/ingresos',        Icono: Banknote                         },
   { etiqueta: 'Nóminas',            ruta: '/nominas',         Icono: HardHat                          },
   { etiqueta: 'Juicios',            ruta: '/juicios',         Icono: Gavel,           soloAdmin: true },
-  { etiqueta: 'Aportaciones',       ruta: '/personas/aportacion',      Icono: UserPlus,       soloAdmin: true },
-  { etiqueta: 'Comisiones',         ruta: '/comisiones/pendientes',    Icono: Receipt,        soloAdmin: true },
-  { etiqueta: 'Corte del mes',      ruta: '/comisiones/corte',         Icono: CalendarClock,  soloAdmin: true },
-  { etiqueta: 'Estado de cuenta',   ruta: '/comisiones/estado-cuenta', Icono: FileText,       soloAdmin: true },
 ];
 
 interface SidebarProps {

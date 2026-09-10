@@ -4,6 +4,13 @@ import { Inversion, EstatusInversion } from '../../types/inversionista.types';
 import { useAuth } from '../../context/AuthContext';
 
 // Formatea número como moneda MXN
+// pg serializes DATE as a full ISO timestamp; keep only YYYY-MM-DD before
+// parsing so the string never becomes "...ZT00:00:00" (Invalid Date)
+const formatearFecha = (valor: string): string =>
+  new Date(valor.slice(0, 10) + 'T00:00:00').toLocaleDateString('es-MX', {
+    day: '2-digit', month: 'short', year: 'numeric',
+  });
+
 const formatearMoneda = (valor: string | number): string => {
   const num = typeof valor === 'string' ? parseFloat(valor) : valor;
   if (isNaN(num)) return '$0.00';
@@ -69,7 +76,7 @@ const CardInversion: React.FC<CardInversionProps> = ({
       <div className="px-5 py-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Tasa de interés */}
         <div className="flex items-start gap-2">
-          <TrendingUp size={15} className="text-orange-400 mt-0.5 shrink-0" />
+          <TrendingUp size={15} className="text-sky-400 mt-0.5 shrink-0" />
           <div>
             <p className="text-xs text-slate-400">Tasa mensual</p>
             <p className="text-sm font-semibold text-slate-700">{tasa}%</p>
@@ -112,17 +119,13 @@ const CardInversion: React.FC<CardInversionProps> = ({
           <p className="text-xs text-slate-400">
             Inicio:{' '}
             <span className="text-slate-600 font-medium">
-              {new Date(inversion.fecha_inicio + 'T00:00:00').toLocaleDateString('es-MX', {
-                day: '2-digit', month: 'short', year: 'numeric',
-              })}
+              {formatearFecha(inversion.fecha_inicio)}
             </span>
             {inversion.fecha_vencimiento && (
               <>
                 {' · '}Vence:{' '}
                 <span className="text-slate-600 font-medium">
-                  {new Date(inversion.fecha_vencimiento + 'T00:00:00').toLocaleDateString('es-MX', {
-                    day: '2-digit', month: 'short', year: 'numeric',
-                  })}
+                  {formatearFecha(inversion.fecha_vencimiento)}
                 </span>
               </>
             )}
@@ -143,7 +146,7 @@ const CardInversion: React.FC<CardInversionProps> = ({
           onClick={() => onRegistrarPago(inversion)}
           disabled={!esActiva}
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg
-                     bg-orange-500 text-white hover:bg-orange-600 transition-colors
+                     bg-sky-500 text-white hover:bg-sky-600 transition-colors
                      disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Registrar pago

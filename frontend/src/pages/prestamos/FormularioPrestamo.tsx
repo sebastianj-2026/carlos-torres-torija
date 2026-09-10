@@ -71,7 +71,7 @@ const OPCIONES_GARANTIA: { valor: TipoGarantia; etiqueta: string; icono: string;
 
 const inputCls = `w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white
   text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2
-  focus:ring-orange-400 focus:border-transparent transition-all`;
+  focus:ring-sky-400 focus:border-transparent transition-all`;
 
 // ── Selector de garantía ──────────────────────────────────────────
 const SelectorGarantia: React.FC<{
@@ -80,7 +80,7 @@ const SelectorGarantia: React.FC<{
 }> = ({ valor, onChange }) => (
   <div>
     <label className="block text-xs font-medium text-slate-600 mb-2">
-      Tipo de garantía <span className="text-orange-500">*</span>
+      Tipo de garantía <span className="text-sky-500">*</span>
     </label>
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
       {OPCIONES_GARANTIA.map((op) => (
@@ -91,12 +91,12 @@ const SelectorGarantia: React.FC<{
           className={`flex flex-col items-center gap-1 px-3 py-3 rounded-xl border-2 text-center
                       transition-all duration-150 ${
                         valor === op.valor
-                          ? 'border-orange-500 bg-orange-50'
+                          ? 'border-sky-500 bg-sky-50'
                           : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
                       }`}
         >
           <span className="text-xl leading-none">{op.icono}</span>
-          <span className={`text-xs font-semibold leading-tight ${valor === op.valor ? 'text-orange-600' : 'text-slate-600'}`}>
+          <span className={`text-xs font-semibold leading-tight ${valor === op.valor ? 'text-sky-600' : 'text-slate-600'}`}>
             {op.etiqueta}
           </span>
           <span className="text-[10px] text-slate-400 leading-tight">{op.descripcion}</span>
@@ -118,7 +118,7 @@ const Campo: React.FC<{
 }> = ({ label, valor, onChange, tipo = 'text', requerido = false, placeholder, min }) => (
   <div>
     <label className="block text-xs font-medium text-slate-600 mb-1.5">
-      {label}{requerido && <span className="text-orange-500 ml-0.5">*</span>}
+      {label}{requerido && <span className="text-sky-500 ml-0.5">*</span>}
     </label>
     <input
       type={tipo}
@@ -149,7 +149,7 @@ const CampoMoneda: React.FC<{
   return (
     <div>
       <label className="block text-xs font-medium text-slate-600 mb-1.5">
-        {label}{requerido && <span className="text-orange-500 ml-0.5">*</span>}
+        {label}{requerido && <span className="text-sky-500 ml-0.5">*</span>}
       </label>
       <div className="relative">
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400 pointer-events-none">$</span>
@@ -194,7 +194,7 @@ const CardInversionista: React.FC<{
         <X size={14} />
       </button>
       <div className="flex items-center gap-2 mb-3">
-        <TrendingDown size={14} className="text-orange-400" />
+        <TrendingDown size={14} className="text-sky-400" />
         <span className="text-sm font-semibold text-slate-700">Inversionista</span>
       </div>
       <select
@@ -258,8 +258,8 @@ const CardInversionista: React.FC<{
             <span>{fmt(interesMensual)}/mes</span>
           </div>
           {diferencial > 0.001 && (
-            <div className="flex justify-between text-xs text-orange-500">
-              <span>Diferencial → Oficina TS ({(tasaPrestamo - tasa).toFixed(2)}%)</span>
+            <div className="flex justify-between text-xs text-sky-500">
+              <span>Diferencial → PrestaFácil ({(tasaPrestamo - tasa).toFixed(2)}%)</span>
               <span>{fmt(diferencial)}/mes</span>
             </div>
           )}
@@ -323,19 +323,19 @@ const PanelResumenFinanciero: React.FC<{
   }
 
   return (
-    <div className="rounded-xl border border-orange-100 overflow-hidden bg-white shadow-sm">
+    <div className="rounded-xl border border-sky-100 overflow-hidden bg-white shadow-sm">
       {/* Header */}
-      <div className="px-4 py-3 bg-gradient-to-r from-orange-50 to-amber-50 border-b border-orange-100 flex items-center justify-between">
+      <div className="px-4 py-3 bg-gradient-to-r from-sky-50 to-amber-50 border-b border-sky-100 flex items-center justify-between">
         <div>
-          <p className="text-xs font-bold text-orange-700 uppercase tracking-wide">Resumen Financiero</p>
+          <p className="text-xs font-bold text-sky-700 uppercase tracking-wide">Resumen Financiero</p>
           {fechaVenc && (
             <p className="text-[10px] text-slate-500 mt-0.5">Vencimiento: {fechaVenc}</p>
           )}
           {diaPago > 0 && (
-            <p className="text-[10px] text-orange-500 mt-0.5">Día de pago mensual: <span className="font-bold">día {diaPago}</span></p>
+            <p className="text-[10px] text-sky-500 mt-0.5">Día de pago mensual: <span className="font-bold">día {diaPago}</span></p>
           )}
         </div>
-        <CheckCircle2 size={16} className="text-orange-400" />
+        <CheckCircle2 size={16} className="text-sky-400" />
       </div>
 
       {/* Cálculo de neto al cliente */}
@@ -344,24 +344,24 @@ const PanelResumenFinanciero: React.FC<{
           <span className="text-slate-600">Monto del préstamo</span>
           <span className="font-bold text-slate-800">{fmt(montoTotal)}</span>
         </div>
-        <div className="flex justify-between items-center text-sm text-orange-600">
+        <div className="flex justify-between items-center text-sm text-sky-600">
           <span>− Interés anticipado ({tasaPrestamo}%)</span>
           <span className="font-semibold">{fmt(interesAnticipado)}</span>
         </div>
         {apertura > 0 && (
-          <div className="flex justify-between items-center text-sm text-orange-500">
+          <div className="flex justify-between items-center text-sm text-sky-500">
             <span>− Apertura</span>
             <span className="font-semibold">{fmt(apertura)}</span>
           </div>
         )}
         {avaluo > 0 && (
-          <div className="flex justify-between items-center text-sm text-orange-500">
+          <div className="flex justify-between items-center text-sm text-sky-500">
             <span>− Avalúo</span>
             <span className="font-semibold">{fmt(avaluo)}</span>
           </div>
         )}
         {gastosNotariales > 0 && (
-          <div className="flex justify-between items-center text-sm text-orange-500">
+          <div className="flex justify-between items-center text-sm text-sky-500">
             <span>− Gastos Notariales</span>
             <span className="font-semibold">{fmt(gastosNotariales)}</span>
           </div>
@@ -387,10 +387,10 @@ const PanelResumenFinanciero: React.FC<{
         </p>
 
         {montoOficina > 0.009 && (
-          <div className="rounded-lg border border-orange-100 bg-orange-50/40 p-3">
+          <div className="rounded-lg border border-sky-100 bg-sky-50/40 p-3">
             <div className="flex items-center gap-1.5 mb-2">
-              <Building2 size={12} className="text-orange-500" />
-              <span className="text-xs font-bold text-orange-700">Oficina TS</span>
+              <Building2 size={12} className="text-sky-500" />
+              <span className="text-xs font-bold text-sky-700">PrestaFácil</span>
             </div>
             <div className="space-y-1 text-xs text-slate-600">
               <div className="flex justify-between">
@@ -398,13 +398,13 @@ const PanelResumenFinanciero: React.FC<{
                 <span className="font-semibold">{fmt(interesOficina)}/mes</span>
               </div>
               {diferencialOficina > 0.009 && (
-                <div className="flex justify-between text-orange-500">
+                <div className="flex justify-between text-sky-500">
                   <span>+ Diferencial de inversionistas</span>
                   <span className="font-semibold">+ {fmt(diferencialOficina)}/mes</span>
                 </div>
               )}
-              <div className="flex justify-between font-bold text-orange-700 border-t border-orange-100 pt-1 mt-1">
-                <span>Total Oficina TS</span>
+              <div className="flex justify-between font-bold text-sky-700 border-t border-sky-100 pt-1 mt-1">
+                <span>Total PrestaFácil</span>
                 <span>{fmt(totalOficina)}/mes</span>
               </div>
             </div>
@@ -433,8 +433,8 @@ const PanelResumenFinanciero: React.FC<{
                   <span className="font-semibold text-slate-700">{fmt(interes)}/mes</span>
                 </div>
                 {dif > 0.001 && (
-                  <div className="flex justify-between text-orange-400">
-                    <span>Diferencial → Oficina TS ({dif.toFixed(2)}%)</span>
+                  <div className="flex justify-between text-sky-400">
+                    <span>Diferencial → PrestaFácil ({dif.toFixed(2)}%)</span>
                     <span>{fmt(monto * dif / 100)}/mes</span>
                   </div>
                 )}
@@ -454,8 +454,8 @@ const PanelResumenFinanciero: React.FC<{
               <span>{fmt(totalInversionistas)}</span>
             </div>
           )}
-          <div className="flex justify-between text-xs text-orange-600 font-semibold">
-            <span>→ A Oficina TS (total)</span>
+          <div className="flex justify-between text-xs text-sky-600 font-semibold">
+            <span>→ A PrestaFácil (total)</span>
             <span>{fmt(totalOficina)}</span>
           </div>
         </div>
@@ -473,14 +473,14 @@ const PanelResumenFinanciero: React.FC<{
               {fmt(totalOficina)}/mes × 12
             </p>
           </div>
-          <div className="rounded-xl bg-orange-50 border border-orange-100 p-3 text-center">
-            <p className="text-[10px] font-bold text-orange-600 uppercase tracking-wide mb-1">
+          <div className="rounded-xl bg-sky-50 border border-sky-100 p-3 text-center">
+            <p className="text-[10px] font-bold text-sky-600 uppercase tracking-wide mb-1">
               % Ganancia Anual Oficina
             </p>
-            <p className="text-base font-bold text-orange-700">
+            <p className="text-base font-bold text-sky-700">
               {pctGananciaAnual.toFixed(2)}%
             </p>
-            <p className="text-[10px] text-orange-500 mt-0.5">
+            <p className="text-[10px] text-sky-500 mt-0.5">
               sobre el capital prestado
             </p>
           </div>
@@ -529,7 +529,7 @@ const UploaderPDF: React.FC<{
       <div
         onClick={() => inputRef.current?.click()}
         className={`cursor-pointer border-2 border-dashed rounded-xl p-3 transition-all
-                    hover:border-orange-300 hover:bg-orange-50/20 ${estadoBase}`}
+                    hover:border-sky-300 hover:bg-sky-50/20 ${estadoBase}`}
       >
         <input
           ref={inputRef}
@@ -587,21 +587,21 @@ const Stepper: React.FC<{ pasoActual: number; pasos: string[] }> = ({ pasoActual
           <div className="flex flex-col items-center">
             <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all ${
               completado
-                ? 'bg-orange-500 border-orange-500 text-white'
+                ? 'bg-sky-500 border-sky-500 text-white'
                 : activo
-                ? 'bg-white border-orange-500 text-orange-500'
+                ? 'bg-white border-sky-500 text-sky-500'
                 : 'bg-white border-slate-200 text-slate-400'
             }`}>
               {completado
                 ? <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                 : num}
             </div>
-            <span className={`text-xs mt-1.5 font-medium hidden sm:block ${activo ? 'text-orange-600' : 'text-slate-400'}`}>
+            <span className={`text-xs mt-1.5 font-medium hidden sm:block ${activo ? 'text-sky-600' : 'text-slate-400'}`}>
               {nombre}
             </span>
           </div>
           {idx < pasos.length - 1 && (
-            <div className={`h-0.5 w-12 sm:w-16 mx-1 mb-5 transition-colors ${completado ? 'bg-orange-400' : 'bg-slate-200'}`} />
+            <div className={`h-0.5 w-12 sm:w-16 mx-1 mb-5 transition-colors ${completado ? 'bg-sky-400' : 'bg-slate-200'}`} />
           )}
         </React.Fragment>
       );
@@ -826,7 +826,7 @@ const FormularioPrestamo: React.FC = () => {
     if (paso < 3) setPaso(paso + 1);
   };
 
-  // Oficina TS absorbe el remanente automáticamente
+  // PrestaFácil absorbe el remanente automáticamente
   const construirParticipantes = () => {
     const montoOficinaDef = invParticipantes.length > 0 ? montoOficina : montoTotal;
     return [
@@ -953,7 +953,7 @@ const FormularioPrestamo: React.FC = () => {
 
             <div className="border-t border-slate-100 pt-4">
               <label className="block text-xs font-medium text-slate-600 mb-1.5">
-                Cliente <span className="text-orange-500">*</span>
+                Cliente <span className="text-sky-500">*</span>
               </label>
               <select
                 value={datos.cliente_id}
@@ -1068,20 +1068,20 @@ const FormularioPrestamo: React.FC = () => {
                   type="button"
                   onClick={agregarInversionista}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium
-                             text-orange-600 border border-orange-200 rounded-lg
-                             hover:bg-orange-50 transition-colors"
+                             text-sky-600 border border-sky-200 rounded-lg
+                             hover:bg-sky-50 transition-colors"
                 >
                   <Plus size={12} />
                   Agregar inversionista
                 </button>
               </div>
 
-              {/* Card Oficina TS */}
-              <div className="border-2 border-orange-200 rounded-xl p-4 bg-orange-50/40">
+              {/* Card PrestaFácil */}
+              <div className="border-2 border-sky-200 rounded-xl p-4 bg-sky-50/40">
                 <div className="flex items-center gap-2 mb-3">
-                  <Building2 size={14} className="text-orange-500" />
-                  <span className="text-sm font-semibold text-orange-700">Oficina TS</span>
-                  <span className="text-xs text-orange-400 ml-auto">
+                  <Building2 size={14} className="text-sky-500" />
+                  <span className="text-sm font-semibold text-sky-700">PrestaFácil</span>
+                  <span className="text-xs text-sky-400 ml-auto">
                     {invParticipantes.length === 0 ? 'capital propio total' : 'absorbe el remanente'}
                   </span>
                 </div>
@@ -1105,13 +1105,13 @@ const FormularioPrestamo: React.FC = () => {
                         </div>
                         <div>
                           <p className="text-[10px] text-slate-400 mb-0.5">Tasa del préstamo</p>
-                          <p className="text-sm font-bold text-orange-600">
+                          <p className="text-sm font-bold text-sky-600">
                             {tasaPrestamo > 0 ? `${tasaPrestamo}%` : '—'}
                           </p>
                         </div>
                       </div>
                       {montoTotal > 0 && tasaPrestamo > 0 && (
-                        <div className="bg-orange-50 rounded-lg px-3 py-2 space-y-1">
+                        <div className="bg-sky-50 rounded-lg px-3 py-2 space-y-1">
                           {capitalOficina > 0.009 && (
                             <div className="flex justify-between text-xs">
                               <span className="text-slate-500">Interés sobre capital propio</span>
@@ -1119,13 +1119,13 @@ const FormularioPrestamo: React.FC = () => {
                             </div>
                           )}
                           {diferencial > 0.009 && (
-                            <div className="flex justify-between text-xs text-orange-600">
+                            <div className="flex justify-between text-xs text-sky-600">
                               <span>+ Diferencial de tasa (inversionistas)</span>
                               <span className="font-semibold">{fmt(diferencial)}/mes</span>
                             </div>
                           )}
-                          <div className="flex justify-between text-xs font-bold text-green-700 border-t border-orange-100 pt-1 mt-1">
-                            <span>Total Oficina TS</span>
+                          <div className="flex justify-between text-xs font-bold text-green-700 border-t border-sky-100 pt-1 mt-1">
+                            <span>Total PrestaFácil</span>
                             <span>{fmt(totalOficina)}/mes</span>
                           </div>
                         </div>
@@ -1152,9 +1152,9 @@ const FormularioPrestamo: React.FC = () => {
                     Los aportes exceden en {fmt(-montoOficina)} el monto del préstamo
                   </div>
                 ) : montoOficina > 0.009 ? (
-                  <div className="p-3 rounded-lg border bg-orange-50 border-orange-100 text-sm font-medium text-orange-700">
+                  <div className="p-3 rounded-lg border bg-sky-50 border-sky-100 text-sm font-medium text-sky-700">
                     <Building2 size={13} className="inline mr-1.5 -mt-0.5" />
-                    Oficina TS aportará el remanente: {fmt(montoOficina)}
+                    PrestaFácil aportará el remanente: {fmt(montoOficina)}
                   </div>
                 ) : (
                   <div className="p-3 rounded-lg border bg-green-50 border-green-100 text-sm font-medium text-green-700">
@@ -1220,7 +1220,7 @@ const FormularioPrestamo: React.FC = () => {
                   maxLength={500}
                   className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white
                              text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2
-                             focus:ring-orange-400 focus:border-transparent resize-none"
+                             focus:ring-sky-400 focus:border-transparent resize-none"
                   placeholder="Describe brevemente la garantía..."
                 />
                 <p className="text-xs text-slate-400 mt-0.5 text-right">
@@ -1238,7 +1238,7 @@ const FormularioPrestamo: React.FC = () => {
                     <h4 className="text-sm font-semibold text-slate-700">Documentos PDF</h4>
                     <p className="text-xs text-slate-400 mt-0.5">
                       Opcionales al crear. Si faltan, el crédito quedará en{' '}
-                      <span className="font-medium text-orange-600">Docs. Incompletos</span>{' '}
+                      <span className="font-medium text-sky-600">Docs. Incompletos</span>{' '}
                       hasta completar los {tiposArchivo.length}.
                     </p>
                   </div>
@@ -1266,7 +1266,7 @@ const FormularioPrestamo: React.FC = () => {
                 rows={3}
                 className="w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white
                            text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2
-                           focus:ring-orange-400 focus:border-transparent resize-none"
+                           focus:ring-sky-400 focus:border-transparent resize-none"
                 placeholder="Observaciones adicionales..."
               />
             </div>
@@ -1306,7 +1306,7 @@ const FormularioPrestamo: React.FC = () => {
           {paso < 3 ? (
             <button
               onClick={handleSiguiente}
-              className="flex items-center gap-2 px-5 py-2 bg-orange-500 hover:bg-orange-600
+              className="flex items-center gap-2 px-5 py-2 bg-sky-500 hover:bg-sky-600
                          text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
             >
               Siguiente
@@ -1315,7 +1315,7 @@ const FormularioPrestamo: React.FC = () => {
             <button
               onClick={handleGuardar}
               disabled={cargando || exito || !resumenFinancieroCompleto || !archivosCompletos}
-              className="flex items-center gap-2 px-5 py-2 bg-orange-500 hover:bg-orange-600
+              className="flex items-center gap-2 px-5 py-2 bg-sky-500 hover:bg-sky-600
                          text-white text-sm font-medium rounded-lg shadow-sm
                          disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >

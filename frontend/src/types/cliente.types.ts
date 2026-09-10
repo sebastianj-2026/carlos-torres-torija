@@ -1,5 +1,5 @@
 // ================================================================
-// OFICINA TS — Tipos del módulo de Clientes
+// PrestaFácil — Tipos del módulo de Clientes
 // ================================================================
 
 export type EstatusCliente = 'activo' | 'atrasado' | 'negociado' | 'en_juicio' | 'inactivo';

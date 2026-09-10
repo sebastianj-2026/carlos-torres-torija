@@ -66,13 +66,13 @@ const CostoRealTab: React.FC = () => {
       {/* Period selector */}
       <div className="flex items-center gap-3">
         <select value={mes} onChange={e => setMes(Number(e.target.value))}
-          className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white">
+          className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-white">
           {Array.from({length:12},(_,i) => i+1).map(m => (
             <option key={m} value={m}>{new Date(2000,m-1).toLocaleString('es-MX',{month:'long'})}</option>
           ))}
         </select>
         <select value={anio} onChange={e => setAnio(Number(e.target.value))}
-          className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white">
+          className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-white">
           {[2024,2025,2026,2027].map(y => <option key={y} value={y}>{y}</option>)}
         </select>
         {loading && <span className="text-xs text-slate-400">Cargando…</span>}
@@ -87,12 +87,12 @@ const CostoRealTab: React.FC = () => {
             <KPICard label="Bonos/Comisiones"    value={data.totales.total_bonos}   Icon={Gift}       color="bg-purple-500" />
             <KPICard label="Primas vacacional"   value={data.totales.total_primas}  Icon={Umbrella}   color="bg-blue-500" />
             <KPICard label={`IMSS (${data.imss.empleados_con_imss} emp.)`} value={data.imss.total_imss} Icon={ShieldCheck} color="bg-teal-500" />
-            <div className="bg-orange-500 rounded-2xl shadow-sm p-4 flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-orange-600">
+            <div className="bg-sky-500 rounded-2xl shadow-sm p-4 flex items-start gap-3">
+              <div className="p-2 rounded-xl bg-sky-600">
                 <TrendingUp size={16} className="text-white" />
               </div>
               <div>
-                <p className="text-xs text-orange-100 font-medium">Costo Real Total</p>
+                <p className="text-xs text-sky-100 font-medium">Costo Real Total</p>
                 <p className="text-lg font-black text-white">{fmt(data.costo_real)}</p>
               </div>
             </div>
@@ -126,7 +126,7 @@ const CostoRealTab: React.FC = () => {
                     <tr>
                       <td className="px-5 py-2.5 text-xs font-semibold text-slate-500">Total nóminas</td>
                       <td className="px-5 py-2.5 text-right text-xs font-bold text-slate-500">{data.totales.registros} pagos</td>
-                      <td className="px-5 py-2.5 text-right font-black text-orange-600">{fmt(data.totales.total_pagado)}</td>
+                      <td className="px-5 py-2.5 text-right font-black text-sky-600">{fmt(data.totales.total_pagado)}</td>
                     </tr>
                   </tfoot>
                 </table>

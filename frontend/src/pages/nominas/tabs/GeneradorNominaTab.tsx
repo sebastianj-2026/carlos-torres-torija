@@ -211,17 +211,17 @@ const GeneradorNominaTab: React.FC = () => {
           <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Semana inicio</label>
           <input type="date" value={inicio} max={hoy}
             onChange={e => { setInicio(e.target.value); setFin(addDays(e.target.value, 6)); }}
-            className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+            className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
         </div>
         <div className="flex items-center gap-2">
           <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide whitespace-nowrap">Semana fin</label>
           <input type="date" value={fin} max={hoy}
             onChange={e => setFin(e.target.value)}
-            className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+            className="border border-slate-200 rounded-lg px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
         </div>
         <div className="ml-auto text-sm">
           <span className="text-slate-400">Plantilla estimada: </span>
-          <span className="font-black text-orange-600 text-base">{fmt(totalGeneral)}</span>
+          <span className="font-black text-sky-600 text-base">{fmt(totalGeneral)}</span>
         </div>
       </div>
 
@@ -234,7 +234,7 @@ const GeneradorNominaTab: React.FC = () => {
               <th className="px-4 py-3 text-left font-semibold">Área</th>
               <th className="px-4 py-3 text-right font-semibold">Sueldo Base</th>
               <th className="px-4 py-3 text-right font-semibold">Préstamo a Descontar</th>
-              <th className="px-4 py-3 text-right font-semibold bg-orange-50">Total a Pagar</th>
+              <th className="px-4 py-3 text-right font-semibold bg-sky-50">Total a Pagar</th>
               <th className="px-3 py-3 text-center font-semibold" colSpan={2}>Acciones</th>
             </tr>
           </thead>
@@ -271,7 +271,7 @@ const GeneradorNominaTab: React.FC = () => {
                     )}
                   </td>
 
-                  <td className="px-4 py-3 bg-orange-50 text-right font-black text-orange-700 text-base whitespace-nowrap">
+                  <td className="px-4 py-3 bg-sky-50 text-right font-black text-sky-700 text-base whitespace-nowrap">
                     {fmt(total)}
                   </td>
 
@@ -313,7 +313,7 @@ const GeneradorNominaTab: React.FC = () => {
           <tfoot className="bg-slate-50 border-t-2 border-slate-200 text-xs font-bold">
             <tr>
               <td className="px-5 py-2.5 text-slate-500" colSpan={4}>Total semana</td>
-              <td className="px-4 py-2.5 bg-orange-100 text-right text-orange-700 text-sm">{fmt(totalGeneral)}</td>
+              <td className="px-4 py-2.5 bg-sky-100 text-right text-sky-700 text-sm">{fmt(totalGeneral)}</td>
               <td colSpan={2} />
             </tr>
           </tfoot>
@@ -352,11 +352,11 @@ const GeneradorNominaTab: React.FC = () => {
                     <input type="number" min={0} step={0.5} placeholder="Cantidad"
                       value={modal.horas_qty || ''}
                       onChange={e => setModal(m => m ? { ...m, horas_qty: parseFloat(e.target.value) || 0 } : null)}
-                      className="flex-1 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-orange-300" />
+                      className="flex-1 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-sky-300" />
                     <select value={modal.horas_tipo}
                       disabled={modal.horas_qty <= 0}
                       onChange={e => setModal(m => m ? { ...m, horas_tipo: e.target.value as TipoHoraExtra } : null)}
-                      className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-orange-300 disabled:opacity-30">
+                      className="border border-slate-200 rounded-lg px-2 py-1.5 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-sky-300 disabled:opacity-30">
                       <option value="Normal">Normal ×1</option>
                       <option value="Doble">Doble ×2</option>
                       <option value="Triple">Triple ×3</option>
@@ -375,7 +375,7 @@ const GeneradorNominaTab: React.FC = () => {
                   <input type="number" min={0} step={1} placeholder="Monto"
                     value={modal.bonos || ''}
                     onChange={e => setModal(m => m ? { ...m, bonos: parseFloat(e.target.value) || 0 } : null)}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-orange-300" />
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-sky-300" />
                 </div>
 
                 {/* Faltas */}
@@ -384,7 +384,7 @@ const GeneradorNominaTab: React.FC = () => {
                   <input type="number" min={0} step={0.5} placeholder="Días"
                     value={modal.faltas_dias || ''}
                     onChange={e => setModal(m => m ? { ...m, faltas_dias: parseFloat(e.target.value) || 0 } : null)}
-                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-orange-300" />
+                    className="w-full border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-sky-300" />
                   {modal.faltas_dias > 0 && (
                     <p className="text-xs text-red-500 text-right">
                       − {fmt(parseFloat(((modal.fila.sueldo_base / 6) * modal.faltas_dias).toFixed(2)))}
@@ -399,11 +399,11 @@ const GeneradorNominaTab: React.FC = () => {
                     <input type="number" step={1} placeholder="Monto (+ / −)"
                       value={modal.ajuste_monto || ''}
                       onChange={e => setModal(m => m ? { ...m, ajuste_monto: parseFloat(e.target.value) || 0 } : null)}
-                      className="w-32 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-orange-300" />
+                      className="w-32 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-sky-300" />
                     <input type="text" placeholder="Concepto del ajuste…"
                       value={modal.ajuste_concepto}
                       onChange={e => setModal(m => m ? { ...m, ajuste_concepto: e.target.value } : null)}
-                      className="flex-1 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-orange-300" />
+                      className="flex-1 border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-sky-300" />
                   </div>
                 </div>
 
@@ -420,15 +420,15 @@ const GeneradorNominaTab: React.FC = () => {
                 )}
 
                 {/* Total dinámico */}
-                <div className="bg-orange-50 rounded-xl px-4 py-3 flex items-center justify-between">
+                <div className="bg-sky-50 rounded-xl px-4 py-3 flex items-center justify-between">
                   <span className="text-sm font-semibold text-slate-600">Total a pagar</span>
-                  <span className="text-xl font-black text-orange-600">{fmt(modalTotal)}</span>
+                  <span className="text-xl font-black text-sky-600">{fmt(modalTotal)}</span>
                 </div>
 
                 <button
                   onClick={confirmarAjustado}
                   disabled={modal.pagando}
-                  className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors disabled:opacity-40 flex items-center justify-center gap-2 text-sm"
+                  className="w-full py-2.5 bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl transition-colors disabled:opacity-40 flex items-center justify-center gap-2 text-sm"
                 >
                   {modal.pagando ? <Loader2 size={14} className="animate-spin" /> : null}
                   Confirmar Pago Ajustado
@@ -448,7 +448,7 @@ const GeneradorNominaTab: React.FC = () => {
                   <ol className="relative border-l border-slate-200 space-y-5 ml-2">
                     {log.map(n => (
                       <li key={n.id} className="ml-4">
-                        <span className="absolute -left-[5px] w-2.5 h-2.5 bg-orange-400 rounded-full ring-2 ring-white" />
+                        <span className="absolute -left-[5px] w-2.5 h-2.5 bg-sky-400 rounded-full ring-2 ring-white" />
                         <p className="text-xs font-semibold text-slate-700">
                           {fmtFecha(n.semana_inicio)} — {fmtFecha(n.semana_fin)}
                         </p>
@@ -457,7 +457,7 @@ const GeneradorNominaTab: React.FC = () => {
                             <li key={i} className="text-xs text-slate-500">{desc}</li>
                           ))}
                         </ul>
-                        <p className="text-xs font-bold text-orange-600 mt-1">
+                        <p className="text-xs font-bold text-sky-600 mt-1">
                           Total: {fmt(parseFloat(n.monto_total_pagado))}
                         </p>
                       </li>

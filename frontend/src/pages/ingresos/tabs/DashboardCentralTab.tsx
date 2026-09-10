@@ -20,7 +20,7 @@ const MESES = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','N
 const COLORES: Record<string, string> = {
   Prestamo:        '#3b82f6',
   Inmueble:        '#a855f7',
-  Cancha:          '#f97316',
+  Cancha:          '#0ea5e9',
   Estacionamiento: '#64748b',
   Pension:         '#10b981',
 };
@@ -155,7 +155,7 @@ const DashboardCentralTab: React.FC<{ mes: number; anio: number; refreshKey?: nu
         <KpiCard
           label="Utilidad Neta" sub="Intereses · Rentas · Otros"
           valor={d?.cobrado.utilidad ?? 0}
-          color="text-orange-500" bg="bg-orange-50" Icono={TrendingUp}
+          color="text-sky-500" bg="bg-sky-50" Icono={TrendingUp}
         />
         <KpiCard
           label="Retorno Capital" sub="Abonos a capital"
@@ -287,14 +287,14 @@ const DashboardCentralTab: React.FC<{ mes: number; anio: number; refreshKey?: nu
       {d?.mejor_dia.global && (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
           <p className="text-sm font-semibold text-slate-700 mb-4">
-            <Target size={14} className="inline mr-1.5 text-orange-500" />
+            <Target size={14} className="inline mr-1.5 text-sky-500" />
             Mejor día del mes
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-orange-50 rounded-xl px-4 py-3">
-              <p className="text-xs text-orange-400 mb-0.5">Total global</p>
-              <p className="text-lg font-bold text-orange-600">{fmt(d.mejor_dia.global.monto)}</p>
-              <p className="text-xs text-orange-400">{fmtFecha(d.mejor_dia.global.fecha)}</p>
+            <div className="bg-sky-50 rounded-xl px-4 py-3">
+              <p className="text-xs text-sky-400 mb-0.5">Total global</p>
+              <p className="text-lg font-bold text-sky-600">{fmt(d.mejor_dia.global.monto)}</p>
+              <p className="text-xs text-sky-400">{fmtFecha(d.mejor_dia.global.fecha)}</p>
             </div>
             {d.mejor_dia.por_origen.map(o => (
               <div key={o.origen} className="bg-slate-50 rounded-xl px-4 py-3">

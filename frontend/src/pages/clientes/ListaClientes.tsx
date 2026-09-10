@@ -101,8 +101,8 @@ const ListaClientes: React.FC = () => {
           </div>
           <button
             onClick={() => navigate('/clientes/nuevo')}
-            className="flex items-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600
-                       text-white text-sm font-medium rounded-xl shadow-sm shadow-orange-500/25
+            className="flex items-center gap-2 px-4 py-2.5 bg-sky-500 hover:bg-sky-600
+                       text-white text-sm font-medium rounded-xl shadow-sm shadow-sky-500/25
                        transition-colors duration-150 self-start sm:self-auto"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

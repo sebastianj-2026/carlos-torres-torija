@@ -48,16 +48,16 @@ const HistorialNominasTab: React.FC = () => {
       {/* Filters */}
       <div className="flex flex-wrap gap-3 items-center">
         <input type="month" value={filtroPer} onChange={e => setFiltroPer(e.target.value)}
-          className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300" />
+          className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300" />
         <select value={filtroEmp} onChange={e => setFiltroEmp(e.target.value)}
-          className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 bg-white min-w-[180px]">
+          className="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300 bg-white min-w-[180px]">
           <option value="">Todos los empleados</option>
           {empleados.map(e => (
             <option key={e.id} value={e.id}>{e.nombre}</option>
           ))}
         </select>
         {filtradas.length > 0 && (
-          <span className="text-xs text-slate-400">{filtradas.length} registros · Total: <strong className="text-orange-600">{fmt(totalMes)}</strong></span>
+          <span className="text-xs text-slate-400">{filtradas.length} registros · Total: <strong className="text-sky-600">{fmt(totalMes)}</strong></span>
         )}
       </div>
 
@@ -120,7 +120,7 @@ const HistorialNominasTab: React.FC = () => {
               <tfoot className="bg-slate-50 border-t-2 border-slate-200">
                 <tr>
                   <td colSpan={6} className="px-4 py-3 text-xs font-semibold text-slate-600">Total período</td>
-                  <td className="px-4 py-3 text-right font-black text-orange-600">{fmt(totalMes)}</td>
+                  <td className="px-4 py-3 text-right font-black text-sky-600">{fmt(totalMes)}</td>
                   <td />
                 </tr>
               </tfoot>

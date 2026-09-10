@@ -1,5 +1,5 @@
 // ================================================================
-// OFICINA TS — Módulo de Préstamos
+// PrestaFácil — Módulo de Préstamos
 // Tipos e interfaces para el frontend
 // ================================================================
 
@@ -70,7 +70,7 @@ export const COLORES_ESTATUS_PRESTAMO: Record<EstatusPrestamo, string> = {
   en_juicio:              'bg-red-100    text-red-700',
   liquidado:              'bg-slate-100  text-slate-600',
   cancelado:              'bg-neutral-900 text-white',
-  documentos_incompletos: 'bg-orange-100 text-orange-700',
+  documentos_incompletos: 'bg-sky-100 text-sky-700',
 };
 
 export const ETIQUETAS_ESTATUS_PRESTAMO: Record<EstatusPrestamo, string> = {

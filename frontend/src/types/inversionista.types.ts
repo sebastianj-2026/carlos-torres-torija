@@ -1,9 +1,7 @@
 // ================================================================
-// OFICINA TS — Módulo de Inversionistas
+// PrestaFácil — Módulo de Inversionistas
 // Tipos e interfaces para el frontend
 // ================================================================
-
-export type AsignadoA = 'sebastian' | 'abril';
 
 export type EstatusInversion = 'activo' | 'pausado' | 'liquidado' | 'vencido';
 
@@ -23,7 +21,6 @@ export interface Inversionista {
   apellido_materno: string | null;
   telefono: string | null;
   correo: string | null;
-  asignado_a: AsignadoA | null;
   url_ine: string | null;
   capital_aportado_total: string;
   capital_disponible: string;
@@ -39,7 +36,6 @@ export interface InversionistaResumen {
   apellido_paterno: string;
   apellido_materno: string | null;
   telefono: string | null;
-  asignado_a: AsignadoA | null;
   capital_aportado_total: string;
   capital_disponible: string;
   total_invertido: string;
@@ -66,6 +62,8 @@ export interface Inversion {
   fecha_inicio: string;
   fecha_vencimiento: string | null;
   notas: string | null;
+  referenciador_id: string | null;
+  tasa_referenciador: string | null;
   registrado_por: string | null;
   fecha_registro: string;
   fecha_actualizacion: string;
@@ -126,7 +124,6 @@ export interface PaginacionInversionistas {
 // ----------------------------------------------------------------
 export interface FiltrosInversionistas {
   buscar: string;
-  asignado_a: string;
   orden: string;
   pagina: number;
   limite: number;
@@ -141,7 +138,6 @@ export interface FormularioInversionistaData {
   apellido_materno: string;
   telefono: string;
   correo: string;
-  asignado_a: AsignadoA | '';
   url_ine: string;
   // Solo creación: capital inicial
   monto_aportado_inicial: string;
@@ -159,6 +155,8 @@ export interface FormularioInversionData {
   fecha_inicio: string;
   fecha_vencimiento: string;
   notas: string;
+  referenciador_id?: string;
+  tasa_referenciador?: string;
 }
 
 export interface FormularioPagoInteresData {

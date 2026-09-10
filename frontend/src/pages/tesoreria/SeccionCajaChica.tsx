@@ -30,7 +30,7 @@ const fmtBytes = (b: number) =>
 
 const inputCls = `w-full px-3 py-2.5 text-sm border border-slate-200 rounded-lg bg-white
   text-slate-800 placeholder-slate-300 focus:outline-none focus:ring-2
-  focus:ring-orange-400 focus:border-transparent transition-all`;
+  focus:ring-sky-400 focus:border-transparent transition-all`;
 
 const DATOS_VACIOS: FormMovimientoData = {
   tipo: 'salida', concepto: '', monto: '', fecha: new Date().toISOString().split('T')[0],
@@ -223,23 +223,23 @@ const SeccionCajaChica: React.FC = () => {
       <div className="flex flex-wrap items-center gap-3 justify-between">
         <div className="flex flex-wrap gap-2">
           <select value={filtroTipo} onChange={(e) => { setFiltroTipo(e.target.value); setPagina(1); }}
-            className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400">
+            className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
             <option value="">Todos los tipos</option>
             <option value="entrada">Entradas</option>
             <option value="salida">Salidas</option>
           </select>
           <select value={filtroCategoria} onChange={(e) => { setFiltroCategoria(e.target.value); setPagina(1); }}
-            className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400">
+            className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400">
             <option value="">Todas las categorías</option>
             {categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
           </select>
           <input type="date" value={filtroDesde} onChange={(e) => { setFiltroDesde(e.target.value); setPagina(1); }}
-            className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+            className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400" />
           <input type="date" value={filtroHasta} onChange={(e) => { setFiltroHasta(e.target.value); setPagina(1); }}
-            className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-orange-400" />
+            className="text-sm border border-slate-200 rounded-lg px-3 py-2 bg-white text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-400" />
         </div>
         <button onClick={abrirModal}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-500 hover:bg-orange-600
+          className="flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600
                      text-white text-sm font-medium rounded-xl shadow-sm transition-colors">
           <Plus size={15} />
           Nuevo movimiento
@@ -302,7 +302,7 @@ const SeccionCajaChica: React.FC = () => {
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
                         <button onClick={() => abrirEditar(m)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-orange-600 hover:bg-orange-50 transition-colors"
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition-colors"
                           title="Editar">
                           <Pencil size={13} />
                         </button>
@@ -452,7 +452,7 @@ const SeccionCajaChica: React.FC = () => {
                 <div className="flex items-center justify-between mb-1">
                   <label className="text-xs font-medium text-slate-600">Categoría</label>
                   <button type="button" onClick={() => setMostrarNuevaCat((v) => !v)}
-                    className="flex items-center gap-1 text-[10px] font-semibold text-orange-600 hover:text-orange-700">
+                    className="flex items-center gap-1 text-[10px] font-semibold text-sky-600 hover:text-sky-700">
                     <Tag size={10} />
                     Agregar nueva categoría
                   </button>
@@ -466,8 +466,8 @@ const SeccionCajaChica: React.FC = () => {
                       placeholder="Nombre de la categoría"
                       className={`${inputCls} flex-1`} />
                     <button onClick={handleCrearCategoria} disabled={creandoCat || !nuevaCategoria.trim()}
-                      className="px-3 py-2 bg-orange-500 text-white text-xs font-medium rounded-lg
-                                 hover:bg-orange-600 disabled:opacity-50 transition-colors whitespace-nowrap">
+                      className="px-3 py-2 bg-sky-500 text-white text-xs font-medium rounded-lg
+                                 hover:bg-sky-600 disabled:opacity-50 transition-colors whitespace-nowrap">
                       {creandoCat ? '...' : 'Crear'}
                     </button>
                   </div>
@@ -496,7 +496,7 @@ const SeccionCajaChica: React.FC = () => {
                 <div
                   onClick={() => voucherRef.current?.click()}
                   className={`cursor-pointer border-2 border-dashed rounded-xl p-3 transition-all
-                    hover:border-orange-300 hover:bg-orange-50/20 ${voucher ? 'border-green-300 bg-green-50/30' : 'border-slate-200 bg-white'}`}>
+                    hover:border-sky-300 hover:bg-sky-50/20 ${voucher ? 'border-green-300 bg-green-50/30' : 'border-slate-200 bg-white'}`}>
                   <input ref={voucherRef} type="file"
                     accept="image/*,application/pdf"
                     className="hidden"
@@ -544,7 +544,7 @@ const SeccionCajaChica: React.FC = () => {
                 Cancelar
               </button>
               <button onClick={handleGuardar} disabled={guardando}
-                className="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white text-sm font-medium
+                className="px-5 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-medium
                            rounded-xl transition-colors disabled:opacity-60">
                 {guardando ? 'Guardando...' : editando ? 'Guardar cambios' : 'Registrar movimiento'}
               </button>
