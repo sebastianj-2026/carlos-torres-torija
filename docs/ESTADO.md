@@ -117,8 +117,8 @@ M13–M15 estén verdes.**
 - [ ] **`docs/DISENO.md` con marcas `{{TODO}}`** — tokens y tipografía sin extraer.
 - [x] ~~**Validación de entrada laxa en endpoints nuevos de referencias**~~ —
       resuelta el 2026-09-09 (M26): UUID/tasa/fecha_fin validados antes de la DB,
-      400 en español. **Sigue viva la mitad legacy:** el mismo hueco en
-      `crearInversion` no se tocó (refactor legacy es ticket propio).
+      400 en español. La mitad legacy (`crearInversion`) se cerró el mismo día
+      con **M31**.
 - [x] ~~**Working tree con ~140 archivos modificados**~~ — resuelta el
       2026-09-09. El diagnóstico de CRLF era **incorrecto**: eran cambios reales
       sin commitear (rebranding OFICINA TS→PrestaFácil, schema/seed sin
@@ -173,6 +173,7 @@ M13–M15 estén verdes.**
 | 2026-09-08 | M6 · columnas de deuda | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. `—` con tooltip mientras M12 esté bloqueada (nunca `0.00`); orden *se le debe* desc comparando NUMERIC como string, sin float. 4 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-09-08 | M23 · GET con referencias | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `referencias[]` + `origen_nombre` por join en servidor, una fila por origen (R16). 2 archivos. ⚠️ 500a hasta aplicar M2 a Neon. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-09-08 | M24 · id navegable del origen | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `origen_inversionista_id` en `referencias[]` para que M7 navegue a `/inversionistas/:id`; préstamos ya navegaban con `prestamo_id`. 2 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
+| 2026-09-09 | M31 · endurecer legacy crearInversion | ✅ aceptada | Cierre sobre gate verde `logic`. Deuda de M4 saldada por completo (M26 + M31). Smoke 3 casos → 400. |
 | 2026-09-09 | M28 · solo admin liga referencias | ✅ aceptada | Cierre sobre gate verde `logic`. `roleMiddleware` en POST/PATCH referencias (⛔4=A). Smoke 403/400. |
 | 2026-09-09 | M29 · estados solo hacia adelante | ✅ aceptada | Cierre sobre gate verde `logic`. Revivir y tasa fuera de `activa` → 400 (⛔5=A). Smoke 5 casos. **Release completo.** |
 | 2026-09-09 | M20 · filtro inv/referenciadores | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. Filtro client-side verificado en navegador (6→2→4→6). **Bloque C completo.** |

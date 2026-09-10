@@ -256,6 +256,15 @@ Si no cumple → se parte. No se negocia.
   → 400, tasa fuera de `activa` → 400; notas/fecha_fin siguen editables.
   Smoke de 5 casos contra el server, datos temporales borrados. 1 archivo.
 
+### M31 · Endurecer validación del legacy `crearInversion`
+- **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** —
+- **Por qué:** hueco gemelo de M26, anotado en deuda desde la revisión de
+  seguridad de M4: UUID de referidor mal formado → 500, tasa sin techo
+  `NUMERIC(5,2)`, fechas sin validar formato.
+- **Estado:** ✅ — `esUuidV`/`esFechaV`/`tasaEnRango` antes de tocar la DB;
+  400 en español en los 3 casos (smoke verificado). El resto del legacy no se
+  tocó. 1 archivo.
+
 ### M23 · Detalle de referenciador devuelve sus referencias
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M3, M4
 - **Lee:** `docs/modulos/inversionistas/MODULO.md` + `REGLAS.md`

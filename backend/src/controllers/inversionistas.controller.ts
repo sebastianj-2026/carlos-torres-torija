@@ -507,6 +507,19 @@ export const listarInversiones = async (req: Request, res: Response): Promise<vo
 // Crear nueva inversión para un inversionista
 // POST /api/inversionistas/:id/inversiones
 // ----------------------------------------------------------------
+// M31: input hardening (same class as M26) — reject before the DB so bad
+// input yields 400, not a 500 from 22P02/overflow.
+const esUuidV = (s: string): boolean =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+const esFechaV = (s: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(s + 'T00:00:00Z');
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s;
+};
+// NUMERIC(5,2): > 0, hasta 999.99, máximo 2 decimales
+const tasaEnRango = (n: number): boolean =>
+  Number.isFinite(n) && n > 0 && n <= 999.99 && Math.round(n * 100) / 100 === n;
+
 export const crearInversion = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -533,17 +546,29 @@ export const crearInversion = async (req: Request, res: Response): Promise<void>
       res.status(400).json({ mensaje: 'La fecha de inicio es obligatoria.' });
       return;
     }
+    if (!esFechaV(String(datos.fecha_inicio))) {
+      res.status(400).json({ mensaje: 'La fecha de inicio debe tener formato AAAA-MM-DD y ser válida.' });
+      return;
+    }
+    if (datos.fecha_vencimiento && !esFechaV(String(datos.fecha_vencimiento))) {
+      res.status(400).json({ mensaje: 'La fecha de vencimiento debe tener formato AAAA-MM-DD y ser válida.' });
+      return;
+    }
 
     // Referidor (otro inversionista) + su tasa. Van juntos o ninguno; no auto-referencia.
     const referenciadorId = datos.referenciador_id?.trim() || null;
     const tasaReferenciador = datos.tasa_referenciador;
     if (referenciadorId) {
+      if (!esUuidV(referenciadorId)) {
+        res.status(400).json({ mensaje: 'El id del referidor no es un UUID válido.' });
+        return;
+      }
       if (referenciadorId === id) {
         res.status(400).json({ mensaje: 'El referidor no puede ser el mismo inversionista.' });
         return;
       }
-      if (!tasaReferenciador || tasaReferenciador <= 0) {
-        res.status(400).json({ mensaje: 'Falta la tasa del referidor.' });
+      if (!tasaReferenciador || !tasaEnRango(Number(tasaReferenciador))) {
+        res.status(400).json({ mensaje: 'La tasa del referidor debe ser mayor a cero, hasta 999.99, con máximo 2 decimales.' });
         return;
       }
       const refExiste = await pool.query('SELECT id FROM inversionistas WHERE id = $1', [referenciadorId]);
