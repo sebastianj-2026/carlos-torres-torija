@@ -113,9 +113,13 @@ M13–M15 estén verdes.**
 - [ ] **Migraciones manuales, sin runner.** SQL plano en `database/`, aplicado a
       mano a Neon vía `scripts/apply-migration.js`. `CMD_MIGRATE_*` vacíos → el
       gate `data`/`full` **no verifica migraciones**. Las verifica el humano.
-- [ ] **Migraciones NO aplicadas en prod** con workarounds hardcoded en el
-      analytics controller (`otros=0::NUMERIC`, `pensiones_activas=0`).
-      Ver `docs/modulos/dashboard/DATOS.md`.
+- [x] ~~**Migraciones NO aplicadas + workarounds del dashboard**~~ — resuelta el
+      2026-09-09: `ingresos_directos`/`metricas_cancha` creadas (el INSERT de
+      Ingresos Extras tronaba en 500), espejo redirigido a
+      `historial_ingresos_central` con origen `'Otros'` (CHECK ampliado), y
+      `otros` del dashboard ya lee dato real. `pensiones_activas=0` es
+      definitivo (módulo eliminado). Obsoletas movidas a `_to_delete/database/`.
+      Detalle en `docs/modulos/dashboard/DATOS.md`.
 - [ ] **Sin e2e/responsive.** No existe `e2e/responsive.spec.ts`; responsive se
       verifica a ojo con playwright-mcp. `CMD_E2E_RESPONSIVE` vacío.
 - [x] ~~**`docs/DISENO.md` con marcas `{{TODO}}`**~~ — resuelta el 2026-09-09:

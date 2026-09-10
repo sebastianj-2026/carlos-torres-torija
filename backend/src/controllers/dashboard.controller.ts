@@ -375,7 +375,11 @@ export const getAnalytics = async (req: Request, res: Response): Promise<void> =
           ), 0) AS prestamos,
           0::NUMERIC AS cancha,
           0::NUMERIC AS estacionamiento,
-          0::NUMERIC AS otros
+          COALESCE((
+            SELECT SUM(monto_utilidad + monto_capital_recuperado)
+            FROM   historial_ingresos_central
+            WHERE  origen = 'Otros' AND periodo_mes = $1 AND periodo_anio = $2
+          ), 0) AS otros
       `, [mes, anio])),
 
       // 3. Egresos: cpp por centro_costo + nómina + caja chica (flujo real, no saldos)
@@ -423,7 +427,8 @@ export const getAnalytics = async (req: Request, res: Response): Promise<void> =
           ), 0) AS intereses_esperados
       `, [mes, anio])),
 
-      // 5. Pensiones activas — tabla migration_ingresos_hub.sql pendiente de aplicar en Neon
+      // 5. Pensiones activas — módulo estacionamiento ELIMINADO del negocio
+      // (2026-08-16): el 0 es definitivo, no un workaround pendiente.
       Promise.resolve({ rows: [{ pensiones_activas: 0 }] }),
 
       // 6. Juicios activos con saldo del préstamo asociado

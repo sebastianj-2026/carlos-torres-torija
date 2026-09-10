@@ -27,16 +27,22 @@
 - `historial_ingresos` — tabla legacy. **NO existe en Neon** (migración nunca
   aplicada). No referenciarla en nuevas queries.
 
-## Migraciones NO aplicadas en Neon (producción)
-Las siguientes migraciones están en `/database/` pero **no están en la DB de
-producción**:
-- `migration_historial_ingresos.sql` — tabla `historial_ingresos` no existe
-- `migration_ingresos_hub.sql` — tablas `pensiones_estacionamiento`,
-  `ingresos_directos`, `metricas_cancha` no existen
+## Migraciones del hub — resuelto el 2026-09-09
 
-En el analytics controller, estas ausencias están workaroundeadas:
-- `otros` = `0::NUMERIC` (hardcoded)
-- `pensiones_activas` = `Promise.resolve({ rows: [{ pensiones_activas: 0 }] })` (hardcoded)
+- `ingresos_directos` + `metricas_cancha` **ya existen en Neon**
+  (`migration_ingresos_directos.up/.down.sql` — solo lo que tiene consumidor
+  vivo). El espejo de ingresos directos ahora escribe a
+  **`historial_ingresos_central`** (origen `'Otros'`, agregado al CHECK vía
+  `migration_hic_origen_otros`), no al legacy `historial_ingresos` que nunca
+  existió.
+- `otros` del dashboard **ya es dato real**: suma de central con
+  origen `'Otros'` del periodo. Verificado end-to-end.
+- `pensiones_activas = 0` **se queda**: el módulo estacionamiento fue eliminado
+  del negocio — es el valor definitivo, no un workaround. Sus lecturas caen en
+  `safeQuery` (vacío) a propósito; `pensiones_estacionamiento` NO se crea.
+- Las migraciones obsoletas (`migration_ingresos_hub.sql`,
+  `migration_historial_ingresos.sql`) se movieron a `_to_delete/database/`
+  para que nadie las aplique por accidente.
 
 ## Migraciones
 | # | Qué hace | Reversa | Aplicada en prod |

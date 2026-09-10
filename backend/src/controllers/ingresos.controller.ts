@@ -90,7 +90,9 @@ export const crearIngresoDirecto = async (req: Request, res: Response): Promise<
       );
     }
 
-    // Mirror into historial_ingresos: all direct income is 100% utilidad (no capital recovery)
+    // Mirror into historial_ingresos_central (the live ledger; the legacy
+    // historial_ingresos table never existed in Neon). All direct income is
+    // 100% utilidad — no capital recovery.
     const ORIGEN_MAP: Record<string, string> = {
       cancha_futbol:            'Cancha',
       estacionamiento_coches:   'Estacionamiento',
@@ -102,11 +104,12 @@ export const crearIngresoDirecto = async (req: Request, res: Response): Promise<
     // Derive period from semana_corte ('YYYY-MM-DD') to avoid timezone drift
     const [pAnio, pMes] = (semana_corte as string).split('-').map(Number);
     await client.query(
-      `INSERT INTO historial_ingresos
-         (origen, referencia_id, monto_total_cobrado, monto_utilidad, monto_capital_recuperado,
-          periodo_mes, periodo_anio, notas, registrado_por)
-       VALUES ($1,$2,$3,$3,0,$4,$5,$6,$7)`,
-      [origenHI, r.rows[0].id, monto_ingresado, pMes, pAnio, notas_explicativas || null, registrado_por || null]
+      `INSERT INTO historial_ingresos_central
+         (origen, referencia_id, monto_utilidad, monto_capital_recuperado,
+          periodo_mes, periodo_anio, fecha_cobro, notas, registrado_por)
+       VALUES ($1,$2,$3,0,$4,$5,$6,$7,$8)`,
+      [origenHI, r.rows[0].id, monto_ingresado, pMes, pAnio, semana_corte,
+       notas_explicativas || null, registrado_por || null]
     );
 
     await client.query('COMMIT');
