@@ -252,7 +252,9 @@ Si no cumple → se parte. No se negocia.
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M4
 - **Por qué:** ⛔5 resuelta (2026-09-09): opción A. `activa → terminada/cancelada`
   sin regreso; la tasa no se edita si la referencia ya no está `activa`.
-- **Estado:** ⬜
+- **Estado:** ✅ — `editarReferencia` valida contra el estado actual: revivir
+  → 400, tasa fuera de `activa` → 400; notas/fecha_fin siguen editables.
+  Smoke de 5 casos contra el server, datos temporales borrados. 1 archivo.
 
 ### M23 · Detalle de referenciador devuelve sus referencias
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M3, M4

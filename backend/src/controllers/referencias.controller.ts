@@ -156,13 +156,15 @@ export const editarReferencia = async (req: Request, res: Response): Promise<voi
       return;
     }
 
-    const existe = await pool.query('SELECT id FROM referencias WHERE id = $1', [id]);
+    const existe = await pool.query('SELECT id, estado FROM referencias WHERE id = $1', [id]);
     if (existe.rowCount === 0) {
       res.status(404).json({ success: false, data: null, error: 'Referencia no encontrada.' });
       return;
     }
+    const estadoActual: EstadoReferencia = existe.rows[0].estado;
 
-    // Estado, si viene, debe ser válido
+    // M29 (⛔5=A): estados solo hacia adelante — activa → terminada|cancelada.
+    // Una referencia terminada o cancelada no se revive.
     let estado: EstadoReferencia | null = null;
     if (datos.estado !== undefined) {
       const validos: EstadoReferencia[] = ['activa', 'terminada', 'cancelada'];
@@ -170,12 +172,26 @@ export const editarReferencia = async (req: Request, res: Response): Promise<voi
         res.status(400).json({ success: false, data: null, error: 'Estado no válido.' });
         return;
       }
+      if (datos.estado !== estadoActual && estadoActual !== 'activa') {
+        res.status(400).json({
+          success: false, data: null,
+          error: `Una referencia ${estadoActual} no puede cambiar de estado. Las transiciones solo van hacia adelante.`,
+        });
+        return;
+      }
       estado = datos.estado;
     }
 
-    // Tasa, si viene, debe ser > 0
+    // M29 (⛔5=A): la tasa solo se edita mientras la referencia está activa
     let tasa: string | null = null;
     if (datos.tasa !== undefined) {
+      if (estadoActual !== 'activa') {
+        res.status(400).json({
+          success: false, data: null,
+          error: `La tasa no se edita en una referencia ${estadoActual}.`,
+        });
+        return;
+      }
       tasa = tasaValida(datos.tasa);
       if (!tasa) {
         res.status(400).json({ success: false, data: null, error: 'La tasa debe ser un porcentaje mayor a cero, hasta 999.99, con máximo 2 decimales.' });
