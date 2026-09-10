@@ -96,10 +96,19 @@ M13–M15 estén verdes.**
 
 ## Deuda técnica
 
-- [ ] **Dinero en float.** ~100 hits de `parseFloat(...).toFixed(2)` sobre dinero
-      en todos los controllers. El check `dinero-sin-float` sale ROJO.
-      **Desactivado como bloqueante** (no está en `CHECKS_EXTRA`). La regla nueva
-      (M16) aplica **solo a lo nuevo**: el legacy se ataca en ticket propio.
+- [~] **Dinero en float (legacy)** — atacada el 2026-09-09 con corte quirúrgico:
+      - **Hecho:** `backend/src/lib/dinero.ts` (suma/resta/piso-cero/comparación
+        exactas en centavos, con tests) y migrados los sitios **neutrales al
+        redondeo** que escriben saldos o validan desgloses: `pagos` (nuevoSaldo),
+        `nominas` (descuento de préstamo ×2), `egresos` (desglose
+        capital+interés+IVA, que además pasó de tolerar ±$0.01 a exigir igualdad
+        exacta — la tolerancia solo existía por el drift de float).
+      - **Pendiente a propósito (~45 sitios):** las fórmulas `base × tasa / 100`
+        de cobros/egresos/nómina usan `toFixed` (redondeo bancario errático);
+        migrarlas a half-up **cambia centavos cobrados/pagados** → cada fórmula
+        necesita visto bueno de negocio antes de tocarse. Los `parseFloat` de
+        solo-display/porcentajes son inofensivos (2 decimales es exacto en
+        double) y no se tocan.
 - [x] ~~**Dos escalas de tasa**~~ — resuelta el 2026-09-09: M11 aplicada a Neon
       (`tasa_referenciador` ya es `NUMERIC(5,2)`, 0.50 = 0.5%) y M21 alineó el
       form legacy. Todo el sistema usa porcentaje con 2 decimales.

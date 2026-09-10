@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import pool from '../config/database';
+import { restaPiso0 } from '../lib/dinero';
 
 const HORAS_SEMANA = 48;
 const MULTIPLICADOR: Record<string, number> = { Normal: 1, Doble: 2, Triple: 3 };
@@ -303,7 +304,7 @@ export const pagarNomina = async (req: Request, res: Response): Promise<void> =>
 
       if ((pRes.rowCount ?? 0) > 0) {
         const p = pRes.rows[0];
-        const nuevoSaldo = parseFloat(Math.max(0, parseFloat(p.saldo_pendiente) - descuento).toFixed(2));
+        const nuevoSaldo = restaPiso0(String(p.saldo_pendiente), descuento.toFixed(2)); // exact cents (deuda 5)
         await client.query(`
           UPDATE prestamos SET saldo_pendiente = $1,
             estatus = CASE WHEN $1 = 0 THEN 'liquidado' ELSE estatus END,
@@ -416,7 +417,7 @@ export const pagarBase = async (req: Request, res: Response): Promise<void> => {
 
       if ((pRes.rowCount ?? 0) > 0) {
         const p = pRes.rows[0];
-        const nuevoSaldo = parseFloat(Math.max(0, parseFloat(p.saldo_pendiente) - descuento).toFixed(2));
+        const nuevoSaldo = restaPiso0(String(p.saldo_pendiente), descuento.toFixed(2)); // exact cents (deuda 5)
         await client.query(`
           UPDATE prestamos SET saldo_pendiente = $1,
             estatus = CASE WHEN $1 = 0 THEN 'liquidado' ELSE estatus END,

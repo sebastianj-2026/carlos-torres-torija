@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { randomUUID } from 'crypto';
 import pool from '../config/database';
+import { sumaMontos, comparaMontos } from '../lib/dinero';
 
 // ================================================================
 // UTILIDAD DE FECHAS — Regla de ajuste por mes
@@ -274,8 +275,13 @@ export const crearCuentaPorPagar = async (req: Request, res: Response): Promise<
     }
 
     if (deuda_id) {
-      const suma = parseFloat(monto_capital) + parseFloat(monto_interes) + parseFloat(monto_iva);
-      if (Math.abs(suma - parseFloat(monto_total)) > 0.01) {
+      // Exact cents (deuda 5): the old float check tolerated ±$0.01 drift
+      const suma = sumaMontos([
+        Number(monto_capital).toFixed(2),
+        Number(monto_interes).toFixed(2),
+        Number(monto_iva).toFixed(2),
+      ]);
+      if (comparaMontos(suma, Number(monto_total).toFixed(2)) !== 0) {
         res.status(400).json({ mensaje: 'El desglose capital+interés+IVA debe ser igual a monto_total.' });
         return;
       }

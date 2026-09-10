@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import pool from '../config/database';
+import { restaPiso0, esCero } from '../lib/dinero';
 
 // ================================================================
 // POST /api/pagos/registrar
@@ -104,8 +105,12 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
     }
 
     // --- 4. Actualizar saldo y estado en la tabla de origen ---
-    const nuevoSaldo = Math.max(0, parseFloat(obligacion!.saldo_pendiente as unknown as string) - monto);
-    const liquidado  = nuevoSaldo <= 0;
+    // Exact cents (deuda 5): balance math never goes through floats
+    const nuevoSaldo = restaPiso0(
+      String(obligacion!.saldo_pendiente),
+      Number(monto).toFixed(2),
+    );
+    const liquidado  = esCero(nuevoSaldo);
 
     // Calcular fecha_proximo_pago: sumar 1 mes a la fecha anterior (o a hoy si era null)
     const baseDate = obligacion!.fecha_proximo_pago
@@ -154,7 +159,7 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
       referencia_id,
       cliente_id,
       monto_pagado:     monto,
-      nuevo_saldo:      nuevoSaldo,
+      nuevo_saldo:      Number(nuevoSaldo), // API contract: number (display-only)
       liquidado,
       fecha_proximo_pago: liquidado ? null : nuevaFechaProximoPago,
       url_recibo:       urlRecibo,
