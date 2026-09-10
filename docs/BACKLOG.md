@@ -307,7 +307,12 @@ Si no cumple → se parte. No se negocia.
 - **Tipo:** `motor` · **Depende de:** M12
 - **Extra al DoD:** correr el corte dos veces deja **el mismo estado** (R20).
   Congela `base_capital` y `tasa` al generarse (R18).
-- **Estado:** ⬜
+- **Estado:** ✅ — `modules/motor/corte.ts` (núcleo puro, BigInt en centavos,
+  half-up R24) + `corte.db.ts` (`ON CONFLICT DO NOTHING` sobre
+  `devengos_idempotente`). Casos C1–C6 en tests (6 ✅, TDD rojo→verde); C7
+  (idempotencia) verificado contra Neon: 4 candidatos, 2ª corrida inserta 0,
+  datos de prueba borrados. **Solo rendimiento** — comisiones (base viva R3)
+  llegan en M14. 5 archivos.
 
 ### M14 · Cálculo sobre capital vigente (base viva)
 - **Tipo:** `motor` · **Depende de:** M13
@@ -357,7 +362,7 @@ Si no cumple → se parte. No se negocia.
 | Bloque | Tareas | Estado |
 |---|---|---|
 | A — inversionistas/referenciadores | 22 (incluye M25–M29 extra) | 19 ✅ · 1 ❌ (M8) · 2 ⬜ (M28, M29 — de ⛔4/⛔5) |
-| B — motor de comisiones | 5 | 1 ✅ · 4 ⬜ (siguiente: M13) |
+| B — motor de comisiones | 5 | 2 ✅ · 3 ⬜ (siguiente: M14) |
 | C — cuentas por pagar | 4 | 4 ⬜ (tras Bloque B) |
 
 ## Bloques B y C desbloqueados el 2026-09-09
