@@ -244,7 +244,9 @@ Si no cumple → se parte. No se negocia.
 - **Por qué:** ⛔4 resuelta (2026-09-09): opción A. Hoy cualquier usuario con
   sesión puede ligar/editar referencias; debe exigir rol administrador, como
   editar una inversión.
-- **Estado:** ⬜
+- **Estado:** ✅ — `roleMiddleware('administrador')` en `POST`/`PATCH
+  /api/referencias`. Smoke: oficinista → 403, admin llega a validación.
+  1 archivo.
 
 ### M29 · Estados de referencia solo hacia adelante
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M4
