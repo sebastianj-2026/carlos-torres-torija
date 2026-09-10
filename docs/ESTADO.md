@@ -121,14 +121,10 @@ M13–M15 estén verdes.**
 - [ ] **Sin e2e/responsive.** No existe `e2e/responsive.spec.ts`; responsive se
       verifica a ojo con playwright-mcp. `CMD_E2E_RESPONSIVE` vacío.
 - [ ] **`docs/DISENO.md` con marcas `{{TODO}}`** — tokens y tipografía sin extraer.
-- [ ] **Validación de entrada laxa en endpoints nuevos de referencias** (M4).
-      Los UUID del body (`referenciador_id`, `inversion_id`, `prestamo_id`) no se
-      validan de forma antes de la DB → UUID mal formado da **500** (22P02) en vez
-      de **400**; `tasa` no valida el techo de `NUMERIC(5,2)` (>999.99 → overflow);
-      `fecha_fin` no valida fecha. **Sin brecha** (todo parametrizado). Mismo hueco
-      en el legacy `crearInversion`. Ticket propio de endurecimiento (revisión de
-      seguridad del commit de M4, 2026-08-26). No se parchó en caliente para no
-      reabrir tarea cerrada.
+- [x] ~~**Validación de entrada laxa en endpoints nuevos de referencias**~~ —
+      resuelta el 2026-09-09 (M26): UUID/tasa/fecha_fin validados antes de la DB,
+      400 en español. **Sigue viva la mitad legacy:** el mismo hueco en
+      `crearInversion` no se tocó (refactor legacy es ticket propio).
 - [ ] **El working tree marca ~140 archivos como modificados** sin cambio de
       contenido aparente (probable normalización de fin de línea CRLF/LF).
       Revisar `core.autocrlf` / `.gitattributes` **antes** del próximo commit, o
@@ -180,6 +176,7 @@ M13–M15 estén verdes.**
 | 2026-09-08 | M6 · columnas de deuda | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. `—` con tooltip mientras M12 esté bloqueada (nunca `0.00`); orden *se le debe* desc comparando NUMERIC como string, sin float. 4 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-09-08 | M23 · GET con referencias | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `referencias[]` + `origen_nombre` por join en servidor, una fila por origen (R16). 2 archivos. ⚠️ 500a hasta aplicar M2 a Neon. **Siguiente tarea en la misma sesión por instrucción explícita.** |
 | 2026-09-08 | M24 · id navegable del origen | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. `origen_inversionista_id` en `referencias[]` para que M7 navegue a `/inversionistas/:id`; préstamos ya navegaban con `prestamo_id`. 2 archivos. **Siguiente tarea en la misma sesión por instrucción explícita.** |
+| 2026-09-09 | M26 · endurecer validación /api/referencias | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. Deuda de seguridad de M4 saldada en lo nuevo; smoke test de 6 casos contra el server (datos temporales creados y borrados). 1 archivo. Elegida por Sebastian ante backlog bloqueado. |
 | 2026-09-09 | M22 · form alta/edición referenciador | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. Reusa `Campo` (P5) y `FileDropZone accept` PDF (M25); alta crea forma 3 (FLUJOS §2 no lista `inversionista_id` — la liga a inversionista queda fuera del form). **6 archivos, excepción a ≤5 autorizada.** Verificación visual pendiente de aplicar M1/M2 a Neon. |
 | 2026-09-09 | M25 · FileDropZone prop `accept` | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas` (shared sin docs propios). Tarea propia de componente compartido (prohibición 2), nacida de M22; default intacto. 1 archivo. **Cadena de tareas en la misma sesión por instrucción explícita.** |
 | 2026-09-09 | M8 · alerta inversión sin préstamo | ❌ descartada | Sin código. La liga se hace desde préstamos al crear el préstamo (`participantes_prestamo`); la condición del banner no puede darse. Decisión de Sebastian en sesión. |

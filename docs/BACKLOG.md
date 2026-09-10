@@ -218,6 +218,18 @@ Si no cumple → se parte. No se negocia.
   cero cambio de conducta); rechazo por MIME antes de subir con mensaje en
   español; texto de ayuda y `accept` del input derivados de la prop. 1 archivo.
 
+### M26 · Endurecer validación de entrada en /api/referencias
+- **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M4
+- **Por qué:** deuda de la revisión de seguridad de M4: UUID mal formado daba
+  **500** (22P02) en vez de **400**; `tasa` sin techo de `NUMERIC(5,2)`;
+  `fecha_fin` sin validar. Sin brecha (todo parametrizado) — era endurecimiento.
+- **Extra al DoD:** 400 con mensaje en español antes de tocar la DB. El hueco
+  gemelo del legacy `crearInversion` queda **fuera** (sigue en deuda).
+- **Estado:** ✅ — `esUuid` en `referenciador_id`/`inversion_id`/`prestamo_id`/
+  `:id`; `tasaValida` con regex 2 decimales y techo 999.99; `esFecha` para
+  `fecha_fin` (AAAA-MM-DD real). Smoke test de los 6 casos contra el server en
+  verde. 1 archivo.
+
 ### M23 · Detalle de referenciador devuelve sus referencias
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M3, M4
 - **Lee:** `docs/modulos/inversionistas/MODULO.md` + `REGLAS.md`
@@ -318,7 +330,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 18 (incluye M25 shared) | 17 ✅ · 1 ❌ (M8) · **Bloque A completo** |
+| A — inversionistas/referenciadores | 19 (incluye M25 shared, M26 deuda) | 18 ✅ · 1 ❌ (M8) · **Bloque A completo** |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 

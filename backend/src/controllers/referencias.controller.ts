@@ -6,14 +6,27 @@ import {
   EstadoReferencia,
 } from '../models/referencia.model';
 
-// Valida que un valor (string o número) sea un decimal > 0. Devuelve el string
-// normalizado para insertarlo tal cual (el motor lo opera con Decimal, no float).
+// Valida que un valor (string o número) sea un decimal > 0 dentro del rango de
+// NUMERIC(5,2) — hasta 999.99 con 2 decimales. Devuelve el string normalizado
+// para insertarlo tal cual (el motor lo opera con Decimal, no float).
 const tasaValida = (valor: unknown): string | null => {
   if (valor === null || valor === undefined || valor === '') return null;
   const s = String(valor).trim();
+  if (!/^\d{1,3}(\.\d{1,2})?$/.test(s)) return null;
   const n = Number(s);
-  if (!Number.isFinite(n) || n <= 0) return null;
+  if (!Number.isFinite(n) || n <= 0 || n > 999.99) return null;
   return s;
+};
+
+// UUID v4-agnóstico: rechaza antes de la DB para responder 400, no 500 (22P02)
+const esUuid = (s: string): boolean =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
+
+// Fecha calendario real en formato YYYY-MM-DD
+const esFecha = (s: string): boolean => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const d = new Date(s + 'T00:00:00Z');
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s;
 };
 
 // ================================================================
@@ -35,6 +48,10 @@ export const crearReferencia = async (req: Request, res: Response): Promise<void
     const referenciadorId = datos.referenciador_id?.trim();
     if (!referenciadorId) {
       res.status(400).json({ success: false, data: null, error: 'Falta el referenciador.' });
+      return;
+    }
+    if (!esUuid(referenciadorId)) {
+      res.status(400).json({ success: false, data: null, error: 'El id del referenciador no es un UUID válido.' });
       return;
     }
     const refExiste = await pool.query('SELECT id FROM referenciadores WHERE id = $1', [referenciadorId]);
@@ -61,6 +78,10 @@ export const crearReferencia = async (req: Request, res: Response): Promise<void
       res.status(400).json({ success: false, data: null, error: 'Una referencia de préstamo requiere prestamo_id y ningún inversion_id.' });
       return;
     }
+    if ((inversionId && !esUuid(inversionId)) || (prestamoId && !esUuid(prestamoId))) {
+      res.status(400).json({ success: false, data: null, error: 'El id del origen no es un UUID válido.' });
+      return;
+    }
 
     // El origen debe existir
     if (tipo === 'inversion') {
@@ -80,7 +101,7 @@ export const crearReferencia = async (req: Request, res: Response): Promise<void
     // Tasa: porcentaje > 0, como string
     const tasa = tasaValida(datos.tasa);
     if (!tasa) {
-      res.status(400).json({ success: false, data: null, error: 'La tasa debe ser un porcentaje mayor a cero.' });
+      res.status(400).json({ success: false, data: null, error: 'La tasa debe ser un porcentaje mayor a cero, hasta 999.99, con máximo 2 decimales.' });
       return;
     }
 
@@ -127,8 +148,13 @@ export const crearReferencia = async (req: Request, res: Response): Promise<void
 // ----------------------------------------------------------------
 export const editarReferencia = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = String(req.params.id);
     const datos: EditarReferenciaDto = req.body;
+
+    if (!esUuid(id)) {
+      res.status(400).json({ success: false, data: null, error: 'El id de la referencia no es un UUID válido.' });
+      return;
+    }
 
     const existe = await pool.query('SELECT id FROM referencias WHERE id = $1', [id]);
     if (existe.rowCount === 0) {
@@ -152,9 +178,16 @@ export const editarReferencia = async (req: Request, res: Response): Promise<voi
     if (datos.tasa !== undefined) {
       tasa = tasaValida(datos.tasa);
       if (!tasa) {
-        res.status(400).json({ success: false, data: null, error: 'La tasa debe ser un porcentaje mayor a cero.' });
+        res.status(400).json({ success: false, data: null, error: 'La tasa debe ser un porcentaje mayor a cero, hasta 999.99, con máximo 2 decimales.' });
         return;
       }
+    }
+
+    // fecha_fin, si viene, debe ser fecha real YYYY-MM-DD
+    const fechaFin = datos.fecha_fin?.trim() || null;
+    if (fechaFin && !esFecha(fechaFin)) {
+      res.status(400).json({ success: false, data: null, error: 'La fecha de fin debe tener formato AAAA-MM-DD y ser una fecha válida.' });
+      return;
     }
 
     const resultado = await pool.query(
@@ -168,8 +201,8 @@ export const editarReferencia = async (req: Request, res: Response): Promise<voi
       [
         estado,
         tasa,
-        datos.fecha_fin?.trim() || null,
-        datos.notas?.trim()     || null,
+        fechaFin,
+        datos.notas?.trim() || null,
         id,
       ]
     );
