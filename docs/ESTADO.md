@@ -105,7 +105,11 @@ M13–M15 estén verdes.**
       form legacy. Todo el sistema usa porcentaje con 2 decimales.
 - [ ] **Backend con tests solo del motor descartado.** 14 tests, todos de
       `modules/comisiones`. Cero tests de los controllers en producción.
-- [ ] **Sin script de lint.** Solo `eslintConfig` de CRA en build. `CMD_LINT` vacío.
+- [x] ~~**Sin script de lint.**~~ — resuelta el 2026-09-09: `npm run lint` en
+      frontend (`eslint --max-warnings=0`, config de CRA, cero deps nuevas),
+      cableado a `CMD_LINT` del gate. El único warning que existía se limpió.
+      Backend queda cubierto por typecheck (eslint propio sería dep nueva —
+      decidir si vale en ticket futuro).
 - [ ] **Migraciones manuales, sin runner.** SQL plano en `database/`, aplicado a
       mano a Neon vía `scripts/apply-migration.js`. `CMD_MIGRATE_*` vacíos → el
       gate `data`/`full` **no verifica migraciones**. Las verifica el humano.
@@ -114,7 +118,11 @@ M13–M15 estén verdes.**
       Ver `docs/modulos/dashboard/DATOS.md`.
 - [ ] **Sin e2e/responsive.** No existe `e2e/responsive.spec.ts`; responsive se
       verifica a ojo con playwright-mcp. `CMD_E2E_RESPONSIVE` vacío.
-- [ ] **`docs/DISENO.md` con marcas `{{TODO}}`** — tokens y tipografía sin extraer.
+- [x] ~~**`docs/DISENO.md` con marcas `{{TODO}}`**~~ — resuelta el 2026-09-09:
+      tokens semánticos extraídos del uso real (slate/sky), tipografía sistema,
+      inventario completo de `shared/` (incluye `RoleGuard`, que faltaba).
+      Hallazgo: `tailwind.config.js` aún define `naranja.*` del tema viejo,
+      sin uso — limpieza en ticket propio.
 - [x] ~~**Validación de entrada laxa en endpoints nuevos de referencias**~~ —
       resuelta el 2026-09-09 (M26): UUID/tasa/fecha_fin validados antes de la DB,
       400 en español. La mitad legacy (`crearInversion`) se cerró el mismo día
