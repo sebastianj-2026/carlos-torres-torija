@@ -230,6 +230,15 @@ Si no cumple → se parte. No se negocia.
   `fecha_fin` (AAAA-MM-DD real). Smoke test de los 6 casos contra el server en
   verde. 1 archivo.
 
+### M27 · Fix "Invalid Date" en la tarjeta de inversión
+- **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** —
+- **Por qué:** hallazgo de la verificación visual (2026-09-09): `pg` serializa
+  `DATE` como timestamp ISO completo y `CardInversion` le concatenaba
+  `'T00:00:00'` → `Invalid Date` en Inicio/Vence.
+- **Estado:** ✅ — helper `formatearFecha` normaliza a `YYYY-MM-DD` antes de
+  parsear. Verificado en navegador: "Inicio: 01 may 2026 · Vence: 01 may 2027".
+  1 archivo.
+
 ### M23 · Detalle de referenciador devuelve sus referencias
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M3, M4
 - **Lee:** `docs/modulos/inversionistas/MODULO.md` + `REGLAS.md`
@@ -330,7 +339,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 19 (incluye M25 shared, M26 deuda) | 18 ✅ · 1 ❌ (M8) · **Bloque A completo** |
+| A — inversionistas/referenciadores | 20 (incluye M25–M27 extra) | 19 ✅ · 1 ❌ (M8) · **Bloque A completo** |
 | B — motor de comisiones | 5 | 🚫 bloqueado |
 | C — cuentas por pagar | 4 | 🚫 bloqueado |
 
