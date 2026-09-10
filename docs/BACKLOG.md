@@ -332,7 +332,12 @@ Si no cumple → se parte. No se negocia.
 - **Extra al DoD:** R16 es lo más fácil de implementar mal. El dinero del
   préstamo A **no** cubre lo del préstamo B. Caso de dos préstamos del mismo
   referenciador, uno pagando, en verde.
-- **Estado:** ⬜
+- **Estado:** ✅ — `modules/motor/aplicacion.ts`: `aplicarPagoFifo` puro sobre
+  UNA línea (concepto+origen); slots mezclados **lanzan error** — R16 es
+  imposible de violar por diseño, no disciplina del caller. FIFO por periodo
+  (R15) con cruce de año, sin sobrepago, sobrante regresa (R22), centavos
+  BigInt. Casos C14–C19 (8 tests ✅, 20/20 el motor). Persistir el pago con
+  comprobante/autorización (R19) es M17/M19. 3 archivos.
 
 ### M16 · Lectura de montos con Decimal, sin `parseFloat`
 - **Tipo:** `logic` · **Depende de:** M13
@@ -368,7 +373,7 @@ Si no cumple → se parte. No se negocia.
 | Bloque | Tareas | Estado |
 |---|---|---|
 | A — inversionistas/referenciadores | 22 (incluye M25–M29 extra) | 19 ✅ · 1 ❌ (M8) · 2 ⬜ (M28, M29 — de ⛔4/⛔5) |
-| B — motor de comisiones | 5 | 3 ✅ · 2 ⬜ (siguiente: M15) |
+| B — motor de comisiones | 5 | 4 ✅ · 1 ⬜ (siguiente: M16) |
 | C — cuentas por pagar | 4 | 4 ⬜ (tras Bloque B) |
 
 ## Bloques B y C desbloqueados el 2026-09-09

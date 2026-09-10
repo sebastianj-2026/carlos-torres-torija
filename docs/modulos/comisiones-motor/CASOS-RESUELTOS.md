@@ -86,3 +86,36 @@ corte** (R3), congelada al generarse (R18). La tasa sale de `referencias.tasa`.
 - La base es **capital vigente** (`monto_actual` / `saldo_pendiente`), nunca
   incluye moratorios ni intereses. Los moratorios son 100% de la oficina y no
   generan comisión.
+
+## Aplicación FIFO por origen (M15)
+
+Un pago se aplica sobre **una sola línea**: (beneficiario, concepto, origen).
+Dentro de la línea el periodo no se elige: FIFO forzado, lo más viejo primero
+(R12, R15). El dinero **nunca cruza de línea** (R16). La función es pura: el
+registro del pago (comprobante, autorización, R19) llega en M17/M19.
+
+### C14 · FIFO dentro de la línea
+- Línea con devengos jul $750, ago $750, sep $750 (pendientes). Pago $1,600.
+- → jul $750 (queda `pagado`), ago $750 (`pagado`), sep $100 (`parcial`).
+  Sobrante $0.
+
+### C15 · R16: dos préstamos del mismo referenciador, uno pagando
+- Juan refiere préstamo A y préstamo B; entra dinero del préstamo A.
+- El pago se aplica **solo** a la línea de A. La deuda de B queda intacta.
+- La función **rechaza** (error) recibir slots de líneas mezcladas — la
+  separación no es disciplina del caller, es imposible por diseño.
+
+### C16 · El pago no sobrepaga la línea
+- Línea con pendiente total $500. Pago $800.
+- → se aplican $500; **sobrante $300** regresa al caller (la oficina decide qué
+  hacer con él — R22; jamás brinca solo a otra línea).
+
+### C17 · Slots ya pagados se saltan
+- jul `pagado`, ago pendiente $750. Pago $200 → todo a ago (`parcial`).
+
+### C18 · Pago parcial previo cuenta
+- Devengo $750 con `monto_pagado = 700`. Pago $100 → aplica $50 (`pagado`),
+  sobrante $50.
+
+### C19 · Exactitud a centavo
+- Devengo $0.03 pendiente. Pago $0.01 → aplica $0.01 (`parcial`), sin drift.
