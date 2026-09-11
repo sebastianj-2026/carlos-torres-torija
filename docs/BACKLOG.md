@@ -455,6 +455,17 @@ Si no cumple → se parte. No se negocia.
   sobrante exacto→400, transacción todo-o-nada con el FIFO real R15).
   Suite total: 70 ✅. 3 archivos.
 
+### M34 · Retirar de Neon las tablas huérfanas del módulo descartado
+- **Módulo:** inversionistas · **Tipo:** `data` · **Depende de:** M32 ✅
+- **Por qué:** `personas`, `persona_documentos`, `aportaciones` y `pagos`
+  quedaron sin lector tras M32. Ocupaban los nombres globales.
+- **Estado:** ✅ (2026-09-11) — renombradas a `*_descartado` (precedente
+  M12/M30: nada se borra; el rename preserva filas y FKs — 4+4 filas demo
+  intactas). Índices y secuencias renombrados también (namespace global).
+  Guardas de idempotencia en up y down. Ciclo up→down→up verde contra Neon;
+  verificado: nombres viejos en `to_regclass` → NULL, 8 FKs intactas.
+  2 archivos.
+
 ## Conteo
 
 | Bloque | Tareas | Estado |

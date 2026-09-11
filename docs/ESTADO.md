@@ -85,10 +85,11 @@ tests) se movieron a `_to_delete/backend-huerfano/` — nada se borró, la carpe
 la vacía Sebastian (prohibición 8). Rutas desmontadas de `index.ts`;
 `CMD_TEST_CASOS` reapuntado a `modules/motor`.
 
-**Queda en Neon, sin uso:** `personas`, `persona_documentos`, `aportaciones`,
-`pagos` (las huérfanas `devengos` y `pago_aplicaciones` ya se renombraron a
-`*_descartado` en M12/M30). Retirarlas es una tarea `data` propia, con respaldo
-`_respaldo_*` y `.down.sql`. Sin urgencia: 0 filas útiles.
+**Neon limpio el 2026-09-11 (M34):** `personas`, `persona_documentos`,
+`aportaciones` y `pagos` renombradas a `*_descartado` (con índices y
+secuencias), igual que `devengos` (M12) y `pago_aplicaciones` (M30). Filas
+demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
+`*_descartado` en Neon y `_to_delete/` en el repo.
 
 ---
 
@@ -217,6 +218,7 @@ la vacía Sebastian (prohibición 8). Rutas desmontadas de `index.ts`;
 | 2026-09-09 | M14 · comisiones con base viva | ✅ aceptada | Cierre ordenado sobre gate verde `motor`. Base viva del origen al corte (R3), moratorios jamás en base (R8/C13). ⚠️ **Criterio derivado, validar con Carlos al final:** préstamo `atrasado`/`en_juicio` sí devenga comisión (R9+R11); inversión solo `activo`. |
 | 2026-09-09 | M13 · corte mensual idempotente | ✅ aceptada | Cierre ordenado sobre gate verde `motor · comisiones-motor` (casos resueltos + tests + typecheck). TDD: CASOS-RESUELTOS.md C1–C7 primero, rojo→verde. Dinero en BigInt centavos (sin float ni dependencia nueva; M16 decidirá si se formaliza con Decimal). Alcance: rendimiento; comisiones → M14. |
 | 2026-09-09 | M12 · tabla devengos | ✅ aceptada | Cierre ordenado sobre gate verde `data · comisiones-motor`. La `devengos` huérfana (0 filas) se renombró a `devengos_descartado` — nada se borra; sus índices también, porque bloqueaban los nombres globales. Ciclo up/down/reaplica + 4 pruebas funcionales (23505, CHECKs). Aplicada a Neon. |
+| 2026-09-11 | M34 · tablas huérfanas a `*_descartado` | ✅ aceptada | Cierre sobre gate verde `data · inversionistas`. Rename (no DROP, no `_respaldo_*`: el rename preserva todo), índices y secuencias incluidos, guardas de idempotencia. Ciclo up→down→up contra Neon; 8 FKs intactas. Tarea elegida por Sebastian. |
 | 2026-09-11 | M33 · tests de controllers del release | ✅ aceptada | Cierre sobre gate verde `logic · inversionistas` 6/6. 41 tests unitarios (pool mockeado, FIFO real), suite total 70 ✅. Tarea elegida por Sebastian ("haz la de tests de controllers"). |
 | 2026-09-11 | M32 · limpieza de código huérfano | ✅ aceptada | Cierre sobre gate verde `motor · comisiones-motor` 8/8. Huérfano a `_to_delete/backend-huerfano/`, rutas desmontadas, `CMD_TEST_CASOS`→`modules/motor` (29 tests). Autorizada por Sebastian en sesión ("seguimos" sobre la propuesta). |
 | 2026-09-10 | validación de las 7 decisiones | ✅ validadas | Sebastian confirma que las 7 (R22–R24, ⛔4/⛔5, criterio M14, rechazo de excedente M19) vienen de los requerimientos que él levantó con la oficina. **Release cerrado; sin pendientes de negocio.** |
