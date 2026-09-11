@@ -502,6 +502,48 @@ Si no cumple → se parte. No se negocia.
   cableado. **Gate `data` 9/9, cero no declarados — perfil completo.**
   2 archivos.
 
+---
+
+## Dinero half-up (especificado 2026-09-11 · `docs/DINERO.md`)
+
+> Orden obligatorio: M38 primero, M44 al final. Reglas D1–D4; casos C1–C5.
+
+### M38 · Helpers half-up en lib/dinero.ts
+- **Tipo:** `motor` · **Depende de:** — · **Estado:** ⬜
+- `porcentajeHalfUp(base, tasa)` y `dividirHalfUp` en centavos BigInt.
+  TDD con C1–C5 de DINERO.md; el rojo se corre antes del código.
+
+### M39 · Cobros a half-up
+- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜
+- `cobros.controller`: interés del mes, interés próximo mes, faltante,
+  nuevoSaldo, montoTotalCobro (D1/D2). Tests con C2/C3.
+
+### M40 · Préstamos a half-up
+- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜
+- `prestamos.controller`: interés anticipado, monto entregado, rendimiento
+  de participantes, moratorios, montoOficina, saldos.
+
+### M41 · Egresos e inversionistas a half-up
+- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜
+- `egresos.controller` (rendimiento → CxP) e `inversionistas.controller`
+  (interés al capitalizar, nuevoMonto).
+
+### M42 · Nómina a half-up
+- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜
+- `nominas.controller`: prima, horas extras, faltas, total, costo_real.
+  D2 estricto: fuera el `tarifa_hora.toFixed(4)` intermedio. Tests con C4/C5.
+
+### M43 · Display a la misma aritmética
+- **Tipo:** `logic` · **Depende de:** M39–M42 · **Estado:** ⬜
+- `dashboard`, `ingresos`, `tesoreria`, `pagos`, mensajes de error (D4).
+  Los porcentajes/ratios (ocupación, variación) NO son dinero y se quedan.
+
+### M44 · Recálculo retroactivo (D3)
+- **Tipo:** `data` · **Depende de:** M39–M43 · **Estado:** ⬜
+- Migración par fecha_*.up/.down que recalcula lo persistido con la regla
+  vieja, **con respaldo `_respaldo_*`** de cada tabla tocada. ⚠️ Válida solo
+  pre-producción (D3). Inventariar columnas derivadas antes de escribirla.
+
 ## Conteo
 
 | Bloque | Tareas | Estado |

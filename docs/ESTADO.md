@@ -102,12 +102,12 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
         `nominas` (descuento de préstamo ×2), `egresos` (desglose
         capital+interés+IVA, que además pasó de tolerar ±$0.01 a exigir igualdad
         exacta — la tolerancia solo existía por el drift de float).
-      - **Pendiente a propósito (~45 sitios):** las fórmulas `base × tasa / 100`
-        de cobros/egresos/nómina usan `toFixed` (redondeo bancario errático);
-        migrarlas a half-up **cambia centavos cobrados/pagados** → cada fórmula
-        necesita visto bueno de negocio antes de tocarse. Los `parseFloat` de
-        solo-display/porcentajes son inofensivos (2 decimales es exacto en
-        double) y no se tocan.
+      - **Especificado el 2026-09-11** (peloteo con Sebastian, 5 preguntas):
+        half-up parejo en todo, un solo redondeo al final, recálculo
+        retroactivo total (válido solo pre-producción), display incluido.
+        Reglas D1–D4 y casos C1–C5 en `docs/DINERO.md`; tareas **M38–M44 ⬜**
+        en el backlog (orden obligatorio: helpers → controllers → display →
+        recálculo).
 - [x] ~~**Dos escalas de tasa**~~ — resuelta el 2026-09-09: M11 aplicada a Neon
       (`tasa_referenciador` ya es `NUMERIC(5,2)`, 0.50 = 0.5%) y M21 alineó el
       form legacy. Todo el sistema usa porcentaje con 2 decimales.
