@@ -66,9 +66,14 @@ CMD_TEST_MODULO="npm test --prefix backend -- --passWithNoTests"   # filtra por 
 # Build de producción del front (craco). El del back es `tsc` vía build script.
 CMD_BUILD="npm run build --prefix frontend"
 
-# Migraciones: SQL plano en database/, aplicado a MANO en Neon. No hay runner.
-CMD_MIGRATE_UP=""
-CMD_MIGRATE_DOWN=""
+# Migraciones: SQL plano en database/, con runner de tracking (scripts/migrar.js,
+# tabla _migraciones en Neon). `down` solo revierte lo NO sellado — la migración
+# de la tarea en curso — y es no-op si todo está sellado. Al cerrar una tarea
+# `data`: `node scripts/migrar.js sellar`. Nuevas migraciones: par
+# <fecha>_<nombre>.up.sql/.down.sql.
+CMD_MIGRATE_UP="node scripts/migrar.js up"
+CMD_MIGRATE_DOWN="node scripts/migrar.js down"
+# Seed demo no idempotente — correrlo en cada gate duplicaría datos. Deuda.
 CMD_SEED=""
 
 # Sin suite e2e/playwright todavía. Deuda.

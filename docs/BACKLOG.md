@@ -475,6 +475,20 @@ Si no cumple → se parte. No se negocia.
   Verificado: cero clases `naranja-*` en el código. Gate `ui` 7/7 con los
   21 e2e responsive verdes. 2 archivos.
 
+### M36 · Runner de migraciones con tracking
+- **Módulo:** infra · **Tipo:** `data` · **Depende de:** —
+- **Por qué:** deuda "migraciones manuales, sin runner": `CMD_MIGRATE_*` vacíos
+  → el gate `data` no verificaba migraciones, las verificaba el humano.
+- **Estado:** ✅ (2026-09-11) — `scripts/migrar.js` (up/down/sellar/baseline/
+  status) con tabla `_migraciones` en Neon. Clave del diseño: **sellado** — el
+  `down` del gate solo revierte la migración de la tarea en curso, nunca las de
+  tareas cerradas (no-op si todo está sellado). Las 43 existentes entraron como
+  baseline sellado sin ejecutarse. Nuevas migraciones: par
+  `<fecha>_<nombre>.up.sql`/`.down.sql`. Ciclo up→down→up probado con
+  migración desechable; gate `data` ahora 8/9 declarados (solo seed queda
+  fuera: no es idempotente). Prohibición 7 de CLAUDE.md actualizada al runner.
+  3 archivos.
+
 ## Conteo
 
 | Bloque | Tareas | Estado |

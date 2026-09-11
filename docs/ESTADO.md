@@ -121,9 +121,12 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
       cableado a `CMD_LINT` del gate. El único warning que existía se limpió.
       Backend queda cubierto por typecheck (eslint propio sería dep nueva —
       decidir si vale en ticket futuro).
-- [ ] **Migraciones manuales, sin runner.** SQL plano en `database/`, aplicado a
-      mano a Neon vía `scripts/apply-migration.js`. `CMD_MIGRATE_*` vacíos → el
-      gate `data`/`full` **no verifica migraciones**. Las verifica el humano.
+- [~] **Migraciones sin runner** — resuelta en lo esencial el 2026-09-11 (M36):
+      `scripts/migrar.js` con tracking en `_migraciones` y sellado por tarea;
+      el gate `data` ya verifica aplica/revierte/reaplica.
+      **Pendiente:** `CMD_SEED` sigue vacío — el seed demo no es idempotente y
+      correrlo en cada gate duplicaría datos. Hacerlo idempotente es ticket
+      propio.
 - [x] ~~**Migraciones NO aplicadas + workarounds del dashboard**~~ — resuelta el
       2026-09-09: `ingresos_directos`/`metricas_cancha` creadas (el INSERT de
       Ingresos Extras tronaba en 500), espejo redirigido a
@@ -162,6 +165,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 
 | Fecha | Tarea | Decisión | Por qué |
 |---|---|---|---|
+| 2026-09-11 | M36 | **Runner de migraciones con sellado por tarea; el `down` del gate nunca toca migraciones de tareas cerradas** | El ciclo up→down→up del gate corre en cada tarea `data`; sin sellado revertiría migraciones viejas cuyas reversas abortan a propósito si hay filas (M12/M30) — el gate fallaría en tareas ajenas. Sellar al cerrar acota el ciclo a la migración en desarrollo. Baseline sellado para las 43 existentes. |
 | 2026-09-11 | M33 | **Tests de controllers unitarios con `pool` mockeado (`vi.mock`), no E2E contra Neon** | Sin dependencia nueva (nada de supertest), corren en ms dentro del gate y no dependen de red/DB. El FIFO del pago se ejercita con el motor real, no mockeado. El E2E contra Neon ya existe como smoke en cierres de tarea. |
 | 2026-09-11 | M32 | **El código huérfano se descarta, no se porta** — a `_to_delete/backend-huerfano/` | El motor nuevo (M13–M15) reimplementó reparto/FIFO con sus propios casos resueltos y quedó verde; mantener dos implementaciones del mismo algoritmo es el riesgo, no el seguro. Las tablas de Neon quedan para tarea `data` propia. |
 | 2026-08-16 | Fase 0 | Perfil `frontback-drizzle` con overrides pesados | Es el perfil "financiera-sistema y forks", pero este fork usa CRA/CRACO + pg raw, no Drizzle/Vitest/migrate. Comandos inexistentes → vacíos, registrados como deuda. |
@@ -217,6 +221,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 | 2026-09-09 | M14 · comisiones con base viva | ✅ aceptada | Cierre ordenado sobre gate verde `motor`. Base viva del origen al corte (R3), moratorios jamás en base (R8/C13). ⚠️ **Criterio derivado, validar con Carlos al final:** préstamo `atrasado`/`en_juicio` sí devenga comisión (R9+R11); inversión solo `activo`. |
 | 2026-09-09 | M13 · corte mensual idempotente | ✅ aceptada | Cierre ordenado sobre gate verde `motor · comisiones-motor` (casos resueltos + tests + typecheck). TDD: CASOS-RESUELTOS.md C1–C7 primero, rojo→verde. Dinero en BigInt centavos (sin float ni dependencia nueva; M16 decidirá si se formaliza con Decimal). Alcance: rendimiento; comisiones → M14. |
 | 2026-09-09 | M12 · tabla devengos | ✅ aceptada | Cierre ordenado sobre gate verde `data · comisiones-motor`. La `devengos` huérfana (0 filas) se renombró a `devengos_descartado` — nada se borra; sus índices también, porque bloqueaban los nombres globales. Ciclo up/down/reaplica + 4 pruebas funcionales (23505, CHECKs). Aplicada a Neon. |
+| 2026-09-11 | M36 · runner de migraciones | ✅ aceptada | Cierre sobre gate verde `data · inversionistas` 8/9 declarados (antes 5/9). Ciclo probado con migración desechable; 43 en baseline sellado; CLAUDE.md prohibición 7 → runner. Tarea elegida por Sebastian ("haz la 2"). |
 | 2026-09-11 | M35 · limpiar `naranja.*` del tema viejo | ✅ aceptada | Cierre sobre gate verde `ui · inversionistas` 7/7 (e2e responsive incluido). 2 archivos. Tarea elegida por Sebastian ("si" a la propuesta). |
 | 2026-09-11 | M34 · tablas huérfanas a `*_descartado` | ✅ aceptada | Cierre sobre gate verde `data · inversionistas`. Rename (no DROP, no `_respaldo_*`: el rename preserva todo), índices y secuencias incluidos, guardas de idempotencia. Ciclo up→down→up contra Neon; 8 FKs intactas. Tarea elegida por Sebastian. |
 | 2026-09-11 | M33 · tests de controllers del release | ✅ aceptada | Cierre sobre gate verde `logic · inversionistas` 6/6. 41 tests unitarios (pool mockeado, FIFO real), suite total 70 ✅. Tarea elegida por Sebastian ("haz la de tests de controllers"). |

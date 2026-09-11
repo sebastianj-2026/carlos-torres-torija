@@ -63,8 +63,10 @@ pregunta antes: casi siempre significa que la tarea está mal clasificada.
 5. **No corras deploy.** Nunca. El gate llega a "listo para deploy" y ahí para.
 6. **No cierres una tarea con el gate rojo.**
 7. **Migraciones a Neon (dev): las aplica Claude** vía
-   `node scripts/apply-migration.js <archivo.sql>`, siempre con su `.down.sql`
-   escrito antes y verificación de conteos/schema después. Si una migración
+   `node scripts/migrar.js up` (runner con tracking en `_migraciones`; nuevas
+   migraciones como par `<fecha>_<nombre>.up.sql`/`.down.sql`), siempre con su
+   `.down.sql` escrito antes y verificación de conteos/schema después. Al
+   cerrar la tarea: `node scripts/migrar.js sellar`. Si una migración
    convierte o borra datos, respaldo en tabla `_respaldo_*` dentro del `.up`.
    Cuando exista una DB de producción, esta regla se revierte: ahí aplica
    Sebastian a mano.
