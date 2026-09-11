@@ -56,7 +56,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| inversionistas / referenciadores | ✅ **release completo y validado** (22 ✅ · 1 ❌ / 23; Bloques A/B/C) | — | préstamos (lectura) | validación de las 7 decisiones (2026-09-10) |
+| inversionistas / referenciadores | ✅ **release completo y validado** (22 ✅ · 1 ❌ / 23; Bloques A/B/C) | 41 ✅ (controllers nuevos, pool mockeado) | préstamos (lectura) | M33 · tests de controllers del release (2026-09-11) |
 | comisiones-motor | ✅ **Bloque B completo** (M12–M16) + limpieza | 29 ✅ (motor + lib dinero; los 14 de referencia se retiraron con el huérfano) | inversionistas | M32 · limpieza de código huérfano (2026-09-11) |
 | dashboard | ✅ legacy funcional, documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ legacy funcional | 0 | — | sin spec de metodología |
@@ -110,8 +110,11 @@ la vacía Sebastian (prohibición 8). Rutas desmontadas de `index.ts`;
 - [x] ~~**Dos escalas de tasa**~~ — resuelta el 2026-09-09: M11 aplicada a Neon
       (`tasa_referenciador` ya es `NUMERIC(5,2)`, 0.50 = 0.5%) y M21 alineó el
       form legacy. Todo el sistema usa porcentaje con 2 decimales.
-- [ ] **Backend con tests solo del motor descartado.** 14 tests, todos de
-      `modules/comisiones`. Cero tests de los controllers en producción.
+- [~] **Backend sin tests de controllers** — atacada el 2026-09-11 (M33): los 3
+      controllers nuevos del release (`referenciadores`, `referencias`,
+      `pagos_devengo`) tienen 41 tests unitarios con `pool` mockeado.
+      **Pendiente:** los ~13 controllers legacy (auth, prestamos, cobros,
+      pagos, etc.) siguen sin tests — cubrir al tocarlos, no en un big bang.
 - [x] ~~**Sin script de lint.**~~ — resuelta el 2026-09-09: `npm run lint` en
       frontend (`eslint --max-warnings=0`, config de CRA, cero deps nuevas),
       cableado a `CMD_LINT` del gate. El único warning que existía se limpió.
@@ -159,6 +162,7 @@ la vacía Sebastian (prohibición 8). Rutas desmontadas de `index.ts`;
 
 | Fecha | Tarea | Decisión | Por qué |
 |---|---|---|---|
+| 2026-09-11 | M33 | **Tests de controllers unitarios con `pool` mockeado (`vi.mock`), no E2E contra Neon** | Sin dependencia nueva (nada de supertest), corren en ms dentro del gate y no dependen de red/DB. El FIFO del pago se ejercita con el motor real, no mockeado. El E2E contra Neon ya existe como smoke en cierres de tarea. |
 | 2026-09-11 | M32 | **El código huérfano se descarta, no se porta** — a `_to_delete/backend-huerfano/` | El motor nuevo (M13–M15) reimplementó reparto/FIFO con sus propios casos resueltos y quedó verde; mantener dos implementaciones del mismo algoritmo es el riesgo, no el seguro. Las tablas de Neon quedan para tarea `data` propia. |
 | 2026-08-16 | Fase 0 | Perfil `frontback-drizzle` con overrides pesados | Es el perfil "financiera-sistema y forks", pero este fork usa CRA/CRACO + pg raw, no Drizzle/Vitest/migrate. Comandos inexistentes → vacíos, registrados como deuda. |
 | 2026-08-16 | Fase 0 | `dinero-sin-float` NO bloqueante | Sale rojo con ~100 hits legacy; bloquearía cada tarea hasta refactor total. |
@@ -213,6 +217,7 @@ la vacía Sebastian (prohibición 8). Rutas desmontadas de `index.ts`;
 | 2026-09-09 | M14 · comisiones con base viva | ✅ aceptada | Cierre ordenado sobre gate verde `motor`. Base viva del origen al corte (R3), moratorios jamás en base (R8/C13). ⚠️ **Criterio derivado, validar con Carlos al final:** préstamo `atrasado`/`en_juicio` sí devenga comisión (R9+R11); inversión solo `activo`. |
 | 2026-09-09 | M13 · corte mensual idempotente | ✅ aceptada | Cierre ordenado sobre gate verde `motor · comisiones-motor` (casos resueltos + tests + typecheck). TDD: CASOS-RESUELTOS.md C1–C7 primero, rojo→verde. Dinero en BigInt centavos (sin float ni dependencia nueva; M16 decidirá si se formaliza con Decimal). Alcance: rendimiento; comisiones → M14. |
 | 2026-09-09 | M12 · tabla devengos | ✅ aceptada | Cierre ordenado sobre gate verde `data · comisiones-motor`. La `devengos` huérfana (0 filas) se renombró a `devengos_descartado` — nada se borra; sus índices también, porque bloqueaban los nombres globales. Ciclo up/down/reaplica + 4 pruebas funcionales (23505, CHECKs). Aplicada a Neon. |
+| 2026-09-11 | M33 · tests de controllers del release | ✅ aceptada | Cierre sobre gate verde `logic · inversionistas` 6/6. 41 tests unitarios (pool mockeado, FIFO real), suite total 70 ✅. Tarea elegida por Sebastian ("haz la de tests de controllers"). |
 | 2026-09-11 | M32 · limpieza de código huérfano | ✅ aceptada | Cierre sobre gate verde `motor · comisiones-motor` 8/8. Huérfano a `_to_delete/backend-huerfano/`, rutas desmontadas, `CMD_TEST_CASOS`→`modules/motor` (29 tests). Autorizada por Sebastian en sesión ("seguimos" sobre la propuesta). |
 | 2026-09-10 | validación de las 7 decisiones | ✅ validadas | Sebastian confirma que las 7 (R22–R24, ⛔4/⛔5, criterio M14, rechazo de excedente M19) vienen de los requerimientos que él levantó con la oficina. **Release cerrado; sin pendientes de negocio.** |
 | 2026-09-09 | ⛔1–⛔5 | ✅ resueltas | **Sebastian decide; Carlos valida al final del release** (instrucción en sesión). ⛔1→R22 (sin orden automático, la oficina elige pago por pago), ⛔2→R23 (nunca absorbe en automático, todo devenga hasta pago manual), ⛔3→R24 (2 decimales, residuo a la oficina), ⛔4→A (solo admin, M28), ⛔5→A (estados solo adelante, M29). |

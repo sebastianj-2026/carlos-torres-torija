@@ -443,6 +443,18 @@ Si no cumple → se parte. No se negocia.
   (`personas`, `persona_documentos`, `aportaciones`, `pagos`) quedan para una
   tarea `data` propia con respaldo.
 
+### M33 · Tests de los controllers nuevos del release
+- **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M29 ✅
+- **Por qué:** deuda "cero tests de controllers en producción". Se cubre lo
+  nuevo del release (con reglas especificadas); el legacy queda como deuda.
+- **Estado:** ✅ (2026-09-11) — 41 tests unitarios con `pool` mockeado
+  (`vi.mock`, sin dependencia nueva): `referenciadores` (forma 2/3, P6,
+  escape de ILIKE, contrato M23), `referencias` (coherencia de origen,
+  tasa NUMERIC(5,2), P3→409, M29 solo-adelante, R9), `pagos_devengo`
+  (agrupado R16 con BigInt M16, R19, espejo `pago_cuenta_coherente`,
+  sobrante exacto→400, transacción todo-o-nada con el FIFO real R15).
+  Suite total: 70 ✅. 3 archivos.
+
 ## Conteo
 
 | Bloque | Tareas | Estado |
