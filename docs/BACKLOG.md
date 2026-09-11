@@ -489,6 +489,19 @@ Si no cumple → se parte. No se negocia.
   fuera: no es idempotente). Prohibición 7 de CLAUDE.md actualizada al runner.
   3 archivos.
 
+### M37 · Seed demo idempotente y alineado al schema vivo
+- **Módulo:** infra · **Tipo:** `data` · **Depende de:** M36 ✅
+- **Por qué:** `CMD_SEED` vacío (el seed duplicaba datos al re-correr) y además
+  **stale**: insertaba en `inmuebles`/`inquilinos`/`contratos_arrendamiento`/
+  `cuentas_por_cobrar`/`creditos_bancarios`, eliminadas por
+  `migration_remove_modules` — contra el Neon actual tronaba.
+- **Estado:** ✅ (2026-09-11) — guarda de idempotencia por cliente marcador
+  (RFC demo): si existe, no-op con NOTICE. Secciones de tablas muertas
+  recortadas (555→~400 líneas). Probado 2× contra Neon: conteos idénticos
+  (8 clientes / 10 préstamos / 4 inversionistas / 4 empleados). `CMD_SEED`
+  cableado. **Gate `data` 9/9, cero no declarados — perfil completo.**
+  2 archivos.
+
 ## Conteo
 
 | Bloque | Tareas | Estado |

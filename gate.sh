@@ -73,8 +73,8 @@ CMD_BUILD="npm run build --prefix frontend"
 # <fecha>_<nombre>.up.sql/.down.sql.
 CMD_MIGRATE_UP="node scripts/migrar.js up"
 CMD_MIGRATE_DOWN="node scripts/migrar.js down"
-# Seed demo no idempotente — correrlo en cada gate duplicaría datos. Deuda.
-CMD_SEED=""
+# Seed demo idempotente (guarda por cliente marcador): re-correrlo es no-op.
+CMD_SEED="node scripts/apply-migration.js database/seed_datos_demo.sql"
 
 # Sin suite e2e/playwright todavía. Deuda.
 CMD_E2E_RESPONSIVE="npm run test:e2e --prefix frontend"

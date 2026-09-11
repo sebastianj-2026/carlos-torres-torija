@@ -1,9 +1,12 @@
 -- ================================================================
 -- SEED DATOS DEMO — Sistema Financiero
 -- Contenido: 8 clientes · 4 inversionistas · 10 préstamos · 3 juicios
---            5 inmuebles (1 plaza) · 7 inquilinos · 5 cuentas bancarias
---            4 empleados · 1 crédito bancario · caja chica $5,000
--- Ejecutar en Neon Console → SQL Editor
+--            5 cuentas bancarias · 4 empleados · caja chica $5,000
+-- IDEMPOTENTE: si el cliente demo marcador (RFC GALM850312HJ0) ya
+-- existe, no hace nada. El gate lo corre en cada tarea `data`.
+-- 2026-09-11: recortadas las secciones de inmuebles/inquilinos/
+-- contratos/CxC/creditos_bancarios — tablas eliminadas por
+-- migration_remove_modules; el seed viejo tronaba contra Neon.
 -- ================================================================
 
 DO $$
@@ -21,21 +24,17 @@ DECLARE
   -- Préstamos en juicio
   pj1 UUID; pj2 UUID; pj3 UUID;
 
-  -- Inmuebles
-  inm1 UUID; inm2 UUID; inm3 UUID; inm4 UUID; inm5 UUID;
-
-  -- Inquilinos (4 regulares + 3 plaza)
-  iq1 UUID; iq2 UUID; iq3 UUID; iq4 UUID;
-  iqp1 UUID; iqp2 UUID; iqp3 UUID;
-
-  -- Contratos (4 regulares + 3 plaza)
-  ct1 UUID; ct2 UUID; ct3 UUID; ct4 UUID;
-  ctp1 UUID; ctp2 UUID; ctp3 UUID;
-
   -- Empleados
   emp1 UUID; emp2 UUID; emp3 UUID; emp4 UUID;
 
 BEGIN
+
+  -- Idempotency guard: the marker client is the first row this seed
+  -- creates; if it exists, the demo data set is already in place.
+  IF EXISTS (SELECT 1 FROM clientes WHERE rfc = 'GALM850312HJ0') THEN
+    RAISE NOTICE 'seed demo ya aplicado — no-op';
+    RETURN;
+  END IF;
 
   -- ================================================================
   -- 1. CLIENTES (5 regulares + 3 en juicio)
@@ -338,149 +337,6 @@ BEGIN
   VALUES (pj3, inv2, false, 250000, 2.0, 5000);
 
   -- ================================================================
-  -- 7. INMUEBLES (5) — 4 regulares + 1 plaza
-  -- ================================================================
-  INSERT INTO inmuebles (ubicacion_direccion, ciudad, estado, valor_propiedad, estatus,
-    predial_cuenta, predial_mes_pago, es_renta_externa)
-  VALUES ('Calle Río Nilo 45, Col. Jardines del Sol', 'Guadalajara', 'Jalisco',
-    1200000, 'rentado', 'GDL-2024-0845', 4, false)
-  RETURNING id INTO inm1;
-
-  INSERT INTO inmuebles (ubicacion_direccion, ciudad, estado, valor_propiedad, estatus,
-    predial_cuenta, predial_mes_pago, es_renta_externa)
-  VALUES ('Av. Reforma 120 Depto 8B, Col. Juárez', 'Ciudad de México', 'Ciudad de México',
-    2800000, 'rentado', 'CDMX-2024-3312', 2, false)
-  RETURNING id INTO inm2;
-
-  INSERT INTO inmuebles (ubicacion_direccion, ciudad, estado, valor_propiedad, estatus,
-    predial_cuenta, predial_mes_pago, es_renta_externa)
-  VALUES ('Calle 5 de Mayo 88 Local 3, Centro Histórico', 'Monterrey', 'Nuevo León',
-    950000, 'rentado', 'NL-2024-1120', 3, false)
-  RETURNING id INTO inm3;
-
-  INSERT INTO inmuebles (ubicacion_direccion, ciudad, estado, valor_propiedad, estatus,
-    predial_cuenta, predial_mes_pago, es_renta_externa)
-  VALUES ('Blvd. Colosio 300 Nave B, Parque Industrial Las Américas', 'Hermosillo', 'Sonora',
-    3500000, 'rentado', 'SON-2024-0078', 5, false)
-  RETURNING id INTO inm4;
-
-  -- Plaza Los Pinos: 5 oficinas, 3 ocupadas
-  INSERT INTO inmuebles (ubicacion_direccion, ciudad, estado, valor_propiedad, estatus,
-    predial_cuenta, predial_mes_pago, es_renta_externa, total_locales)
-  VALUES ('Blvd. Atlixco 145, Plaza Los Pinos', 'Puebla', 'Puebla',
-    8500000, 'rentado', 'PUE-2024-0552', 6, false, 5)
-  RETURNING id INTO inm5;
-
-  -- ================================================================
-  -- 8. INQUILINOS (4 regulares + 3 plaza)
-  -- ================================================================
-  INSERT INTO inquilinos (nombres, apellidos, telefono, aval_nombre, aval_propiedad_garantia)
-  VALUES ('Fernanda', 'Guzmán Ríos', '3312341001', 'Jorge Guzmán Ríos', 'Casa propia Col. Providencia GDL')
-  RETURNING id INTO iq1;
-
-  INSERT INTO inquilinos (nombres, apellidos, telefono, aval_nombre)
-  VALUES ('Diego', 'Soria Vargas', '5512341002', 'Grupo Soria SA de CV')
-  RETURNING id INTO iq2;
-
-  INSERT INTO inquilinos (nombres, apellidos, telefono, aval_nombre, aval_propiedad_garantia)
-  VALUES ('Comercializadora Nortex', 'SA de CV', '8112341003', 'Carlos Noriega Treviño', 'Bodega propia Parque Industrial NL')
-  RETURNING id INTO iq3;
-
-  INSERT INTO inquilinos (nombres, apellidos, telefono, aval_nombre)
-  VALUES ('Logística Express del Bajío', 'SA de CV', '6622341004', 'Miguel Ángel Bernal Castro')
-  RETURNING id INTO iq4;
-
-  -- Inquilinos plaza
-  INSERT INTO inquilinos (nombres, apellidos, telefono, aval_nombre)
-  VALUES ('Consultorio Dr. Martín Pérez', 'Medicina General', '2221001001', 'Martín Pérez Ramos')
-  RETURNING id INTO iqp1;
-
-  INSERT INTO inquilinos (nombres, apellidos, telefono, aval_nombre)
-  VALUES ('Notaría Pública No. 42', 'Lic. Ramón Vásquez', '2221001002', 'Colegio de Notarios Puebla')
-  RETURNING id INTO iqp2;
-
-  INSERT INTO inquilinos (nombres, apellidos, telefono, aval_nombre)
-  VALUES ('Seguros y Fianzas Metropolitana', 'SA de CV', '2221001003', 'Grupo Financiero Metropolitano')
-  RETURNING id INTO iqp3;
-
-  -- ================================================================
-  -- 9. CONTRATOS DE ARRENDAMIENTO
-  -- ================================================================
-  INSERT INTO contratos_arrendamiento (inmueble_id, inquilino_id, fecha_inicio, fecha_fin,
-    monto_renta_mensual, dia_corte_pago, estatus, monto_deposito)
-  VALUES (inm1, iq1, '2026-05-01', '2027-05-01', 8500, 5, 'activo', 17000)
-  RETURNING id INTO ct1;
-
-  INSERT INTO contratos_arrendamiento (inmueble_id, inquilino_id, fecha_inicio, fecha_fin,
-    monto_renta_mensual, dia_corte_pago, estatus, monto_deposito)
-  VALUES (inm2, iq2, '2026-05-01', '2027-05-01', 14000, 5, 'activo', 28000)
-  RETURNING id INTO ct2;
-
-  INSERT INTO contratos_arrendamiento (inmueble_id, inquilino_id, fecha_inicio, fecha_fin,
-    monto_renta_mensual, dia_corte_pago, estatus, monto_deposito)
-  VALUES (inm3, iq3, '2026-05-01', '2027-05-01', 12000, 5, 'activo', 24000)
-  RETURNING id INTO ct3;
-
-  INSERT INTO contratos_arrendamiento (inmueble_id, inquilino_id, fecha_inicio, fecha_fin,
-    monto_renta_mensual, dia_corte_pago, estatus, monto_deposito)
-  VALUES (inm4, iq4, '2026-05-01', '2027-05-01', 22000, 5, 'activo', 44000)
-  RETURNING id INTO ct4;
-
-  -- Plaza Los Pinos — 3 oficinas ocupadas de 5
-  INSERT INTO contratos_arrendamiento (inmueble_id, inquilino_id, fecha_inicio, fecha_fin,
-    monto_renta_mensual, dia_corte_pago, estatus, num_local, monto_deposito)
-  VALUES (inm5, iqp1, '2026-05-01', '2027-05-01', 9500, 5, 'activo', 1, 19000)
-  RETURNING id INTO ctp1;
-
-  INSERT INTO contratos_arrendamiento (inmueble_id, inquilino_id, fecha_inicio, fecha_fin,
-    monto_renta_mensual, dia_corte_pago, estatus, num_local, monto_deposito)
-  VALUES (inm5, iqp2, '2026-05-01', '2027-05-01', 11000, 5, 'activo', 2, 22000)
-  RETURNING id INTO ctp2;
-
-  INSERT INTO contratos_arrendamiento (inmueble_id, inquilino_id, fecha_inicio, fecha_fin,
-    monto_renta_mensual, dia_corte_pago, estatus, num_local, monto_deposito)
-  VALUES (inm5, iqp3, '2026-05-01', '2027-05-01', 9000, 5, 'activo', 3, 18000)
-  RETURNING id INTO ctp3;
-
-  -- ================================================================
-  -- 10. CUENTAS POR COBRAR — MAYO 2026 (una por contrato)
-  -- ================================================================
-  INSERT INTO cuentas_por_cobrar (inmueble_id, contrato_id, concepto, monto,
-    periodo_mes, periodo_anio, fecha_limite_cobro, estatus)
-  VALUES (inm1, ct1, 'Renta mayo 2026 — Fernanda Guzmán (Casa Jardines del Sol)', 8500,
-    5, 2026, '2026-05-05', 'pendiente');
-
-  INSERT INTO cuentas_por_cobrar (inmueble_id, contrato_id, concepto, monto,
-    periodo_mes, periodo_anio, fecha_limite_cobro, estatus)
-  VALUES (inm2, ct2, 'Renta mayo 2026 — Diego Soria (Depto Reforma)', 14000,
-    5, 2026, '2026-05-05', 'pendiente');
-
-  INSERT INTO cuentas_por_cobrar (inmueble_id, contrato_id, concepto, monto,
-    periodo_mes, periodo_anio, fecha_limite_cobro, estatus)
-  VALUES (inm3, ct3, 'Renta mayo 2026 — Comercializadora Nortex (Local 5 de Mayo)', 12000,
-    5, 2026, '2026-05-05', 'pendiente');
-
-  INSERT INTO cuentas_por_cobrar (inmueble_id, contrato_id, concepto, monto,
-    periodo_mes, periodo_anio, fecha_limite_cobro, estatus)
-  VALUES (inm4, ct4, 'Renta mayo 2026 — Logística Express (Bodega Colosio)', 22000,
-    5, 2026, '2026-05-05', 'pendiente');
-
-  INSERT INTO cuentas_por_cobrar (inmueble_id, contrato_id, concepto, monto,
-    periodo_mes, periodo_anio, fecha_limite_cobro, estatus)
-  VALUES (inm5, ctp1, 'Renta mayo 2026 — Dr. Pérez Consultorio (Plaza Los Pinos Ofic. 1)', 9500,
-    5, 2026, '2026-05-05', 'pendiente');
-
-  INSERT INTO cuentas_por_cobrar (inmueble_id, contrato_id, concepto, monto,
-    periodo_mes, periodo_anio, fecha_limite_cobro, estatus)
-  VALUES (inm5, ctp2, 'Renta mayo 2026 — Notaría 42 (Plaza Los Pinos Ofic. 2)', 11000,
-    5, 2026, '2026-05-05', 'pendiente');
-
-  INSERT INTO cuentas_por_cobrar (inmueble_id, contrato_id, concepto, monto,
-    periodo_mes, periodo_anio, fecha_limite_cobro, estatus)
-  VALUES (inm5, ctp3, 'Renta mayo 2026 — Seguros Metropolitana (Plaza Los Pinos Ofic. 3)', 9000,
-    5, 2026, '2026-05-05', 'pendiente');
-
-  -- ================================================================
   -- 11. CUENTAS BANCARIAS (5)
   -- ================================================================
   INSERT INTO cuentas_bancarias (alias, titular, banco, clabe, numero_cuenta, saldo_inicial, saldo_actual, notas)
@@ -543,13 +399,5 @@ BEGIN
     200000, 'transferencia', '2026-05-12',
     'Nómina semanal gerencia — primera semana de operaciones');
 
-  -- ================================================================
-  -- 15. CRÉDITO BANCARIO — $1M al 14% anual fijo a 5 años
-  -- Cuota mensual ≈ $23,268 (anualidad: P * r/12 / (1-(1+r/12)^-60))
-  -- ================================================================
-  INSERT INTO creditos_bancarios (banco, alias_credito, monto_original, saldo_actual,
-    tipo_tasa, esquema_pago, cuota_base_mensual, dia_corte, activo)
-  VALUES ('BBVA', 'Crédito Hipotecario Edificio Central',
-    1000000, 1000000, 'Fija', 'Pagos Fijos', 23268, 1, true);
 
 END $$;

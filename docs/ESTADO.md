@@ -121,12 +121,11 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
       cableado a `CMD_LINT` del gate. El único warning que existía se limpió.
       Backend queda cubierto por typecheck (eslint propio sería dep nueva —
       decidir si vale en ticket futuro).
-- [~] **Migraciones sin runner** — resuelta en lo esencial el 2026-09-11 (M36):
-      `scripts/migrar.js` con tracking en `_migraciones` y sellado por tarea;
-      el gate `data` ya verifica aplica/revierte/reaplica.
-      **Pendiente:** `CMD_SEED` sigue vacío — el seed demo no es idempotente y
-      correrlo en cada gate duplicaría datos. Hacerlo idempotente es ticket
-      propio.
+- [x] ~~**Migraciones sin runner / seed no idempotente**~~ — resuelta el
+      2026-09-11 (M36+M37): `scripts/migrar.js` con tracking y sellado por
+      tarea; seed demo con guarda de idempotencia y recortado al schema vivo
+      (las secciones de tablas eliminadas por `remove_modules` tronaban).
+      **Gate `data` 9/9, cero no declarados.**
 - [x] ~~**Migraciones NO aplicadas + workarounds del dashboard**~~ — resuelta el
       2026-09-09: `ingresos_directos`/`metricas_cancha` creadas (el INSERT de
       Ingresos Extras tronaba en 500), espejo redirigido a
@@ -221,6 +220,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 | 2026-09-09 | M14 · comisiones con base viva | ✅ aceptada | Cierre ordenado sobre gate verde `motor`. Base viva del origen al corte (R3), moratorios jamás en base (R8/C13). ⚠️ **Criterio derivado, validar con Carlos al final:** préstamo `atrasado`/`en_juicio` sí devenga comisión (R9+R11); inversión solo `activo`. |
 | 2026-09-09 | M13 · corte mensual idempotente | ✅ aceptada | Cierre ordenado sobre gate verde `motor · comisiones-motor` (casos resueltos + tests + typecheck). TDD: CASOS-RESUELTOS.md C1–C7 primero, rojo→verde. Dinero en BigInt centavos (sin float ni dependencia nueva; M16 decidirá si se formaliza con Decimal). Alcance: rendimiento; comisiones → M14. |
 | 2026-09-09 | M12 · tabla devengos | ✅ aceptada | Cierre ordenado sobre gate verde `data · comisiones-motor`. La `devengos` huérfana (0 filas) se renombró a `devengos_descartado` — nada se borra; sus índices también, porque bloqueaban los nombres globales. Ciclo up/down/reaplica + 4 pruebas funcionales (23505, CHECKs). Aplicada a Neon. |
+| 2026-09-11 | M37 · seed demo idempotente | ✅ aceptada | Cierre sobre gate verde `data · inversionistas` **9/9, cero no declarados** (primera vez del perfil completo). Guarda por marcador, secciones stale recortadas, probado 2× sin duplicar. Tarea elegida por Sebastian. |
 | 2026-09-11 | M36 · runner de migraciones | ✅ aceptada | Cierre sobre gate verde `data · inversionistas` 8/9 declarados (antes 5/9). Ciclo probado con migración desechable; 43 en baseline sellado; CLAUDE.md prohibición 7 → runner. Tarea elegida por Sebastian ("haz la 2"). |
 | 2026-09-11 | M35 · limpiar `naranja.*` del tema viejo | ✅ aceptada | Cierre sobre gate verde `ui · inversionistas` 7/7 (e2e responsive incluido). 2 archivos. Tarea elegida por Sebastian ("si" a la propuesta). |
 | 2026-09-11 | M34 · tablas huérfanas a `*_descartado` | ✅ aceptada | Cierre sobre gate verde `data · inversionistas`. Rename (no DROP, no `_respaldo_*`: el rename preserva todo), índices y secuencias incluidos, guardas de idempotencia. Ciclo up→down→up contra Neon; 8 FKs intactas. Tarea elegida por Sebastian. |
