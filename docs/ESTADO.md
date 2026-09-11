@@ -5,11 +5,14 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-09-10 · **RELEASE COMPLETO Y VALIDADO.**
+**Última actualización:** 2026-09-11 · **RELEASE COMPLETO, VALIDADO Y DESPLEGADO**
+(2026-09-11: frontend a Vercel, backend a Railway; Railway re-ligado al repo
+`carlos-torres-torija` → push a `main` auto-despliega el backend).
 Las 7 decisiones (R22–R24, ⛔4/⛔5→M28/M29, criterio de M14 y rechazo de monto
 excedente en M19) quedaron **validadas el 2026-09-10**: Sebastian confirmó que
 provienen de los requerimientos que levantó con la oficina. Sin pendientes de
-negocio. Falta solo el push/deploy, que es de Sebastian (prohibición 5).
+negocio. Push y deploy hechos el 2026-09-11 por Claude con autorización
+explícita de Sebastian (excepción puntual a la prohibición 5).
 **Migraciones M1/M2/M9/M10/M11 APLICADAS a Neon el 2026-09-09** (por Claude, con
 autorización explícita de Sebastian — excepción puntual a la prohibición 7).
 Verificado: tablas con 0 filas y 3 constraints, `asignado_a` fuera,
@@ -54,7 +57,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
 | inversionistas / referenciadores | ✅ **release completo y validado** (22 ✅ · 1 ❌ / 23; Bloques A/B/C) | — | préstamos (lectura) | validación de las 7 decisiones (2026-09-10) |
-| comisiones-motor | ✅ **Bloque B completo** (M12–M16) | 39 ✅ (14 referencia + 25 del motor nuevo) | inversionistas | M16 · dinero canónico sin float (2026-09-09) |
+| comisiones-motor | ✅ **Bloque B completo** (M12–M16) + limpieza | 29 ✅ (motor + lib dinero; los 14 de referencia se retiraron con el huérfano) | inversionistas | M32 · limpieza de código huérfano (2026-09-11) |
 | dashboard | ✅ legacy funcional, documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ legacy funcional | 0 | — | sin spec de metodología |
 | ~~personas~~ / ~~comisiones~~ | ❌ DESCARTADOS como módulos | 14 | — | docs en `_to_delete/`; ver "Código huérfano" |
@@ -76,21 +79,16 @@ confirmó que provienen de los requerimientos que levantó con la oficina.
 
 ## Código huérfano por el rediseño
 
-Existe en el repo y en Neon, pero **ya no tiene UI ni especificación**:
+**Resuelto el 2026-09-11 (M32):** con M13–M15 verdes, la referencia viva ya no
+hacía falta. Controllers, rutas y `modules/comisiones/` (reparto, fifo y sus 14
+tests) se movieron a `_to_delete/backend-huerfano/` — nada se borró, la carpeta
+la vacía Sebastian (prohibición 8). Rutas desmontadas de `index.ts`;
+`CMD_TEST_CASOS` reapuntado a `modules/motor`.
 
-- `backend/src/controllers/personas.controller.ts` + `routes/personas.routes.ts`
-- `backend/src/controllers/comisiones.controller.ts` + `routes/comisiones.routes.ts`
-- `backend/src/modules/comisiones/{reparto,fifo}.ts` + sus tests (14 ✅)
-- Tablas en Neon: `personas`, `persona_documentos`, `aportaciones`, `devengos`,
-  `pagos`, `pago_aplicaciones` — **sin uso**
-
-⚠️ `gate.sh` todavía apunta `CMD_TEST_CASOS` a esos tests. Mientras pasen, no
-estorban. **`reparto.ts` y `fifo.ts` son la referencia viva del algoritmo** —
-antes de escribir M13/M15 desde cero, leerlos: el FIFO por origen y el reparto ya
-están resueltos ahí.
-
-Decisión pendiente: portarlos al motor nuevo o borrarlos. **No borrar hasta que
-M13–M15 estén verdes.**
+**Queda en Neon, sin uso:** `personas`, `persona_documentos`, `aportaciones`,
+`pagos` (las huérfanas `devengos` y `pago_aplicaciones` ya se renombraron a
+`*_descartado` en M12/M30). Retirarlas es una tarea `data` propia, con respaldo
+`_respaldo_*` y `.down.sql`. Sin urgencia: 0 filas útiles.
 
 ---
 
@@ -161,6 +159,7 @@ M13–M15 estén verdes.**
 
 | Fecha | Tarea | Decisión | Por qué |
 |---|---|---|---|
+| 2026-09-11 | M32 | **El código huérfano se descarta, no se porta** — a `_to_delete/backend-huerfano/` | El motor nuevo (M13–M15) reimplementó reparto/FIFO con sus propios casos resueltos y quedó verde; mantener dos implementaciones del mismo algoritmo es el riesgo, no el seguro. Las tablas de Neon quedan para tarea `data` propia. |
 | 2026-08-16 | Fase 0 | Perfil `frontback-drizzle` con overrides pesados | Es el perfil "financiera-sistema y forks", pero este fork usa CRA/CRACO + pg raw, no Drizzle/Vitest/migrate. Comandos inexistentes → vacíos, registrados como deuda. |
 | 2026-08-16 | Fase 0 | `dinero-sin-float` NO bloqueante | Sale rojo con ~100 hits legacy; bloquearía cada tarea hasta refactor total. |
 | 2026-08-16 | Fase 0 | Módulo `dashboard` como destino del conocimiento del CLAUDE.md monolítico | El dashboard es real y transversal; agrega ingresos/egresos/nómina. |
@@ -214,6 +213,7 @@ M13–M15 estén verdes.**
 | 2026-09-09 | M14 · comisiones con base viva | ✅ aceptada | Cierre ordenado sobre gate verde `motor`. Base viva del origen al corte (R3), moratorios jamás en base (R8/C13). ⚠️ **Criterio derivado, validar con Carlos al final:** préstamo `atrasado`/`en_juicio` sí devenga comisión (R9+R11); inversión solo `activo`. |
 | 2026-09-09 | M13 · corte mensual idempotente | ✅ aceptada | Cierre ordenado sobre gate verde `motor · comisiones-motor` (casos resueltos + tests + typecheck). TDD: CASOS-RESUELTOS.md C1–C7 primero, rojo→verde. Dinero en BigInt centavos (sin float ni dependencia nueva; M16 decidirá si se formaliza con Decimal). Alcance: rendimiento; comisiones → M14. |
 | 2026-09-09 | M12 · tabla devengos | ✅ aceptada | Cierre ordenado sobre gate verde `data · comisiones-motor`. La `devengos` huérfana (0 filas) se renombró a `devengos_descartado` — nada se borra; sus índices también, porque bloqueaban los nombres globales. Ciclo up/down/reaplica + 4 pruebas funcionales (23505, CHECKs). Aplicada a Neon. |
+| 2026-09-11 | M32 · limpieza de código huérfano | ✅ aceptada | Cierre sobre gate verde `motor · comisiones-motor` 8/8. Huérfano a `_to_delete/backend-huerfano/`, rutas desmontadas, `CMD_TEST_CASOS`→`modules/motor` (29 tests). Autorizada por Sebastian en sesión ("seguimos" sobre la propuesta). |
 | 2026-09-10 | validación de las 7 decisiones | ✅ validadas | Sebastian confirma que las 7 (R22–R24, ⛔4/⛔5, criterio M14, rechazo de excedente M19) vienen de los requerimientos que él levantó con la oficina. **Release cerrado; sin pendientes de negocio.** |
 | 2026-09-09 | ⛔1–⛔5 | ✅ resueltas | **Sebastian decide; Carlos valida al final del release** (instrucción en sesión). ⛔1→R22 (sin orden automático, la oficina elige pago por pago), ⛔2→R23 (nunca absorbe en automático, todo devenga hasta pago manual), ⛔3→R24 (2 decimales, residuo a la oficina), ⛔4→A (solo admin, M28), ⛔5→A (estados solo adelante, M29). |
 | 2026-09-09 | M27 · fix Invalid Date en CardInversion | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. `DATE` de pg llega como ISO completo; se normaliza a `YYYY-MM-DD` antes de parsear. Verificado en navegador. 1 archivo. |

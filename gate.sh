@@ -74,8 +74,9 @@ CMD_SEED=""
 # Sin suite e2e/playwright todavía. Deuda.
 CMD_E2E_RESPONSIVE="npm run test:e2e --prefix frontend"
 
-# Casos resueltos del motor de comisiones (T-001).
-CMD_TEST_CASOS="npm test --prefix backend -- casos-resueltos"
+# Casos resueltos del motor de comisiones (M13-M15; los del módulo descartado
+# viven en _to_delete/backend-huerfano/ y ya no corren).
+CMD_TEST_CASOS="npm test --prefix backend -- modules/motor"
 
 DIR_MIGRACIONES="database"
 

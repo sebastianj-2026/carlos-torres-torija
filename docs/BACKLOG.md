@@ -429,6 +429,20 @@ Si no cumple → se parte. No se negocia.
 
 ---
 
+## Post-release
+
+### M32 · Limpieza de código huérfano `personas`/`comisiones`
+- **Módulo:** comisiones-motor · **Tipo:** `logic` · **Depende de:** M13–M15 ✅
+- **Por qué:** `reparto.ts`/`fifo.ts` eran la referencia viva del algoritmo hasta
+  que el motor nuevo quedara verde; los controllers/rutas de `personas` y
+  `comisiones` no tenían UI ni spec desde el 2026-08-19. Ya nada los usa.
+- **Estado:** ✅ (2026-09-11) — controllers, rutas y `modules/comisiones/`
+  (con sus 14 tests de referencia) movidos a `_to_delete/backend-huerfano/`
+  (nada se borra, prohibición 8); rutas desmontadas de `index.ts`;
+  `CMD_TEST_CASOS` reapuntado a `modules/motor`. Las 4 tablas sin uso en Neon
+  (`personas`, `persona_documentos`, `aportaciones`, `pagos`) quedan para una
+  tarea `data` propia con respaldo.
+
 ## Conteo
 
 | Bloque | Tareas | Estado |
