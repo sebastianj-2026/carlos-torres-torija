@@ -466,6 +466,15 @@ Si no cumple → se parte. No se negocia.
   verificado: nombres viejos en `to_regclass` → NULL, 8 FKs intactas.
   2 archivos.
 
+### M35 · Limpiar `naranja.*` del tema viejo en tailwind.config.js
+- **Módulo:** shared/diseño · **Tipo:** `ui` · **Depende de:** —
+- **Por qué:** hallazgo de la tarea de DISENO.md (2026-09-09): tokens del tema
+  viejo sin un solo uso en `src/`.
+- **Estado:** ✅ (2026-09-11) — `extend.colors.naranja` fuera; de paso el
+  comentario stale "Franja superior naranja" en `Login.tsx` (la franja es sky).
+  Verificado: cero clases `naranja-*` en el código. Gate `ui` 7/7 con los
+  21 e2e responsive verdes. 2 archivos.
+
 ## Conteo
 
 | Bloque | Tareas | Estado |

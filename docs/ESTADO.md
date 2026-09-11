@@ -143,8 +143,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 - [x] ~~**`docs/DISENO.md` con marcas `{{TODO}}`**~~ — resuelta el 2026-09-09:
       tokens semánticos extraídos del uso real (slate/sky), tipografía sistema,
       inventario completo de `shared/` (incluye `RoleGuard`, que faltaba).
-      Hallazgo: `tailwind.config.js` aún define `naranja.*` del tema viejo,
-      sin uso — limpieza en ticket propio.
+      El hallazgo `naranja.*` sin uso se limpió el 2026-09-11 (M35).
 - [x] ~~**Validación de entrada laxa en endpoints nuevos de referencias**~~ —
       resuelta el 2026-09-09 (M26): UUID/tasa/fecha_fin validados antes de la DB,
       400 en español. La mitad legacy (`crearInversion`) se cerró el mismo día
@@ -218,6 +217,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 | 2026-09-09 | M14 · comisiones con base viva | ✅ aceptada | Cierre ordenado sobre gate verde `motor`. Base viva del origen al corte (R3), moratorios jamás en base (R8/C13). ⚠️ **Criterio derivado, validar con Carlos al final:** préstamo `atrasado`/`en_juicio` sí devenga comisión (R9+R11); inversión solo `activo`. |
 | 2026-09-09 | M13 · corte mensual idempotente | ✅ aceptada | Cierre ordenado sobre gate verde `motor · comisiones-motor` (casos resueltos + tests + typecheck). TDD: CASOS-RESUELTOS.md C1–C7 primero, rojo→verde. Dinero en BigInt centavos (sin float ni dependencia nueva; M16 decidirá si se formaliza con Decimal). Alcance: rendimiento; comisiones → M14. |
 | 2026-09-09 | M12 · tabla devengos | ✅ aceptada | Cierre ordenado sobre gate verde `data · comisiones-motor`. La `devengos` huérfana (0 filas) se renombró a `devengos_descartado` — nada se borra; sus índices también, porque bloqueaban los nombres globales. Ciclo up/down/reaplica + 4 pruebas funcionales (23505, CHECKs). Aplicada a Neon. |
+| 2026-09-11 | M35 · limpiar `naranja.*` del tema viejo | ✅ aceptada | Cierre sobre gate verde `ui · inversionistas` 7/7 (e2e responsive incluido). 2 archivos. Tarea elegida por Sebastian ("si" a la propuesta). |
 | 2026-09-11 | M34 · tablas huérfanas a `*_descartado` | ✅ aceptada | Cierre sobre gate verde `data · inversionistas`. Rename (no DROP, no `_respaldo_*`: el rename preserva todo), índices y secuencias incluidos, guardas de idempotencia. Ciclo up→down→up contra Neon; 8 FKs intactas. Tarea elegida por Sebastian. |
 | 2026-09-11 | M33 · tests de controllers del release | ✅ aceptada | Cierre sobre gate verde `logic · inversionistas` 6/6. 41 tests unitarios (pool mockeado, FIFO real), suite total 70 ✅. Tarea elegida por Sebastian ("haz la de tests de controllers"). |
 | 2026-09-11 | M32 · limpieza de código huérfano | ✅ aceptada | Cierre sobre gate verde `motor · comisiones-motor` 8/8. Huérfano a `_to_delete/backend-huerfano/`, rutas desmontadas, `CMD_TEST_CASOS`→`modules/motor` (29 tests). Autorizada por Sebastian en sesión ("seguimos" sobre la propuesta). |

@@ -66,7 +66,7 @@ const Login: React.FC = () => {
       {/* Card principal */}
       <div className="relative w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl shadow-black/30 overflow-hidden">
-          {/* Franja superior naranja */}
+          {/* Franja superior */}
           <div className="h-1.5 bg-gradient-to-r from-sky-500 to-sky-400" />
 
           <div className="px-4 sm:px-8 py-6 sm:py-10">
