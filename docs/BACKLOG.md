@@ -433,7 +433,7 @@ Si no cumple → se parte. No se negocia.
 
 | Bloque | Tareas | Estado |
 |---|---|---|
-| A — inversionistas/referenciadores | 22 (incluye M25–M29 extra) | 19 ✅ · 1 ❌ (M8) · 2 ⬜ (M28, M29 — de ⛔4/⛔5) |
+| A — inversionistas/referenciadores | 23 (incluye M21–M31 extra) | **22 ✅ · 1 ❌ (M8) · Bloque A completo** |
 | B — motor de comisiones | 5 | **5 ✅ · Bloque B completo** |
 | C — cuentas por pagar | 5 (incluye M30 data) | **5 ✅ · Bloque C completo** |
 

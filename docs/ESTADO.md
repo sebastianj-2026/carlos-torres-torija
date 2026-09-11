@@ -5,9 +5,11 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-09-09 · **RELEASE COMPLETO: Bloques A, B, C + M28/M29.**
-Único pendiente: **validación de Carlos al final** — R22–R24, criterio de M14
-(préstamo atrasado/en_juicio devenga) y rechazo de monto excedente en M19.
+**Última actualización:** 2026-09-10 · **RELEASE COMPLETO Y VALIDADO.**
+Las 7 decisiones (R22–R24, ⛔4/⛔5→M28/M29, criterio de M14 y rechazo de monto
+excedente en M19) quedaron **validadas el 2026-09-10**: Sebastian confirmó que
+provienen de los requerimientos que levantó con la oficina. Sin pendientes de
+negocio. Falta solo el push/deploy, que es de Sebastian (prohibición 5).
 **Migraciones M1/M2/M9/M10/M11 APLICADAS a Neon el 2026-09-09** (por Claude, con
 autorización explícita de Sebastian — excepción puntual a la prohibición 7).
 Verificado: tablas con 0 filas y 3 constraints, `asignado_a` fuera,
@@ -51,7 +53,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| inversionistas / referenciadores | 🟡 Bloque A **completo** (17 ✅ · 1 ❌ / 18); espera Bloques B/C | — | préstamos (lectura) | M22 · form de alta/edición de referenciador (2026-09-09) |
+| inversionistas / referenciadores | ✅ **release completo y validado** (22 ✅ · 1 ❌ / 23; Bloques A/B/C) | — | préstamos (lectura) | validación de las 7 decisiones (2026-09-10) |
 | comisiones-motor | ✅ **Bloque B completo** (M12–M16) | 39 ✅ (14 referencia + 25 del motor nuevo) | inversionistas | M16 · dinero canónico sin float (2026-09-09) |
 | dashboard | ✅ legacy funcional, documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ legacy funcional | 0 | — | sin spec de metodología |
@@ -63,11 +65,9 @@ Estados: `⬜ pendiente` · `🟡 en curso` · `✅ legacy funcional` · `🚫 b
 
 ## Bloqueos activos
 
-**Ninguno.** Las 5 ⛔ se resolvieron el **2026-09-09**: Sebastian decidió
-resolverlas él y **validar con Carlos al final del release** (su instrucción en
-sesión). Las 3 del motor son ahora **R22–R24** en
-`docs/modulos/comisiones-motor/REGLAS.md`; ⛔4/⛔5 generaron las tareas M28/M29.
-Bloques B y C desbloqueados (9 tareas ⬜).
+**Ninguno.** Las 5 ⛔ se resolvieron el **2026-09-09** (R22–R24 + M28/M29) y las
+7 decisiones del release quedaron **validadas el 2026-09-10**: Sebastian
+confirmó que provienen de los requerimientos que levantó con la oficina.
 
 > Un módulo bloqueado por regla de negocio sin definir **no entra al backlog**.
 > No se marca TODO — se detiene.
@@ -214,6 +214,7 @@ M13–M15 estén verdes.**
 | 2026-09-09 | M14 · comisiones con base viva | ✅ aceptada | Cierre ordenado sobre gate verde `motor`. Base viva del origen al corte (R3), moratorios jamás en base (R8/C13). ⚠️ **Criterio derivado, validar con Carlos al final:** préstamo `atrasado`/`en_juicio` sí devenga comisión (R9+R11); inversión solo `activo`. |
 | 2026-09-09 | M13 · corte mensual idempotente | ✅ aceptada | Cierre ordenado sobre gate verde `motor · comisiones-motor` (casos resueltos + tests + typecheck). TDD: CASOS-RESUELTOS.md C1–C7 primero, rojo→verde. Dinero en BigInt centavos (sin float ni dependencia nueva; M16 decidirá si se formaliza con Decimal). Alcance: rendimiento; comisiones → M14. |
 | 2026-09-09 | M12 · tabla devengos | ✅ aceptada | Cierre ordenado sobre gate verde `data · comisiones-motor`. La `devengos` huérfana (0 filas) se renombró a `devengos_descartado` — nada se borra; sus índices también, porque bloqueaban los nombres globales. Ciclo up/down/reaplica + 4 pruebas funcionales (23505, CHECKs). Aplicada a Neon. |
+| 2026-09-10 | validación de las 7 decisiones | ✅ validadas | Sebastian confirma que las 7 (R22–R24, ⛔4/⛔5, criterio M14, rechazo de excedente M19) vienen de los requerimientos que él levantó con la oficina. **Release cerrado; sin pendientes de negocio.** |
 | 2026-09-09 | ⛔1–⛔5 | ✅ resueltas | **Sebastian decide; Carlos valida al final del release** (instrucción en sesión). ⛔1→R22 (sin orden automático, la oficina elige pago por pago), ⛔2→R23 (nunca absorbe en automático, todo devenga hasta pago manual), ⛔3→R24 (2 decimales, residuo a la oficina), ⛔4→A (solo admin, M28), ⛔5→A (estados solo adelante, M29). |
 | 2026-09-09 | M27 · fix Invalid Date en CardInversion | ✅ aceptada | Cierre ordenado sobre gate verde `ui · inversionistas`. `DATE` de pg llega como ISO completo; se normaliza a `YYYY-MM-DD` antes de parsear. Verificado en navegador. 1 archivo. |
 | 2026-09-09 | M26 · endurecer validación /api/referencias | ✅ aceptada | Cierre ordenado sobre gate verde `logic · inversionistas`. Deuda de seguridad de M4 saldada en lo nuevo; smoke test de 6 casos contra el server (datos temporales creados y borrados). 1 archivo. Elegida por Sebastian ante backlog bloqueado. |

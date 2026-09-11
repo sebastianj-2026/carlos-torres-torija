@@ -3,6 +3,10 @@
 > ✅ **Resueltas el 2026-09-09 por Sebastian** (decidió resolver él y validar con
 > Carlos al final del release). Las reglas viven en
 > `docs/modulos/comisiones-motor/REGLAS.md` (R22–R24).
+>
+> ✅ **VALIDADAS el 2026-09-10.** Sebastian confirmó las 7: las decisiones
+> provienen de los requerimientos que él levantó directamente con la oficina.
+> No queda pendiente de validación. Esta hoja queda como registro.
 
 > Hoja para la junta. No es técnica: son tres decisiones de negocio.
 > Sin ellas, cualquier cosa que programemos sería una regla **inventada** — y una
@@ -113,9 +117,55 @@ editar la tasa después **no** reescribe lo ya devengado. El riesgo es acotado.
 
 ---
 
+# Dos criterios derivados durante la construcción
+
+> Salieron al programar el motor. Se resolvieron con el criterio más coherente
+> con las reglas ya escritas, pero son **decisiones de negocio** y Carlos tiene
+> la última palabra. Si decide distinto, el ajuste es chico.
+
+## ⛔ 6 · Un préstamo atrasado o en juicio, ¿sigue generando comisión al referenciador?
+
+El referenciador cobra sobre el capital vigente del préstamo. ¿Qué pasa cuando
+el préstamo deja de estar al corriente?
+
+| Estado del préstamo | Lo que hace el sistema hoy |
+|---|---|
+| `activo` | Genera comisión |
+| **`atrasado` / `en_juicio`** | **Sigue generando comisión** (el capital sigue vivo y devengando interés) |
+| `liquidado` / `cancelado` | No genera |
+
+En inversiones, solo `activo` genera.
+
+**Por qué se decidió así:** los moratorios nunca entran a la base (eso ya estaba
+definido), pero el capital de un préstamo atrasado sigue trabajando. Si Carlos
+prefiere que un préstamo atrasado/en juicio **congele** la comisión del
+referenciador, se cambia con un ajuste puntual.
+
+## ⛔ 7 · Si al pagar se captura más dinero del que se debe, ¿qué pasa con el sobrante?
+
+Al registrar un pago de comisiones, la oficina captura un monto. Si ese monto
+excede lo pendiente de esa línea:
+
+| Opción | Qué pasa |
+|---|---|
+| **A. Se rechaza el pago completo** (lo que hace el sistema) | Error con el sobrante exacto; la oficina corrige el monto y vuelve a capturar |
+| B. Se acepta y el sobrante queda a favor | Habría que definir a favor de quién y dónde vive ese saldo |
+
+**Por qué se decidió A:** el sobrante no tiene destino legal definido — no hay
+regla que diga de quién es ese dinero. Antes que inventarla, se rechaza. Si
+Carlos quiere manejo de saldo a favor, es una regla nueva (y su tarea propia).
+
+---
+
 ## Después de la junta
 
-1. Escribir las respuestas en `docs/modulos/comisiones-motor/REGLAS.md`,
-   reemplazando las tres marcas sin definir por la regla ya decidida.
-2. Cambiar el estado de M12–M20 de 🚫 a ⬜ en `docs/BACKLOG.md`.
-3. Anotar la fecha y la decisión en `docs/ESTADO.md` › Decisiones de arquitectura.
+> Todo el código ya corre con las respuestas de Sebastian. La junta **confirma o
+> corrige**; no bloquea nada.
+
+1. Si Carlos confirma todo: anotar la validación (fecha + "validado por Carlos")
+   en `docs/ESTADO.md` y en las reglas correspondientes de
+   `docs/modulos/comisiones-motor/REGLAS.md`. El release queda listo para merge
+   a `main`.
+2. Si Carlos corrige alguna: es una tarea nueva en `docs/BACKLOG.md` con su
+   regla reescrita primero. Ninguna corrección es un rehacer — los siete puntos
+   se programaron para poderse invertir con un ajuste acotado.

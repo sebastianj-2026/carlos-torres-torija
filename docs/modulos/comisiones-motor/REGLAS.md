@@ -1,7 +1,9 @@
 # Reglas de cálculo — motor de comisiones
 
 > ✅ **Módulo desbloqueado el 2026-09-09.** Las 3 reglas pendientes las resolvió
-> **Sebastian** (R22–R24 abajo); Carlos las valida al final del release.
+> **Sebastian** (R22–R24 abajo).
+> ✅ **Validadas el 2026-09-10:** Sebastian confirmó que las 7 decisiones del
+> release provienen de los requerimientos que él levantó con la oficina.
 >
 > **Archivo sagrado.** Baja rotación. Solo se abre en tareas `motor` o `logic`
 > del Bloque B/C del backlog.
@@ -52,7 +54,7 @@ autorizó.
 
 ---
 
-## Reglas resueltas el 2026-09-09 (Sebastian; Carlos valida al final)
+## Reglas resueltas el 2026-09-09 (Sebastian) — validadas el 2026-09-10
 
 ### R22 · Sin orden automático entre beneficiarios
 Cuando no alcanza en el mes, **el sistema no reparte ni prioriza**: muestra
