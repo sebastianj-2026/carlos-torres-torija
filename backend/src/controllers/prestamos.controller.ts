@@ -12,9 +12,22 @@ import {
   ParticipanteDto,
 } from '../models/prestamo.model';
 
+import {
+  porcentajeHalfUp, sumaMontos, restaMontos, restaPiso0, comparaMontos,
+} from '../lib/dinero';
+
 const DIRECCIONES_VALIDAS = ['ASC', 'DESC'] as const;
 
 const escapeLikeWildcards = (s: string): string => s.replace(/[\\%_]/g, '\\$&');
+
+// DTO amounts arrive as JSON numbers; money math runs on exact 2-decimal
+// strings (M40, docs/DINERO.md D1). Returns null when it is not plain money
+// (>2 decimals, negative, NaN) so the caller can 400 instead of rounding.
+const montoDeNumero = (n: number | undefined | null, def = '0'): string | null => {
+  if (n === undefined || n === null) return def;
+  const s = String(n);
+  return /^\d+(\.\d{1,2})?$/.test(s) ? s : null;
+};
 
 const TIPOS_ARCHIVO_VALIDOS: TipoArchivoPrestamo[] = [
   'avaluo', 'gastos_notariales', 'escritura', 'contrato_firmado',
@@ -480,11 +493,12 @@ export const crearPrestamo = async (req: Request, res: Response): Promise<void> 
         res.status(404).json({ mensaje: `Inversionista ${part.inversionista_id} no encontrado.` });
         return;
       }
-      const disponible = parseFloat(wRes.rows[0].capital_disponible);
-      if (part.monto_aportado > disponible + 0.009) {
+      const disponible: string = wRes.rows[0].capital_disponible;
+      const aportado = montoDeNumero(part.monto_aportado);
+      if (!aportado || comparaMontos(aportado, disponible) > 0) {
         await client.query('ROLLBACK');
         res.status(400).json({
-          mensaje: `Capital insuficiente: el inversionista solo tiene $${disponible.toFixed(2)} disponible y se intentan asignar $${part.monto_aportado.toFixed(2)}.`,
+          mensaje: `Capital insuficiente: el inversionista solo tiene $${disponible} disponible y se intentan asignar $${aportado ?? part.monto_aportado}.`,
         });
         return;
       }
@@ -493,15 +507,21 @@ export const crearPrestamo = async (req: Request, res: Response): Promise<void> 
     const tipoGarantia = datos.tipo_garantia ?? 'hipotecaria';
     const esHipotecaria = tipoGarantia === 'hipotecaria';
 
-    const apertura         = datos.apertura         ?? 0;
-    const avaluo           = datos.avaluo           ?? 0;
-    const gastosNotariales = datos.gastos_notariales ?? 0;
+    // Exact cents from here on (M40, D1): half-up interest, exact subtraction
+    const montoPrestado    = montoDeNumero(datos.monto_prestado);
+    const apertura         = montoDeNumero(datos.apertura);
+    const avaluo           = montoDeNumero(datos.avaluo);
+    const gastosNotariales = montoDeNumero(datos.gastos_notariales);
+    if (!montoPrestado || !apertura || !avaluo || !gastosNotariales) {
+      await client.query('ROLLBACK');
+      res.status(400).json({ mensaje: 'Los montos deben ser decimales con hasta 2 decimales.' });
+      return;
+    }
 
-    const interesAnticipado = parseFloat(
-      (datos.monto_prestado * (datos.tasa_interes_mensual / 100)).toFixed(2)
-    );
-    const cantidadEntregada = parseFloat(
-      (datos.monto_prestado - interesAnticipado - apertura - avaluo - gastosNotariales).toFixed(2)
+    const interesAnticipado = porcentajeHalfUp(montoPrestado, String(datos.tasa_interes_mensual));
+    const cantidadEntregada = restaMontos(
+      restaMontos(restaMontos(restaMontos(montoPrestado, interesAnticipado), apertura), avaluo),
+      gastosNotariales
     );
 
     const fechaInicio      = new Date(datos.fecha_inicio + 'T12:00:00');
@@ -562,22 +582,19 @@ export const crearPrestamo = async (req: Request, res: Response): Promise<void> 
 
     // Regla de oro: Oficina TS absorbe el diferencial automáticamente
     const soloInversionistas = participantes.filter((p) => !p.es_oficina);
-    const sumaInv = parseFloat(
-      soloInversionistas.reduce((s, p) => s + p.monto_aportado, 0).toFixed(2)
-    );
-    const montoOficina = parseFloat((datos.monto_prestado - sumaInv).toFixed(2));
+    const sumaInv = sumaMontos(soloInversionistas.map((p) => montoDeNumero(p.monto_aportado)));
+    const montoOficina = restaMontos(montoPrestado, sumaInv);
 
     const participantesAGuardar: ParticipanteDto[] = [
-      ...(montoOficina > 0.009
-        ? [{ inversionista_id: null, es_oficina: true, monto_aportado: montoOficina, tasa_rendimiento: datos.tasa_interes_mensual }]
+      ...(comparaMontos(montoOficina, '0.00') > 0
+        ? [{ inversionista_id: null, es_oficina: true, monto_aportado: Number(montoOficina), tasa_rendimiento: datos.tasa_interes_mensual }]
         : []),
       ...soloInversionistas,
     ];
 
     for (const part of participantesAGuardar) {
-      const interesMensual = parseFloat(
-        (part.monto_aportado * (part.tasa_rendimiento / 100)).toFixed(2)
-      );
+      const aportado = montoDeNumero(part.monto_aportado) ?? '0';
+      const interesMensual = porcentajeHalfUp(aportado, String(part.tasa_rendimiento));
       await client.query(
         `INSERT INTO participantes_prestamo
            (prestamo_id, inversionista_id, es_oficina, monto_aportado, tasa_rendimiento, interes_mensual, registrado_por)
@@ -586,7 +603,7 @@ export const crearPrestamo = async (req: Request, res: Response): Promise<void> 
           prestamo.id,
           part.inversionista_id || null,
           part.es_oficina,
-          part.monto_aportado,
+          aportado,
           part.tasa_rendimiento,
           interesMensual,
           registrado_por || null,
@@ -726,15 +743,15 @@ export const editarPrestamo = async (req: Request, res: Response): Promise<void>
 
     // Actualizar participantes si se enviaron — Oficina TS absorbe el diferencial
     if (datos.participantes !== undefined) {
-      const montoBase     = parseFloat(resultado.rows[0].monto_prestado);
+      const montoBase: string = resultado.rows[0].monto_prestado;
       const tasaBase      = parseFloat(resultado.rows[0].tasa_interes_mensual);
       const soloInv       = (datos.participantes ?? []).filter((p) => !p.es_oficina);
-      const sumaInv       = parseFloat(soloInv.reduce((s, p) => s + p.monto_aportado, 0).toFixed(2));
-      const montoOficinaE = parseFloat((montoBase - sumaInv).toFixed(2));
+      const sumaInv       = sumaMontos(soloInv.map((p) => montoDeNumero(p.monto_aportado)));
+      const montoOficinaE = restaMontos(montoBase, sumaInv);
 
       const participantesEdit: ParticipanteDto[] = [
-        ...(montoOficinaE > 0.009
-          ? [{ inversionista_id: null, es_oficina: true, monto_aportado: montoOficinaE, tasa_rendimiento: tasaBase }]
+        ...(comparaMontos(montoOficinaE, '0.00') > 0
+          ? [{ inversionista_id: null, es_oficina: true, monto_aportado: Number(montoOficinaE), tasa_rendimiento: tasaBase }]
           : []),
         ...soloInv,
       ];
@@ -767,11 +784,12 @@ export const editarPrestamo = async (req: Request, res: Response): Promise<void>
           [part.inversionista_id]
         );
         if (!wRes.rows[0]) continue;
-        const disponible = parseFloat(wRes.rows[0].capital_disponible);
-        if (part.monto_aportado > disponible + 0.009) {
+        const disponible: string = wRes.rows[0].capital_disponible;
+        const aportado = montoDeNumero(part.monto_aportado);
+        if (!aportado || comparaMontos(aportado, disponible) > 0) {
           await client.query('ROLLBACK');
           res.status(400).json({
-            mensaje: `Capital insuficiente: el inversionista solo tiene $${disponible.toFixed(2)} disponible y se intentan asignar $${part.monto_aportado.toFixed(2)}.`,
+            mensaje: `Capital insuficiente: el inversionista solo tiene $${disponible} disponible y se intentan asignar $${aportado ?? part.monto_aportado}.`,
           });
           return;
         }
@@ -779,14 +797,13 @@ export const editarPrestamo = async (req: Request, res: Response): Promise<void>
 
       await client.query('DELETE FROM participantes_prestamo WHERE prestamo_id = $1', [id]);
       for (const part of participantesEdit) {
-        const interesMensual = parseFloat(
-          (part.monto_aportado * (part.tasa_rendimiento / 100)).toFixed(2)
-        );
+        const aportado = montoDeNumero(part.monto_aportado) ?? '0';
+        const interesMensual = porcentajeHalfUp(aportado, String(part.tasa_rendimiento));
         await client.query(
           `INSERT INTO participantes_prestamo
              (prestamo_id, inversionista_id, es_oficina, monto_aportado, tasa_rendimiento, interes_mensual, registrado_por)
            VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-          [id, part.inversionista_id || null, part.es_oficina, part.monto_aportado, part.tasa_rendimiento, interesMensual, registrado_por || null]
+          [id, part.inversionista_id || null, part.es_oficina, aportado, part.tasa_rendimiento, interesMensual, registrado_por || null]
         );
       }
 
@@ -889,12 +906,14 @@ export const renovarPrestamo = async (req: Request, res: Response): Promise<void
 
     const anterior = prestamoAnterior.rows[0];
 
-    const interesAnticipado = parseFloat(
-      (datos.monto_prestado * (datos.tasa_interes_mensual / 100)).toFixed(2)
-    );
-    const cantidadEntregada = parseFloat(
-      (datos.monto_prestado - interesAnticipado).toFixed(2)
-    );
+    const montoPrestadoRen = montoDeNumero(datos.monto_prestado);
+    if (!montoPrestadoRen) {
+      await client.query('ROLLBACK');
+      res.status(400).json({ mensaje: 'El monto debe ser un decimal con hasta 2 decimales.' });
+      return;
+    }
+    const interesAnticipado = porcentajeHalfUp(montoPrestadoRen, String(datos.tasa_interes_mensual));
+    const cantidadEntregada = restaMontos(montoPrestadoRen, interesAnticipado);
 
     const fechaInicioRen      = new Date(datos.fecha_inicio + 'T12:00:00');
     const fechaVencimientoRen = new Date(fechaInicioRen);
@@ -1006,8 +1025,9 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
     res.status(400).json({ mensaje: 'Tipo de pago no válido.' });
     return;
   }
-  if (!datos.monto || datos.monto <= 0) {
-    res.status(400).json({ mensaje: 'El monto debe ser mayor a cero.' });
+  const montoPago = montoDeNumero(datos.monto, '');
+  if (!montoPago || comparaMontos(montoPago, '0.00') <= 0) {
+    res.status(400).json({ mensaje: 'El monto debe ser un decimal mayor a cero con hasta 2 decimales.' });
     return;
   }
 
@@ -1042,7 +1062,7 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
       [
         id,
         datos.tipo_pago,
-        datos.monto,
+        montoPago,
         datos.forma_pago    || null,
         datos.periodo_mes   || null,
         datos.periodo_anio  || null,
@@ -1052,11 +1072,10 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
       ]
     );
 
-    // Si es abono a capital, actualizar saldo pendiente
-    let nuevoSaldo = parseFloat(prestamo.saldo_pendiente);
+    // Si es abono a capital, actualizar saldo pendiente (exact cents, M40)
+    let nuevoSaldo: string = prestamo.saldo_pendiente;
     if (datos.tipo_pago === 'capital') {
-      nuevoSaldo = parseFloat((nuevoSaldo - datos.monto).toFixed(2));
-      if (nuevoSaldo < 0) nuevoSaldo = 0;
+      nuevoSaldo = restaPiso0(prestamo.saldo_pendiente, montoPago);
 
       await client.query(
         `UPDATE prestamos
@@ -1070,15 +1089,14 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
 
     await client.query('COMMIT');
 
-    const saldo  = parseFloat(prestamo.saldo_pendiente);
-    const tasa   = parseFloat(prestamo.tasa_interes_mensual);
-    const interesCalculado = parseFloat((saldo * (tasa / 100)).toFixed(2));
+    // Projection keeps the pre-payment base on purpose (existing contract)
+    const interesCalculado = porcentajeHalfUp(prestamo.saldo_pendiente, prestamo.tasa_interes_mensual);
 
     res.status(201).json({
       mensaje: 'Pago registrado correctamente.',
       pago: pagoResult.rows[0],
-      saldo_pendiente_nuevo: nuevoSaldo,
-      interes_mensual_calculado: interesCalculado,
+      saldo_pendiente_nuevo: Number(nuevoSaldo),
+      interes_mensual_calculado: Number(interesCalculado),
     });
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {});
@@ -1134,7 +1152,6 @@ export const calcularMoratorio = async (req: Request, res: Response): Promise<vo
     }
 
     const prestamo = prestamoResult.rows[0];
-    const saldo    = parseFloat(prestamo.saldo_pendiente);
     const tasa     = parseFloat(prestamo.tasa_moratoria_mensual);
 
     if (tasa <= 0) {
@@ -1145,7 +1162,8 @@ export const calcularMoratorio = async (req: Request, res: Response): Promise<vo
     const ahora    = new Date();
     const mes      = ahora.getMonth() + 1;
     const anio     = ahora.getFullYear();
-    const monto    = parseFloat((saldo * (tasa / 100)).toFixed(2));
+    // moratorio = saldo × tasa / 100, half-up exact (M40, D1)
+    const monto    = porcentajeHalfUp(prestamo.saldo_pendiente, prestamo.tasa_moratoria_mensual);
 
     // Evitar calcular dos veces el mismo mes
     const yaExiste = await pool.query(

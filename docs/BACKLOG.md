@@ -529,9 +529,15 @@ Si no cumple → se parte. No se negocia.
   exacto al UPDATE, validación). 6 tests nuevos; suite 84 ✅. 2 archivos.
 
 ### M40 · Préstamos a half-up
-- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜
-- `prestamos.controller`: interés anticipado, monto entregado, rendimiento
-  de participantes, moratorios, montoOficina, saldos.
+- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ✅ (2026-09-11)
+- `prestamos.controller` sin `toFixed`: interés anticipado y entregado
+  (alta y renovación), rendimiento de participantes, moratorios y saldos vía
+  helpers exactos. Fuera el épsilon `+0.009` de capital disponible —
+  comparación exacta al centavo. DTOs numéricos convertidos con
+  `montoDeNumero` (>2 decimales → 400, nunca se redondea entrada). Proyección
+  de interés conserva la base pre-pago (contrato existente, sin regla nueva).
+  TDD: 4 rojos primero (moratorio C3, saldo string exacto, validación,
+  renovación C3). 5 tests nuevos; suite 89 ✅. 2 archivos.
 
 ### M41 · Egresos e inversionistas a half-up
 - **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜
