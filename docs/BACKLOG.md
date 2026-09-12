@@ -509,9 +509,13 @@ Si no cumple → se parte. No se negocia.
 > Orden obligatorio: M38 primero, M44 al final. Reglas D1–D4; casos C1–C5.
 
 ### M38 · Helpers half-up en lib/dinero.ts
-- **Tipo:** `motor` · **Depende de:** — · **Estado:** ⬜
-- `porcentajeHalfUp(base, tasa)` y `dividirHalfUp` en centavos BigInt.
-  TDD con C1–C5 de DINERO.md; el rojo se corre antes del código.
+- **Tipo:** `motor` · **Depende de:** — · **Estado:** ✅ (2026-09-11)
+- `porcentajeHalfUp` (envuelve `montoPorTasa` de R24 — una sola aritmética) y
+  `proporcionHalfUp(monto, por, entre)` con un solo redondeo (D2), enteros
+  BigInt, half-up correcto con divisor par e impar. TDD real: 6 tests en rojo
+  ("no implementado") antes del código, luego verde. C1–C5 + 3 extra
+  (no-acumulación, validación de entrada, divisor cero). Suite 78 ✅.
+  2 archivos.
 
 ### M39 · Cobros a half-up
 - **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜

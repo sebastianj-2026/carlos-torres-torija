@@ -57,7 +57,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
 | inversionistas / referenciadores | ✅ **release completo y validado** (22 ✅ · 1 ❌ / 23; Bloques A/B/C) | 41 ✅ (controllers nuevos, pool mockeado) | préstamos (lectura) | M33 · tests de controllers del release (2026-09-11) |
-| comisiones-motor | ✅ **Bloque B completo** (M12–M16) + limpieza | 29 ✅ (motor + lib dinero; los 14 de referencia se retiraron con el huérfano) | inversionistas | M32 · limpieza de código huérfano (2026-09-11) |
+| comisiones-motor | ✅ **Bloque B completo** (M12–M16) + limpieza + helpers half-up | 37 ✅ (motor + lib dinero con C1–C5) | inversionistas | M38 · helpers half-up (2026-09-11) |
 | dashboard | ✅ legacy funcional, documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ legacy funcional | 0 | — | sin spec de metodología |
 | ~~personas~~ / ~~comisiones~~ | ❌ DESCARTADOS como módulos | 14 | — | docs en `_to_delete/`; ver "Código huérfano" |
@@ -221,6 +221,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 | 2026-09-09 | M14 · comisiones con base viva | ✅ aceptada | Cierre ordenado sobre gate verde `motor`. Base viva del origen al corte (R3), moratorios jamás en base (R8/C13). ⚠️ **Criterio derivado, validar con Carlos al final:** préstamo `atrasado`/`en_juicio` sí devenga comisión (R9+R11); inversión solo `activo`. |
 | 2026-09-09 | M13 · corte mensual idempotente | ✅ aceptada | Cierre ordenado sobre gate verde `motor · comisiones-motor` (casos resueltos + tests + typecheck). TDD: CASOS-RESUELTOS.md C1–C7 primero, rojo→verde. Dinero en BigInt centavos (sin float ni dependencia nueva; M16 decidirá si se formaliza con Decimal). Alcance: rendimiento; comisiones → M14. |
 | 2026-09-09 | M12 · tabla devengos | ✅ aceptada | Cierre ordenado sobre gate verde `data · comisiones-motor`. La `devengos` huérfana (0 filas) se renombró a `devengos_descartado` — nada se borra; sus índices también, porque bloqueaban los nombres globales. Ciclo up/down/reaplica + 4 pruebas funcionales (23505, CHECKs). Aplicada a Neon. |
+| 2026-09-11 | M38 · helpers half-up en lib/dinero | ✅ aceptada | Cierre sobre gate verde `motor · comisiones-motor` 8/8. TDD con rojo verificado (6 × "no implementado") antes del código. `porcentajeHalfUp` reusa `montoPorTasa` (R24): una sola aritmética en todo el sistema. Suite 78 ✅. Continuación en sesión por instrucción de Sebastian ("seguir con m38"). |
 | 2026-09-11 | especificación dinero half-up | ✅ cerrada | Peloteo de 5 preguntas; DEFINICION-DE-LISTO 6/6 aplicables. `docs/DINERO.md` + M38–M44 ⬜. Sin código. |
 | 2026-09-11 | M37 · seed demo idempotente | ✅ aceptada | Cierre sobre gate verde `data · inversionistas` **9/9, cero no declarados** (primera vez del perfil completo). Guarda por marcador, secciones stale recortadas, probado 2× sin duplicar. Tarea elegida por Sebastian. |
 | 2026-09-11 | M36 · runner de migraciones | ✅ aceptada | Cierre sobre gate verde `data · inversionistas` 8/9 declarados (antes 5/9). Ciclo probado con migración desechable; 43 en baseline sellado; CLAUDE.md prohibición 7 → runner. Tarea elegida por Sebastian ("haz la 2"). |

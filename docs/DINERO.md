@@ -67,7 +67,7 @@ redondea una sola vez — nunca como round(166.6667) × 3 × 0.25.
 
 ## Dependencias
 - `backend/src/lib/dinero.ts` — se extiende con `porcentajeHalfUp(base, tasa)`
-  y `dividirHalfUp` (tests primero, casos C1–C5).
+  y `proporcionHalfUp(monto, por, entre)` (tests primero, casos C1–C5).
 - La migración de recálculo (D3) depende de que TODOS los controllers ya
   escriban con la regla nueva — es la última tarea, con respaldo `_respaldo_*`.
 

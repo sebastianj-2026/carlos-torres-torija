@@ -7,7 +7,7 @@
  * migrated here on purpose — swapping toFixed() for half-up changes charged
  * cents and needs per-formula sign-off. See docs/ESTADO.md › deuda 5.
  */
-import { aCentavos, deCentavos } from '../modules/motor/dinero';
+import { aCentavos, deCentavos, montoPorTasa } from '../modules/motor/dinero';
 
 export { aCentavos, deCentavos };
 
@@ -32,3 +32,26 @@ export const comparaMontos = (a: string, b: string): number => {
 };
 
 export const esCero = (m: string): boolean => aCentavos(m) === 0n;
+
+// ── M38 · half-up formulas (docs/DINERO.md D1/D2, cases C1-C5) ──────────────
+
+/**
+ * monto = base × tasa / 100, half-up to the cent (D1).
+ * `tasa` is percent with up to 2 decimals ('1.75' = 1.75%). String in/out;
+ * wraps the motor's montoPorTasa (R24) so legacy controllers share ONE math.
+ */
+export const porcentajeHalfUp = (base: string, tasa: string): string =>
+  deCentavos(montoPorTasa(aCentavos(base), aCentavos(tasa)));
+
+/**
+ * monto × por / entre with a SINGLE half-up rounding at the end (D2).
+ * For payroll shapes like (sueldo ÷ 6) × días × 0.25 → proporcion(sueldo, días×25, 600):
+ * intermediates stay exact integers, the error never multiplies.
+ */
+export const proporcionHalfUp = (monto: string, por: number, entre: number): string => {
+  if (!Number.isInteger(por) || !Number.isInteger(entre) || entre <= 0 || por < 0) {
+    throw new Error(`Proporción inválida: ${por}/${entre} (enteros, divisor > 0)`);
+  }
+  const e = BigInt(entre);
+  return deCentavos((aCentavos(monto) * BigInt(por) + e / 2n) / e);
+};
