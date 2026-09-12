@@ -518,9 +518,15 @@ Si no cumple → se parte. No se negocia.
   2 archivos.
 
 ### M39 · Cobros a half-up
-- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜
-- `cobros.controller`: interés del mes, interés próximo mes, faltante,
-  nuevoSaldo, montoTotalCobro (D1/D2). Tests con C2/C3.
+- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ✅ (2026-09-11)
+- `cobros.controller` sin un solo `toFixed`: interés y próximo mes vía
+  `porcentajeHalfUp`, saldos/faltante/total en centavos exactos, comparaciones
+  con `comparaMontos`. Dinero string de punta a punta; el recibo conserva
+  numbers en el borde (contrato del frontend intacto). Entrada endurecida:
+  >2 decimales → 400. Validación movida antes de tomar conexión de la pool.
+  El calendario ya venía half-up desde SQL (ROUND de Postgres); solo su
+  `faltante` JS estaba en float. TDD: 3 tests rojos primero (C3, string
+  exacto al UPDATE, validación). 6 tests nuevos; suite 84 ✅. 2 archivos.
 
 ### M40 · Préstamos a half-up
 - **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜

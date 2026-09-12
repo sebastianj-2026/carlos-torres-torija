@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
 import pool from '../config/database';
+import {
+  porcentajeHalfUp, sumaMontos, restaMontos, restaPiso0, comparaMontos, esCero,
+} from '../lib/dinero';
+
+// Plain money input: up to 2 decimals, >= 0 (docs/DINERO.md D1)
+const esMontoPlano = (s: string): boolean => /^\d+(\.\d{1,2})?$/.test(s.trim());
 
 // ================================================================
 // GET /api/cobros/calendario?mes=4&anio=2026
@@ -56,12 +62,14 @@ export const obtenerCalendario = async (req: Request, res: Response): Promise<vo
     );
 
     const filas = resultado.rows.map((r) => {
+      // SQL already rounds half-up (Postgres ROUND on NUMERIC); JS math on
+      // these values must stay exact — no float subtraction (M39, D1).
       const interesS = parseFloat(r.interes_sugerido);
       const interesC = parseFloat(r.interes_cobrado_periodo);
       const diaPago  = r.dia_pago;
 
       let estatusPago: string;
-      if (interesC >= interesS && interesC > 0) {
+      if (comparaMontos(r.interes_cobrado_periodo, r.interes_sugerido) >= 0 && !esCero(r.interes_cobrado_periodo)) {
         estatusPago = 'pagado';
       } else if (interesC > 0) {
         estatusPago = 'parcial';
@@ -100,7 +108,7 @@ export const obtenerCalendario = async (req: Request, res: Response): Promise<vo
         numero_pago:             Math.min(numeroPago, r.plazo_meses),
         interes_cobrado_periodo: interesC,
         abono_capital_periodo:   parseFloat(r.abono_capital_periodo),
-        faltante:                parseFloat(Math.max(0, interesS - interesC).toFixed(2)),
+        faltante:                Number(restaPiso0(r.interes_sugerido, r.interes_cobrado_periodo)),
         estatus_pago:            estatusPago,
       };
     });
@@ -117,32 +125,34 @@ export const obtenerCalendario = async (req: Request, res: Response): Promise<vo
 // Body: { interes_pagado, abono_capital?, forma_pago, notas?, periodo_mes, periodo_anio }
 // ================================================================
 export const registrarCobro = async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const registrado_por = req.usuario?.userId;
+  const {
+    interes_pagado,
+    abono_capital,
+    forma_pago,
+    notas,
+    periodo_mes,
+    periodo_anio,
+  } = req.body;
+
+  // Money stays string end-to-end; exact cents inside (M39, D1).
+  // Validate BEFORE taking a pool connection.
+  const interesPagado = String(interes_pagado ?? '0').trim() || '0';
+  const abonoCapital  = String(abono_capital  ?? '0').trim() || '0';
+
+  if (!esMontoPlano(interesPagado)) {
+    res.status(400).json({ mensaje: 'El monto de interés es inválido (decimal con hasta 2 decimales).' }); return;
+  }
+  if (!esMontoPlano(abonoCapital)) {
+    res.status(400).json({ mensaje: 'El abono a capital es inválido (decimal con hasta 2 decimales).' }); return;
+  }
+  if (!periodo_mes || !periodo_anio) {
+    res.status(400).json({ mensaje: 'El período (mes y año) es obligatorio.' }); return;
+  }
+
   const client = await pool.connect();
   try {
-    const { id } = req.params;
-    const registrado_por = req.usuario?.userId;
-    const {
-      interes_pagado,
-      abono_capital,
-      forma_pago,
-      notas,
-      periodo_mes,
-      periodo_anio,
-    } = req.body;
-
-    const interesPagado  = parseFloat(interes_pagado ?? '0');
-    const abonoCapital   = parseFloat(abono_capital  ?? '0') || 0;
-
-    if (!Number.isFinite(interesPagado) || interesPagado < 0) {
-      res.status(400).json({ mensaje: 'El monto de interés es inválido.' }); return;
-    }
-    if (!Number.isFinite(abonoCapital) || abonoCapital < 0) {
-      res.status(400).json({ mensaje: 'El abono a capital es inválido.' }); return;
-    }
-    if (!periodo_mes || !periodo_anio) {
-      res.status(400).json({ mensaje: 'El período (mes y año) es obligatorio.' }); return;
-    }
-
     await client.query('BEGIN');
 
     const prestamoRes = await client.query(
@@ -161,12 +171,15 @@ export const registrarCobro = async (req: Request, res: Response): Promise<void>
     }
 
     const prestamo = prestamoRes.rows[0];
-    const saldoAnterior = parseFloat(prestamo.saldo_pendiente);
-    const interesS = parseFloat((saldoAnterior * parseFloat(prestamo.tasa_interes_mensual) / 100).toFixed(2));
-    const tipoCobro = interesPagado >= interesS && interesPagado > 0 ? 'pago_total' : 'pago_parcial';
+    const saldoAnterior: string = prestamo.saldo_pendiente;
+    // interés = saldo × tasa / 100, half-up exact (D1, C2/C3)
+    const interesS = porcentajeHalfUp(saldoAnterior, prestamo.tasa_interes_mensual);
+    const tipoCobro =
+      comparaMontos(interesPagado, interesS) >= 0 && !esCero(interesPagado)
+        ? 'pago_total' : 'pago_parcial';
 
     // Interest payment
-    if (interesPagado > 0) {
+    if (!esCero(interesPagado)) {
       await client.query(
         `INSERT INTO historial_pagos_prestamo
            (prestamo_id, tipo_pago, monto, forma_pago, periodo_mes, periodo_anio, notas, registrado_por)
@@ -178,8 +191,8 @@ export const registrarCobro = async (req: Request, res: Response): Promise<void>
     let nuevoSaldo = saldoAnterior;
 
     // Capital abono
-    if (abonoCapital > 0) {
-      if (abonoCapital > saldoAnterior) {
+    if (!esCero(abonoCapital)) {
+      if (comparaMontos(abonoCapital, saldoAnterior) > 0) {
         await client.query('ROLLBACK');
         res.status(400).json({ mensaje: 'El abono a capital supera el saldo pendiente.' }); return;
       }
@@ -189,7 +202,7 @@ export const registrarCobro = async (req: Request, res: Response): Promise<void>
          VALUES ($1, 'capital', $2, $3, $4, $5, $6, $7)`,
         [id, abonoCapital, forma_pago || null, periodo_mes, periodo_anio, notas || null, registrado_por || null]
       );
-      nuevoSaldo = parseFloat((saldoAnterior - abonoCapital).toFixed(2));
+      nuevoSaldo = restaMontos(saldoAnterior, abonoCapital);
       await client.query(
         'UPDATE prestamos SET saldo_pendiente = $1, fecha_actualizacion = NOW() WHERE id = $2',
         [nuevoSaldo, id]
@@ -197,8 +210,8 @@ export const registrarCobro = async (req: Request, res: Response): Promise<void>
     }
 
     // Mirror into historial_ingresos: mandatory separation of utilidad vs retorno de capital
-    const montoTotalCobro = parseFloat((interesPagado + abonoCapital).toFixed(2));
-    if (montoTotalCobro > 0) {
+    const montoTotalCobro = sumaMontos([interesPagado, abonoCapital]);
+    if (!esCero(montoTotalCobro)) {
       await client.query(
         `INSERT INTO historial_ingresos
            (origen, referencia_id, monto_total_cobrado, monto_utilidad, monto_capital_recuperado,
@@ -214,20 +227,22 @@ export const registrarCobro = async (req: Request, res: Response): Promise<void>
 
     await client.query('COMMIT');
 
-    const interesProximoMes = parseFloat((nuevoSaldo * parseFloat(prestamo.tasa_interes_mensual) / 100).toFixed(2));
+    const interesProximoMes = porcentajeHalfUp(nuevoSaldo, prestamo.tasa_interes_mensual);
 
+    // The recibo keeps numbers at the response edge: exact 2-decimal strings
+    // convert losslessly and the frontend contract does not change.
     res.json({
       recibo: {
         folio_prestamo:     prestamo.folio,
         cliente_nombre:     prestamo.cliente_nombre,
         fecha_pago:         new Date().toISOString(),
-        interes_sugerido:   interesS,
-        interes_pagado:     interesPagado,
-        faltante:           parseFloat(Math.max(0, interesS - interesPagado).toFixed(2)),
-        abono_capital:      abonoCapital,
-        saldo_anterior:     saldoAnterior,
-        nuevo_saldo:        nuevoSaldo,
-        interes_proximo_mes: interesProximoMes,
+        interes_sugerido:   Number(interesS),
+        interes_pagado:     Number(interesPagado),
+        faltante:           Number(restaPiso0(interesS, interesPagado)),
+        abono_capital:      Number(abonoCapital),
+        saldo_anterior:     Number(saldoAnterior),
+        nuevo_saldo:        Number(nuevoSaldo),
+        interes_proximo_mes: Number(interesProximoMes),
         forma_pago:         forma_pago || 'efectivo',
         tipo_cobro:         tipoCobro,
         periodo_mes:        parseInt(periodo_mes, 10),
