@@ -9,9 +9,19 @@ import {
   TransferirOficinaDto,
   EstatusInversion,
 } from '../models/inversionista.model';
+import { porcentajeHalfUp, sumaMontos, restaMontos, comparaMontos, esCero } from '../lib/dinero';
 
 // Escapa los wildcards de LIKE/ILIKE (% _ \) en entradas de búsqueda.
 const escapeLikeWildcards = (s: string): string => s.replace(/[\\%_]/g, '\\$&');
+
+// DTO amounts arrive as JSON numbers; money math runs on exact 2-decimal
+// strings (M41, docs/DINERO.md D1). Returns null when it is not plain money
+// (>2 decimals, negative, NaN) so the caller can 400 instead of rounding.
+const montoDeNumero = (n: number | string | undefined | null, def = '0'): string | null => {
+  if (n === undefined || n === null || n === '') return def;
+  const s = String(n);
+  return /^\d+(\.\d{1,2})?$/.test(s) ? s : null;
+};
 
 // ================================================================
 // IMPORTACIÓN MASIVA
@@ -414,8 +424,10 @@ export const transferirAOficina = async (req: Request, res: Response): Promise<v
     const registrado_por = req.usuario?.userId;
     const datos: TransferirOficinaDto = req.body;
 
-    if (!datos.monto || datos.monto <= 0) {
-      res.status(400).json({ mensaje: 'El monto debe ser mayor a cero.' });
+    // Exact 2-decimal string (D1): >2 decimals is a 400, never rounded
+    const monto = montoDeNumero(datos.monto, '');
+    if (!monto || esCero(monto)) {
+      res.status(400).json({ mensaje: 'El monto debe ser mayor a cero, con máximo 2 decimales.' });
       return;
     }
 
@@ -432,10 +444,11 @@ export const transferirAOficina = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    const disponible = parseFloat(invResult.rows[0].capital_disponible);
-    if (datos.monto > disponible + 0.009) {
+    // Exact cent comparison (D1): the old float check tolerated a 0.009 epsilon
+    const disponible = String(invResult.rows[0].capital_disponible);
+    if (comparaMontos(monto, disponible) > 0) {
       res.status(400).json({
-        mensaje: `Capital insuficiente. Disponible: $${disponible.toFixed(2)}, solicitado: $${datos.monto.toFixed(2)}.`,
+        mensaje: `Capital insuficiente. Disponible: $${disponible}, solicitado: $${monto}.`,
       });
       await client.query('ROLLBACK');
       return;
@@ -445,7 +458,7 @@ export const transferirAOficina = async (req: Request, res: Response): Promise<v
       `UPDATE inversionistas
        SET capital_disponible = capital_disponible - $1, fecha_actualizacion = NOW()
        WHERE id = $2`,
-      [datos.monto, id]
+      [monto, id]
     );
 
     const movResult = await client.query(
@@ -455,7 +468,7 @@ export const transferirAOficina = async (req: Request, res: Response): Promise<v
        RETURNING *`,
       [
         id,
-        datos.monto,
+        monto,
         datos.concepto?.trim() || 'Uso de liquidez — Oficina TS',
         registrado_por || null,
       ]
@@ -466,7 +479,8 @@ export const transferirAOficina = async (req: Request, res: Response): Promise<v
     res.status(201).json({
       mensaje: 'Transferencia a Oficina TS registrada.',
       movimiento: movResult.rows[0],
-      capital_disponible_nuevo: disponible - datos.monto,
+      // number at the API edge (frontend contract unchanged); math stayed exact
+      capital_disponible_nuevo: Number(restaMontos(disponible, monto)),
     });
   } catch (error) {
     await client.query('ROLLBACK');
@@ -771,14 +785,16 @@ export const registrarMovimiento = async (req: Request, res: Response): Promise<
       return;
     }
 
-    if (!datos.monto || datos.monto <= 0) {
-      res.status(400).json({ mensaje: 'El monto debe ser mayor a cero.' });
+    // Exact 2-decimal string (D1): >2 decimals is a 400, never rounded
+    const monto = montoDeNumero(datos.monto, '');
+    if (!monto || esCero(monto)) {
+      res.status(400).json({ mensaje: 'El monto debe ser mayor a cero, con máximo 2 decimales.' });
       return;
     }
 
-    const montoActual  = parseFloat(inversion.monto_actual);
-    const tasa         = parseFloat(inversion.tasa_interes_mensual);
-    const montoInteres = parseFloat((montoActual * (tasa / 100)).toFixed(2));
+    const montoActual  = String(inversion.monto_actual);
+    // Half-up to the cent (D1, C3): 100.50 × 1.00% = 1.005 → 1.01
+    const montoInteres = porcentajeHalfUp(montoActual, String(inversion.tasa_interes_mensual));
 
     const histResult = await pool.query(
       `INSERT INTO historial_inversiones
@@ -789,7 +805,7 @@ export const registrarMovimiento = async (req: Request, res: Response): Promise<
       [
         id,
         datos.tipo,
-        datos.monto,
+        monto,
         datos.forma_pago    || null,
         datos.periodo_mes   || null,
         datos.periodo_anio  || null,
@@ -799,11 +815,12 @@ export const registrarMovimiento = async (req: Request, res: Response): Promise<
       ]
     );
 
+    // Exact cents, no float drift (D1)
     let nuevoMonto = montoActual;
     if (datos.tipo === 'aporte_capital') {
-      nuevoMonto = parseFloat((montoActual + datos.monto).toFixed(2));
+      nuevoMonto = sumaMontos([montoActual, monto]);
     } else if (datos.tipo === 'retiro_capital') {
-      nuevoMonto = parseFloat((montoActual - datos.monto).toFixed(2));
+      nuevoMonto = restaMontos(montoActual, monto);
     }
 
     if (datos.tipo !== 'pago_interes') {
@@ -818,8 +835,9 @@ export const registrarMovimiento = async (req: Request, res: Response): Promise<
     res.status(201).json({
       mensaje: 'Movimiento registrado correctamente.',
       movimiento: histResult.rows[0],
-      monto_interes_calculado: montoInteres,
-      monto_actual_nuevo: nuevoMonto,
+      // numbers at the API edge (frontend contract unchanged); math stayed exact
+      monto_interes_calculado: Number(montoInteres),
+      monto_actual_nuevo: Number(nuevoMonto),
     });
   } catch (error) {
     console.error('Error al registrar movimiento:', error);

@@ -1,7 +1,16 @@
 import { Request, Response } from 'express';
 import { randomUUID } from 'crypto';
 import pool from '../config/database';
-import { sumaMontos, comparaMontos } from '../lib/dinero';
+import { sumaMontos, comparaMontos, porcentajeHalfUp, esCero } from '../lib/dinero';
+
+// DTO amounts arrive as JSON numbers; money math runs on exact 2-decimal
+// strings (M41, docs/DINERO.md D1). Returns null when it is not plain money
+// (>2 decimals, negative, NaN) so the caller can 400 instead of rounding.
+const montoDeNumero = (n: number | string | undefined | null, def = '0'): string | null => {
+  if (n === undefined || n === null || n === '') return def;
+  const s = String(n);
+  return /^\d+(\.\d{1,2})?$/.test(s) ? s : null;
+};
 
 // ================================================================
 // UTILIDAD DE FECHAS — Regla de ajuste por mes
@@ -275,13 +284,18 @@ export const crearCuentaPorPagar = async (req: Request, res: Response): Promise<
     }
 
     if (deuda_id) {
-      // Exact cents (deuda 5): the old float check tolerated ±$0.01 drift
-      const suma = sumaMontos([
-        Number(monto_capital).toFixed(2),
-        Number(monto_interes).toFixed(2),
-        Number(monto_iva).toFixed(2),
-      ]);
-      if (comparaMontos(suma, Number(monto_total).toFixed(2)) !== 0) {
+      // Exact cents (deuda 5): the old float check tolerated ±$0.01 drift.
+      // Input is never rounded (D1): >2 decimals is a 400, not a toFixed.
+      const capital = montoDeNumero(monto_capital);
+      const interes = montoDeNumero(monto_interes);
+      const iva     = montoDeNumero(monto_iva);
+      const total   = montoDeNumero(monto_total);
+      if (capital === null || interes === null || iva === null || total === null) {
+        res.status(400).json({ mensaje: 'Los montos deben ser cantidades con máximo 2 decimales.' });
+        return;
+      }
+      const suma = sumaMontos([capital, interes, iva]);
+      if (comparaMontos(suma, total) !== 0) {
         res.status(400).json({ mensaje: 'El desglose capital+interés+IVA debe ser igual a monto_total.' });
         return;
       }
@@ -577,11 +591,10 @@ export const generarRendimientosInversionistas = async (req: Request, res: Respo
     for (const inv of inversionesRes.rows) {
       const diaPago      = parseInt(inv.dia_pago, 10);
       const fechaVenc    = calcularFechaVencimiento(diaPago, mes, anio);
-      const rendimiento  = parseFloat(
-        (parseFloat(inv.monto_actual) * parseFloat(inv.tasa_interes_mensual) / 100).toFixed(2)
-      );
+      // Half-up to the cent, one rounding (D1/D2): NUMERIC strings straight from pg
+      const rendimiento  = porcentajeHalfUp(String(inv.monto_actual), String(inv.tasa_interes_mensual));
       // Skip investments that produce $0 (tasa = 0 or monto = 0)
-      if (rendimiento <= 0) { omitidos++; continue; }
+      if (esCero(rendimiento)) { omitidos++; continue; }
 
       const nombreInv = `${inv.nombres} ${inv.apellido_paterno}`;
       const concepto  = `Rendimiento ${NOMBRE_MES[mes]} ${anio} — ${nombreInv}`;
@@ -608,7 +621,7 @@ export const generarRendimientosInversionistas = async (req: Request, res: Respo
             centro_costo, notas, registrado_por)
          VALUES ($1, $2, $3, $4, 'Inversionistas', $5, $6)`,
         [
-          categoriaId, concepto, rendimiento.toFixed(2), fechaVenc,
+          categoriaId, concepto, rendimiento, fechaVenc,
           `Inversión ID: ${inv.inversion_id}`,
           registrado_por,
         ]
@@ -728,6 +741,11 @@ export const crearSerie = async (req: Request, res: Response): Promise<void> => 
       res.status(400).json({ mensaje: 'centro_costo debe ser Oficina o Abril.' });
       return;
     }
+    const montoCuota = montoDeNumero(monto_por_cuota, '');
+    if (!montoCuota || esCero(montoCuota)) {
+      res.status(400).json({ mensaje: 'monto_por_cuota debe ser una cantidad mayor a cero con máximo 2 decimales.' });
+      return;
+    }
 
     const serie_id = randomUUID();
     const freqDias = parseInt(frecuencia_dias, 10) || 30;
@@ -748,7 +766,7 @@ export const crearSerie = async (req: Request, res: Response): Promise<void> => 
         [
           serie_id, i + 1, cuotas, categoria_id,
           proveedor_id || null,
-          concepto.trim(), parseFloat(monto_por_cuota), fechaStr,
+          concepto.trim(), montoCuota, fechaStr,
           centro_costo, notas || null, registrado_por || null,
         ]
       );

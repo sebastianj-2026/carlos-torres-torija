@@ -540,9 +540,19 @@ Si no cumple → se parte. No se negocia.
   renovación C3). 5 tests nuevos; suite 89 ✅. 2 archivos.
 
 ### M41 · Egresos e inversionistas a half-up
-- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜
-- `egresos.controller` (rendimiento → CxP) e `inversionistas.controller`
-  (interés al capitalizar, nuevoMonto).
+- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ✅ (2026-09-15)
+- `egresos.controller`: rendimiento a inversionistas vía `porcentajeHalfUp`
+  sobre los NUMERIC de pg (C3: 100.50 × 1.00% → 1.01, antes 1.00), omisión
+  por `esCero`; desglose capital+interés+IVA y `monto_por_cuota` de la serie
+  sin `toFixed`/`parseFloat` de entrada (>2 decimales → 400).
+  `inversionistas.controller`: interés al registrar movimiento half-up,
+  `monto_actual` nuevo con `sumaMontos`/`restaMontos` (string exacto al
+  UPDATE); `transferirAOficina` sin épsilon 0.009 — comparación exacta con
+  `comparaMontos`. Respuestas conservan numbers en el borde. `montoDeNumero`
+  copiado localmente (como M40) — extraer a `lib/dinero.ts` en M43.
+  TDD: 4 rojos primero (C3 en rendimiento, saldo string, dos 400); 5 guardas
+  de regresión. 9 tests nuevos; suite 98 ✅. 4 archivos. Display
+  (`parseFloat` en KPIs y stats) queda para M43.
 
 ### M42 · Nómina a half-up
 - **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜

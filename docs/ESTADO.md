@@ -5,7 +5,7 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-09-11 · **RELEASE COMPLETO, VALIDADO Y DESPLEGADO**
+**Última actualización:** 2026-09-15 (M41 · egresos e inversionistas a half-up) · **RELEASE COMPLETO, VALIDADO Y DESPLEGADO**
 (2026-09-11: frontend a Vercel, backend a Railway; Railway re-ligado al repo
 `carlos-torres-torija` → push a `main` auto-despliega el backend).
 Las 7 decisiones (R22–R24, ⛔4/⛔5→M28/M29, criterio de M14 y rechazo de monto
@@ -56,7 +56,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
-| inversionistas / referenciadores | ✅ **release completo y validado** (22 ✅ · 1 ❌ / 23; Bloques A/B/C) | 41 ✅ (controllers nuevos, pool mockeado) | préstamos (lectura) | M33 · tests de controllers del release (2026-09-11) |
+| inversionistas / referenciadores | ✅ **release completo y validado** (22 ✅ · 1 ❌ / 23; Bloques A/B/C) · half-up M39–M41 ✅ | 61 ✅ (controllers, pool mockeado; suite backend 98) | préstamos (lectura) | M41 · egresos e inversionistas a half-up (2026-09-15) |
 | comisiones-motor | ✅ **Bloque B completo** (M12–M16) + limpieza + helpers half-up | 37 ✅ (motor + lib dinero con C1–C5) | inversionistas | M38 · helpers half-up (2026-09-11) |
 | dashboard | ✅ legacy funcional, documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ legacy funcional | 0 | — | sin spec de metodología |
@@ -105,9 +105,11 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
       - **Especificado el 2026-09-11** (peloteo con Sebastian, 5 preguntas):
         half-up parejo en todo, un solo redondeo al final, recálculo
         retroactivo total (válido solo pre-producción), display incluido.
-        Reglas D1–D4 y casos C1–C5 en `docs/DINERO.md`; tareas **M38–M44 ⬜**
+        Reglas D1–D4 y casos C1–C5 en `docs/DINERO.md`; tareas **M38–M44**
         en el backlog (orden obligatorio: helpers → controllers → display →
-        recálculo).
+        recálculo). **Avance:** M38–M41 ✅ (helpers, cobros, préstamos,
+        egresos+inversionistas); quedan M42 (nómina), M43 (display, y ahí se
+        extrae `montoDeNumero` — hoy copiado en 3 controllers), M44 (recálculo).
 - [x] ~~**Dos escalas de tasa**~~ — resuelta el 2026-09-09: M11 aplicada a Neon
       (`tasa_referenciador` ya es `NUMERIC(5,2)`, 0.50 = 0.5%) y M21 alineó el
       form legacy. Todo el sistema usa porcentaje con 2 decimales.
@@ -164,6 +166,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 
 | Fecha | Tarea | Decisión | Por qué |
 |---|---|---|---|
+| 2026-09-15 | M41 | **`montoDeNumero` se copia localmente en cada controller migrado (3 copias: préstamos, egresos, inversionistas); se extrae a `lib/dinero.ts` en M43** | Extraerlo en M41 sumaba lib + su test + préstamos y rompía ≤5 archivos en una tarea `logic`. M43 ya toca varios controllers a la vez: ahí la extracción es natural y deja una sola copia. |
 | 2026-09-11 | spec dinero | **Half-up parejo, un solo redondeo final, recálculo retroactivo total (solo pre-producción), display incluido** | 5 decisiones de Sebastian en peloteo. `toFixed` redondea por binario, no half-up — a veces cobra el centavo de abajo sin regla. D1–D4 + C1–C5 en `docs/DINERO.md`; M38–M44. |
 | 2026-09-11 | M36 | **Runner de migraciones con sellado por tarea; el `down` del gate nunca toca migraciones de tareas cerradas** | El ciclo up→down→up del gate corre en cada tarea `data`; sin sellado revertiría migraciones viejas cuyas reversas abortan a propósito si hay filas (M12/M30) — el gate fallaría en tareas ajenas. Sellar al cerrar acota el ciclo a la migración en desarrollo. Baseline sellado para las 43 existentes. |
 | 2026-09-11 | M33 | **Tests de controllers unitarios con `pool` mockeado (`vi.mock`), no E2E contra Neon** | Sin dependencia nueva (nada de supertest), corren en ms dentro del gate y no dependen de red/DB. El FIFO del pago se ejercita con el motor real, no mockeado. El E2E contra Neon ya existe como smoke en cierres de tarea. |
@@ -221,6 +224,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 | 2026-09-09 | M14 · comisiones con base viva | ✅ aceptada | Cierre ordenado sobre gate verde `motor`. Base viva del origen al corte (R3), moratorios jamás en base (R8/C13). ⚠️ **Criterio derivado, validar con Carlos al final:** préstamo `atrasado`/`en_juicio` sí devenga comisión (R9+R11); inversión solo `activo`. |
 | 2026-09-09 | M13 · corte mensual idempotente | ✅ aceptada | Cierre ordenado sobre gate verde `motor · comisiones-motor` (casos resueltos + tests + typecheck). TDD: CASOS-RESUELTOS.md C1–C7 primero, rojo→verde. Dinero en BigInt centavos (sin float ni dependencia nueva; M16 decidirá si se formaliza con Decimal). Alcance: rendimiento; comisiones → M14. |
 | 2026-09-09 | M12 · tabla devengos | ✅ aceptada | Cierre ordenado sobre gate verde `data · comisiones-motor`. La `devengos` huérfana (0 filas) se renombró a `devengos_descartado` — nada se borra; sus índices también, porque bloqueaban los nombres globales. Ciclo up/down/reaplica + 4 pruebas funcionales (23505, CHECKs). Aplicada a Neon. |
+| 2026-09-15 | M41 · egresos e inversionistas a half-up | ✅ aceptada | Cierre sobre gate verde `full` 12/12 (corrió el perfil completo). Cero `toFixed` en ambos controllers; épsilon 0.009 fuera; entrada >2 decimales → 400. TDD: 4 rojos primero. Suite 98 ✅. 4 archivos. **Ejecutada en cadena por instrucción explícita ("ejecuta todo": M41→M44 en la misma sesión).** |
 | 2026-09-11 | M40 · préstamos a half-up | ✅ aceptada | Cierre sobre gate verde `logic` 6/6. Cero `toFixed`; épsilon 0.009 eliminado (comparación exacta); moratorio y anticipado con C3 fijado en rojo primero. Suite 89 ✅. |
 | 2026-09-11 | M39 · cobros a half-up | ✅ aceptada | Cierre sobre gate verde `logic` 6/6. Cero `toFixed` en cobros; C2/C3 fijados en tests del controller (rojo primero). Recibo con numbers en el borde — sin romper el frontend. Suite 84 ✅. |
 | 2026-09-11 | M38 · helpers half-up en lib/dinero | ✅ aceptada | Cierre sobre gate verde `motor · comisiones-motor` 8/8. TDD con rojo verificado (6 × "no implementado") antes del código. `porcentajeHalfUp` reusa `montoPorTasa` (R24): una sola aritmética en todo el sistema. Suite 78 ✅. Continuación en sesión por instrucción de Sebastian ("seguir con m38"). |
