@@ -595,9 +595,13 @@ Si no cumple → se parte. No se negocia.
   preserva comportamiento, no cambio de regla). Suite 117 ✅. 2 archivos.
 
 ### M43c · Display del dashboard a la misma aritmética
-- **Tipo:** `logic` · **Depende de:** M43a · **Estado:** ⬜
-- `dashboard.controller`: totales, utilidades y `capital_atorado` con
-  `sumaMontos`/`restaMontos` (D4). Ratios de ocupación/cobertura se quedan.
+- **Tipo:** `logic` · **Depende de:** M43a · **Estado:** ✅ (2026-09-15)
+- `dashboard.controller`: `getKpis`, `getBossKpis` y `getAnalytics` suman
+  ingresos/egresos/salidas, utilidades y `capital_atorado` en centavos
+  exactos (`sumaMontos`/`restaMontos`); numbers solo en la respuesta. Quedan
+  los 6 `toFixed(1|2)` de ratios (morosidad, ocupación, cobranza, deuda/
+  ingreso, eficiencias) — no son dinero. 3 tests de caracterización, verdes
+  antes y después. Suite 120 ✅. 2 archivos.
 
 ### M43d · Display de tesorería, pagos y CxP + mensajes de error
 - **Tipo:** `logic` · **Depende de:** M43a · **Estado:** ⬜

@@ -1,5 +1,11 @@
 import { Request, Response } from 'express';
 import pool from '../config/database';
+import { sumaMontos, restaMontos } from '../lib/dinero';
+
+// pg NUMERIC arrives as a string; missing → '0'. Money totals run in exact
+// cents (M43c, docs/DINERO.md D4) and become numbers only at the API edge.
+// Ratios (ocupación, cobranza, morosidad) are not money: float + toFixed(1) stays.
+const numerico = (v: unknown): string => (v === null || v === undefined ? '0' : String(v));
 
 export const getKpis = async (_req: Request, res: Response): Promise<void> => {
   try {
@@ -87,39 +93,51 @@ export const getKpis = async (_req: Request, res: Response): Promise<void> => {
         : 0;
 
     // ── Ingresos ──────────────────────────────────────────────────
-    const ingresosMap: Record<string, number> = {};
+    // Exact cents (D4): string maps, numbers only in the response
+    const ingresosMap: Record<string, string> = {};
     for (const row of ingresosRes.rows) {
-      ingresosMap[row.origen as string] = parseFloat(row.total);
+      ingresosMap[row.origen as string] = numerico(row.total);
     }
-    const categorias_ingresos = {
-      rentas:          ingresosMap['Inmueble']        ?? 0,
-      estacionamiento: ingresosMap['Estacionamiento'] ?? 0,
-      cancha:          ingresosMap['Cancha']           ?? 0,
-      prestamos:       ingresosMap['Prestamo']         ?? 0,
+    const ingresosStr = {
+      rentas:          ingresosMap['Inmueble']        ?? '0',
+      estacionamiento: ingresosMap['Estacionamiento'] ?? '0',
+      cancha:          ingresosMap['Cancha']           ?? '0',
+      prestamos:       ingresosMap['Prestamo']         ?? '0',
     };
-    const total_ingresos = parseFloat(
-      Object.values(categorias_ingresos).reduce((a, b) => a + b, 0).toFixed(2)
-    );
+    const totalIngresosStr = sumaMontos(Object.values(ingresosStr));
+    const categorias_ingresos = {
+      rentas:          Number(ingresosStr.rentas),
+      estacionamiento: Number(ingresosStr.estacionamiento),
+      cancha:          Number(ingresosStr.cancha),
+      prestamos:       Number(ingresosStr.prestamos),
+    };
+    const total_ingresos = Number(totalIngresosStr);
 
     // ── Egresos ───────────────────────────────────────────────────
-    const egresosMap: Record<string, number> = {};
+    const egresosMap: Record<string, string> = {};
     for (const row of egresosRes.rows) {
       const key = row.centro_costo as string;
-      egresosMap[key] = (egresosMap[key] ?? 0) + parseFloat(row.total);
+      egresosMap[key] = sumaMontos([egresosMap[key], numerico(row.total)]);
     }
-    const categorias_egresos = {
-      abril:              egresosMap['Abril']          ?? 0,
-      oficina:            egresosMap['Oficina']        ?? 0,
-      creditos_bancarios: egresosMap['Bancos']         ?? 0,
-      inversionistas:     egresosMap['Inversionistas'] ?? 0,
-      extras:             egresosMap['Extras']         ?? 0,
+    const egresosStr = {
+      abril:              egresosMap['Abril']          ?? '0',
+      oficina:            egresosMap['Oficina']        ?? '0',
+      creditos_bancarios: egresosMap['Bancos']         ?? '0',
+      inversionistas:     egresosMap['Inversionistas'] ?? '0',
+      extras:             egresosMap['Extras']         ?? '0',
     };
-    const total_egresos = parseFloat(
-      Object.values(categorias_egresos).reduce((a, b) => a + b, 0).toFixed(2)
-    );
+    const totalEgresosStr = sumaMontos(Object.values(egresosStr));
+    const categorias_egresos = {
+      abril:              Number(egresosStr.abril),
+      oficina:            Number(egresosStr.oficina),
+      creditos_bancarios: Number(egresosStr.creditos_bancarios),
+      inversionistas:     Number(egresosStr.inversionistas),
+      extras:             Number(egresosStr.extras),
+    };
+    const total_egresos = Number(totalEgresosStr);
 
     // ── Resultado ─────────────────────────────────────────────────
-    const utilidad_neta = parseFloat((total_ingresos - total_egresos).toFixed(2));
+    const utilidad_neta = Number(restaMontos(totalIngresosStr, totalEgresosStr));
 
     res.json({
       mes,
@@ -279,8 +297,14 @@ export const getBossKpis = async (_req: Request, res: Response): Promise<void> =
     const costo_nomina       = parseFloat(nominaRes.rows[0].costo_nomina);
     const pago_creditos_mes  = parseFloat(creditosMesRes.rows[0].pago_creditos_mes);
 
-    const total_salidas  = parseFloat((total_egresos_op + costo_nomina + pago_creditos_mes).toFixed(2));
-    const utilidad_neta  = parseFloat((total_ingresos - total_salidas).toFixed(2));
+    // Exact cents (D4): sums over the pg strings, numbers only at the edge
+    const totalSalidasStr = sumaMontos([
+      numerico(egresosOpRes.rows[0].total_egresos_op),
+      numerico(nominaRes.rows[0].costo_nomina),
+      numerico(creditosMesRes.rows[0].pago_creditos_mes),
+    ]);
+    const total_salidas  = Number(totalSalidasStr);
+    const utilidad_neta  = Number(restaMontos(numerico(ir.total), totalSalidasStr));
     const ratio_deuda_ingreso = total_ingresos > 0
       ? parseFloat(((pago_creditos_mes / total_ingresos) * 100).toFixed(1)) : 0;
 
@@ -474,29 +498,20 @@ export const getAnalytics = async (req: Request, res: Response): Promise<void> =
     ]);
 
     // ── Parse ingresos ─────────────────────────────────────────────
+    // Exact cents (D4): strings for the sums, numbers only in the response
     const ir = ingresosRes.rows[0];
-    const rentas_propias   = parseFloat(ir.rentas_propias);
-    const rentas_externas  = parseFloat(ir.rentas_externas);
-    const cancha           = parseFloat(ir.cancha);
-    const estacionamiento  = parseFloat(ir.estacionamiento);
-    const prestamos_ing    = parseFloat(ir.prestamos);
-    const otros            = parseFloat(ir.otros);
-    const total_ingresos   = parseFloat(
-      (rentas_propias + rentas_externas + cancha + estacionamiento + prestamos_ing + otros).toFixed(2)
-    );
+    const ingresosStr = [ir.rentas_propias, ir.rentas_externas, ir.cancha, ir.estacionamiento, ir.prestamos, ir.otros].map(numerico);
+    const totalIngresosStr = sumaMontos(ingresosStr);
+    const [rentas_propias, rentas_externas, cancha, estacionamiento, prestamos_ing, otros] = ingresosStr.map(Number);
+    const total_ingresos   = Number(totalIngresosStr);
 
     // ── Parse egresos ──────────────────────────────────────────────
-    const em: Record<string, number> = {};
-    for (const row of egresosRes.rows) em[row.categoria as string] = parseFloat(row.monto);
-    const e_abril          = em['Abril']          ?? 0;
-    const e_oficina        = em['Oficina']        ?? 0;
-    const e_nomina         = em['Nomina']         ?? 0;
-    const e_inversionistas = em['Inversionistas'] ?? 0;
-    const e_creditos       = em['Bancos']         ?? 0;
-    const e_extras         = em['Extras']         ?? 0;
-    const total_egresos    = parseFloat(
-      (e_abril + e_oficina + e_nomina + e_inversionistas + e_creditos + e_extras).toFixed(2)
-    );
+    const em: Record<string, string> = {};
+    for (const row of egresosRes.rows) em[row.categoria as string] = numerico(row.monto);
+    const egresosStr = ['Abril', 'Oficina', 'Nomina', 'Inversionistas', 'Bancos', 'Extras'].map(k => em[k] ?? '0');
+    const totalEgresosStr = sumaMontos(egresosStr);
+    const [e_abril, e_oficina, e_nomina, e_inversionistas, e_creditos, e_extras] = egresosStr.map(Number);
+    const total_egresos    = Number(totalEgresosStr);
 
     // ── Parse eficiencia ───────────────────────────────────────────
     const ef = eficienciaRes.rows[0];
@@ -510,9 +525,7 @@ export const getAnalytics = async (req: Request, res: Response): Promise<void> =
       ? parseFloat(((intereses_cobrados / intereses_esperados) * 100).toFixed(1)) : 0;
 
     // ── Parse juicios ──────────────────────────────────────────────
-    const capital_atorado = juiciosRes.rows.reduce(
-      (s: number, r: any) => s + parseFloat(r.saldo_pendiente), 0
-    );
+    const capital_atorado = Number(sumaMontos(juiciosRes.rows.map((r: any) => numerico(r.saldo_pendiente))));
 
     res.json({
       mes, anio,
@@ -520,7 +533,7 @@ export const getAnalytics = async (req: Request, res: Response): Promise<void> =
         liquidez_total:   parseFloat(liquidezRes.rows[0].liquidez_total),
         total_ingresos,
         total_egresos,
-        utilidad_mensual: parseFloat((total_ingresos - total_egresos).toFixed(2)),
+        utilidad_mensual: Number(restaMontos(totalIngresosStr, totalEgresosStr)),
       },
       bloque_b: { rentas_propias, rentas_externas, cancha, estacionamiento, prestamos: prestamos_ing, otros, total: total_ingresos },
       bloque_c: { abril: e_abril, oficina: e_oficina, nominas: e_nomina, inversionistas: e_inversionistas, creditos: e_creditos, extras: e_extras, total: total_egresos },
@@ -528,11 +541,11 @@ export const getAnalytics = async (req: Request, res: Response): Promise<void> =
       bloque_e: {
         pago_total_inversionistas:  e_inversionistas,
         ingresos_prestamos_mes:     intereses_cobrados,
-        utilidad_oficina_inversion: parseFloat((intereses_cobrados - e_inversionistas).toFixed(2)),
+        utilidad_oficina_inversion: Number(restaMontos(numerico(ef.intereses_cobrados), egresosStr[3])),
       },
       bloque_f: {
         conteo_casos:  juiciosRes.rows.length,
-        capital_atorado: parseFloat(capital_atorado.toFixed(2)),
+        capital_atorado,
         casos: juiciosRes.rows.map((r: any) => ({
           id:              r.id as string,
           cliente_nombre:  r.cliente_nombre  as string,

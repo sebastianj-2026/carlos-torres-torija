@@ -5,7 +5,7 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-09-15 (M43b · display de ingresos exacto) · **RELEASE COMPLETO, VALIDADO Y DESPLEGADO**
+**Última actualización:** 2026-09-15 (M43c · display del dashboard exacto) · **RELEASE COMPLETO, VALIDADO Y DESPLEGADO**
 (2026-09-11: frontend a Vercel, backend a Railway; Railway re-ligado al repo
 `carlos-torres-torija` → push a `main` auto-despliega el backend).
 Las 7 decisiones (R22–R24, ⛔4/⛔5→M28/M29, criterio de M14 y rechazo de monto
@@ -58,7 +58,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 |---|---|---|---|---|
 | inversionistas / referenciadores | ✅ **release completo y validado** (22 ✅ · 1 ❌ / 23; Bloques A/B/C) · half-up M39–M42, M43a–b ✅ | 76 ✅ (controllers, pool mockeado; suite backend 117) | préstamos (lectura) | M43b · display de ingresos exacto (2026-09-15) |
 | comisiones-motor | ✅ **Bloque B completo** (M12–M16) + limpieza + helpers half-up | 41 ✅ (motor + lib dinero con C1–C5 y `montoDeNumero`) | inversionistas | M43a · `montoDeNumero` a lib (2026-09-15) |
-| dashboard | ✅ legacy funcional, documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
+| dashboard | ✅ legacy funcional, documentado post-hoc · display exacto (M43c) | 3 ✅ (caracterización, pool mockeado) | ingresos, egresos, nómina | M43c · display del dashboard exacto (2026-09-15) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ legacy funcional | 0 | — | sin spec de metodología |
 | ~~personas~~ / ~~comisiones~~ | ❌ DESCARTADOS como módulos | 14 | — | docs en `_to_delete/`; ver "Código huérfano" |
 
@@ -109,8 +109,8 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
         en el backlog (orden obligatorio: helpers → controllers → display →
         recálculo). **Avance:** M38–M42 ✅ (helpers, cobros, préstamos,
         egresos+inversionistas, nómina) y M43a ✅ (`montoDeNumero` único en
-        `lib/dinero.ts`), M43b ✅ (ingresos). M43 se partió en a–d el
-        2026-09-15; quedan M43c (dashboard), M43d (tesorería/pagos/CxP) y
+        `lib/dinero.ts`), M43b ✅ (ingresos), M43c ✅ (dashboard). M43 se
+        partió en a–d el 2026-09-15; quedan M43d (tesorería/pagos/CxP) y
         M44 (recálculo).
 - [x] ~~**Dos escalas de tasa**~~ — resuelta el 2026-09-09: M11 aplicada a Neon
       (`tasa_referenciador` ya es `NUMERIC(5,2)`, 0.50 = 0.5%) y M21 alineó el
@@ -229,6 +229,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 | 2026-09-09 | M14 · comisiones con base viva | ✅ aceptada | Cierre ordenado sobre gate verde `motor`. Base viva del origen al corte (R3), moratorios jamás en base (R8/C13). ⚠️ **Criterio derivado, validar con Carlos al final:** préstamo `atrasado`/`en_juicio` sí devenga comisión (R9+R11); inversión solo `activo`. |
 | 2026-09-09 | M13 · corte mensual idempotente | ✅ aceptada | Cierre ordenado sobre gate verde `motor · comisiones-motor` (casos resueltos + tests + typecheck). TDD: CASOS-RESUELTOS.md C1–C7 primero, rojo→verde. Dinero en BigInt centavos (sin float ni dependencia nueva; M16 decidirá si se formaliza con Decimal). Alcance: rendimiento; comisiones → M14. |
 | 2026-09-09 | M12 · tabla devengos | ✅ aceptada | Cierre ordenado sobre gate verde `data · comisiones-motor`. La `devengos` huérfana (0 filas) se renombró a `devengos_descartado` — nada se borra; sus índices también, porque bloqueaban los nombres globales. Ciclo up/down/reaplica + 4 pruebas funcionales (23505, CHECKs). Aplicada a Neon. |
+| 2026-09-15 | M43c · display del dashboard exacto | ✅ aceptada | Cierre sobre gate verde `full` 12/12. Refactor que preserva comportamiento (D4): 3 tests de caracterización verdes antes y después; quedan solo `toFixed` de ratios. Suite 120 ✅. 2 archivos. **Cadena "ejecuta todo".** |
 | 2026-09-15 | M43b · display de ingresos exacto | ✅ aceptada | Cierre sobre gate verde `full` 12/12. Refactor que preserva comportamiento (D4): 4 tests de caracterización verdes antes y después; cero `toFixed` de dinero en ingresos. Suite 117 ✅. 2 archivos. **Cadena "ejecuta todo".** |
 | 2026-09-15 | M43a · `montoDeNumero` a lib/dinero | ✅ aceptada | Cierre sobre gate verde `full` 12/12 (2º intento; e2e transitorio). Helper único, 4 copias fuera, 4 tests nuevos. Suite 113 ✅. 6 archivos (excepción ≤5: swap de import). **Cadena "ejecuta todo".** |
 | 2026-09-15 | M42 · nómina a half-up | ✅ aceptada | Cierre sobre gate verde `full` 12/12. Un solo redondeo en horas/faltas/prima/tarifas (D2); total y descuento exactos; entrada >2 decimales → 400. TDD: 9 rojos primero. Suite 109 ✅. 2 archivos. ⚠️ Base 48 h mantenida (C4 del doc dice 40) — confirmar. **Cadena "ejecuta todo".** |
