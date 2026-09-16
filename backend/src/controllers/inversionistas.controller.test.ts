@@ -11,7 +11,7 @@ vi.mock('../config/database', () => ({
 }));
 
 import pool from '../config/database';
-import { registrarMovimiento, transferirAOficina } from './inversionistas.controller';
+import { registrarMovimiento, transferirAOficina, crearInversion } from './inversionistas.controller';
 
 const mockQuery = pool.query as unknown as ReturnType<typeof vi.fn>;
 const mockConnect = pool.connect as unknown as ReturnType<typeof vi.fn>;
@@ -82,5 +82,42 @@ describe('transferirAOficina — comparación exacta al centavo', () => {
 
     expect(res.statusCode).toBe(400);
     expect(cliente.query.mock.calls.some((c) => String(c[0]).includes('UPDATE inversionistas'))).toBe(false);
+  });
+});
+
+describe('crearInversion — M53 (D2): el referenciador ya no se captura aquí', () => {
+  const cuerpoBase = {
+    monto_inicial: 1000, tasa_interes_mensual: 2, fecha_inicio: '2026-09-01',
+  };
+
+  it('400 sin tocar la DB si el cuerpo trae referenciador_id', async () => {
+    const res = mkRes();
+    await crearInversion(mkReq({ body: { ...cuerpoBase, referenciador_id: 'x' } }), res);
+    expect(res.statusCode).toBe(400);
+    expect(mockQuery).not.toHaveBeenCalled();
+    expect((res.body as { mensaje: string }).mensaje).toMatch(/ya no se captura aquí/);
+  });
+
+  it('400 sin tocar la DB si el cuerpo trae tasa_referenciador', async () => {
+    const res = mkRes();
+    await crearInversion(mkReq({ body: { ...cuerpoBase, tasa_referenciador: '0.50' } }), res);
+    expect(res.statusCode).toBe(400);
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it('sin esos campos inserta igual que antes y el INSERT no escribe las columnas deprecadas', async () => {
+    mockQuery.mockImplementation((sql: string) => {
+      const s = String(sql);
+      if (s.includes('SELECT id FROM inversionistas')) return Promise.resolve({ rowCount: 1, rows: [{ id: 'i1' }] });
+      if (s.includes('INSERT INTO inversiones')) return Promise.resolve({ rowCount: 1, rows: [{ id: 'inv-1' }] });
+      return Promise.resolve({ rowCount: 1, rows: [] });
+    });
+    const res = mkRes();
+    await crearInversion(mkReq({ body: cuerpoBase }), res);
+    expect(res.statusCode).toBe(201);
+    const insert = mockQuery.mock.calls.find((c: unknown[]) => String(c[0]).includes('INSERT INTO inversiones'));
+    expect(insert).toBeDefined();
+    expect(String(insert![0])).not.toMatch(/referenciador_id|tasa_referenciador/);
+    expect((insert![1] as unknown[]).length).toBe(12);
   });
 });

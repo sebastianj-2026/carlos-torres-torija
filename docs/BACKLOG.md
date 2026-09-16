@@ -809,7 +809,10 @@ Si no cumple → se parte. No se negocia.
   Referenciador (referencias).' }` sin escribir. No borrar la columna ni cambiar lecturas (D2).
 - **EARS:** If trae alguno → 400 sin escribir · Ningún endpoint escribe esas columnas · When
   no las trae → igual que antes (tests existentes verdes).
-- **Estado:** ⬜
+- **Estado:** ✅ (2026-09-16) — rechazo 400 `{ mensaje }` **antes de cualquier query** si el
+  cuerpo trae `referenciador_id` o `tasa_referenciador`; `INSERT` con 12 params (sin las dos
+  columnas); helper `esUuidV` y validación del referidor viejo retirados; DTO sin los campos.
+  3 tests nuevos (suite 135). Gate `logic` 6/6. 3 archivos. Grep: cero escritores en backend.
 
 ### M54 · ✋ Prueba humana (Sebastian, en dev)
 - **Tipo:** humana · **Depende de:** M53 · Claude solo prepara la lista; la marca Sebastian.

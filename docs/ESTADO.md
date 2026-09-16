@@ -239,6 +239,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 
 | Fecha | Tarea | Veredicto | Nota |
 |---|---|---|---|
+| 2026-09-16 | M53 · backend deja de escribir columnas deprecadas | ✅ cerrada | Gate `logic` 6/6, suite 135. `crearInversion` rechaza 400 antes de la DB si llegan `referenciador_id`/`tasa_referenciador`; `INSERT` sin esas columnas; DTO limpio. La columna sigue en Neon sin escritor (D2). 3 archivos. |
 | 2026-09-16 | M52 · ligar referenciador al editar préstamo | ✅ cerrada | Gate `ui prestamos` 7/7. En edición: referencia existente en solo lectura; sin referencia → selector admin y liga al Actualizar; 409 → mensaje y recarga. Sin editar tasa ni terminar/cancelar. 1 archivo. |
 | 2026-09-16 | M51 · ligar referenciador al crear préstamo | ✅ cerrada | Gate `ui prestamos` 7/7. Sección admin-only en el paso 3; alta legacy → `id` → `POST /api/referencias`; falla parcial = préstamo conservado + aviso ámbar sin auto-redirect. 1 archivo. |
 | 2026-09-16 | M50 · ligar referenciador en inversión existente | ✅ cerrada | Gate `ui` 7/7. Sin pantalla de edición de inversión, el bloque vive bajo cada tarjeta del perfil (`ReferenciaInversion`): solo lectura si ya tiene; selector + Ligar para admin si no; 409 → mensaje y recarga. Sin editar tasa ni terminar/cancelar. 2 archivos. |
