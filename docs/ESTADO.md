@@ -5,7 +5,7 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-09-15 (M42 · nómina a half-up) · **RELEASE COMPLETO, VALIDADO Y DESPLEGADO**
+**Última actualización:** 2026-09-15 (M43a · `montoDeNumero` a lib; M43 partida en a–d) · **RELEASE COMPLETO, VALIDADO Y DESPLEGADO**
 (2026-09-11: frontend a Vercel, backend a Railway; Railway re-ligado al repo
 `carlos-torres-torija` → push a `main` auto-despliega el backend).
 Las 7 decisiones (R22–R24, ⛔4/⛔5→M28/M29, criterio de M14 y rechazo de monto
@@ -57,7 +57,7 @@ los referenciadores **sin capital**, y todo el cálculo.
 | Módulo | Estado | Tests | Depende de | Última tarea |
 |---|---|---|---|---|
 | inversionistas / referenciadores | ✅ **release completo y validado** (22 ✅ · 1 ❌ / 23; Bloques A/B/C) · half-up M39–M42 ✅ | 72 ✅ (controllers, pool mockeado; suite backend 109) | préstamos (lectura) | M42 · nómina a half-up (2026-09-15) |
-| comisiones-motor | ✅ **Bloque B completo** (M12–M16) + limpieza + helpers half-up | 37 ✅ (motor + lib dinero con C1–C5) | inversionistas | M38 · helpers half-up (2026-09-11) |
+| comisiones-motor | ✅ **Bloque B completo** (M12–M16) + limpieza + helpers half-up | 41 ✅ (motor + lib dinero con C1–C5 y `montoDeNumero`) | inversionistas | M43a · `montoDeNumero` a lib (2026-09-15) |
 | dashboard | ✅ legacy funcional, documentado post-hoc | 0 | ingresos, egresos, nómina | Fase 0 (modularización) |
 | auth / clientes / inversionistas / prestamos / cobros / pagos / ingresos / egresos / cuentas_pagar / nominas / tesoreria / juicios | ✅ legacy funcional | 0 | — | sin spec de metodología |
 | ~~personas~~ / ~~comisiones~~ | ❌ DESCARTADOS como módulos | 14 | — | docs en `_to_delete/`; ver "Código huérfano" |
@@ -108,9 +108,9 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
         Reglas D1–D4 y casos C1–C5 en `docs/DINERO.md`; tareas **M38–M44**
         en el backlog (orden obligatorio: helpers → controllers → display →
         recálculo). **Avance:** M38–M42 ✅ (helpers, cobros, préstamos,
-        egresos+inversionistas, nómina); quedan M43 (display, y ahí se
-        extrae `montoDeNumero` — hoy copiado en 4 controllers; la copia de
-        nómina es la canónica: normaliza a 2 decimales y admite signo) y M44
+        egresos+inversionistas, nómina) y M43a ✅ (`montoDeNumero` único en
+        `lib/dinero.ts`). M43 se partió en a–d el 2026-09-15; quedan M43b
+        (ingresos), M43c (dashboard), M43d (tesorería/pagos/CxP) y M44
         (recálculo).
 - [x] ~~**Dos escalas de tasa**~~ — resuelta el 2026-09-09: M11 aplicada a Neon
       (`tasa_referenciador` ya es `NUMERIC(5,2)`, 0.50 = 0.5%) y M21 alineó el
@@ -168,6 +168,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 
 | Fecha | Tarea | Decisión | Por qué |
 |---|---|---|---|
+| 2026-09-15 | M43 (split) | **M43 se parte en M43a (helper a lib, `motor`), M43b (ingresos), M43c (dashboard), M43d (tesorería/pagos/CxP + mensajes)** | Inventario real: 51 sitios `toFixed` en 5 controllers + 4 copias de `montoDeNumero`; un solo commit tocaría ~12 archivos. Precedente M10. El helper va primero porque las tres tareas de display lo importan. |
 | 2026-09-15 | M42 | **La base de horas semanales queda en 48 (código); C4 de `DINERO.md` ilustra con 40 y no se toma como regla** | `DINERO.md` › "Qué NO hace": no cambia bases ni fórmulas, solo el redondeo. Cambiar 48→40 sería inventar una regla de negocio (prohibición 3). El caso se fijó en test con base 48 (120.24 ÷ 48 = 2.505 → 2.51). **Pendiente para Sebastian:** confirmar 48 h o corregir el ejemplo del doc. |
 | 2026-09-15 | M42 | **Horas y faltas fraccionarias (`NUMERIC(5,2)`) se convierten a centésimas enteras antes de `proporcionHalfUp`** | El helper exige enteros (D2: nada de floats intermedios). `sueldo × horas¢ × mult / 4800` mantiene la aritmética exacta con hasta 2 decimales de horas; más decimales → 400, nunca se redondea entrada. |
 | 2026-09-15 | M41 | **`montoDeNumero` se copia localmente en cada controller migrado (3 copias: préstamos, egresos, inversionistas); se extrae a `lib/dinero.ts` en M43** | Extraerlo en M41 sumaba lib + su test + préstamos y rompía ≤5 archivos en una tarea `logic`. M43 ya toca varios controllers a la vez: ahí la extracción es natural y deja una sola copia. |
@@ -228,6 +229,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 | 2026-09-09 | M14 · comisiones con base viva | ✅ aceptada | Cierre ordenado sobre gate verde `motor`. Base viva del origen al corte (R3), moratorios jamás en base (R8/C13). ⚠️ **Criterio derivado, validar con Carlos al final:** préstamo `atrasado`/`en_juicio` sí devenga comisión (R9+R11); inversión solo `activo`. |
 | 2026-09-09 | M13 · corte mensual idempotente | ✅ aceptada | Cierre ordenado sobre gate verde `motor · comisiones-motor` (casos resueltos + tests + typecheck). TDD: CASOS-RESUELTOS.md C1–C7 primero, rojo→verde. Dinero en BigInt centavos (sin float ni dependencia nueva; M16 decidirá si se formaliza con Decimal). Alcance: rendimiento; comisiones → M14. |
 | 2026-09-09 | M12 · tabla devengos | ✅ aceptada | Cierre ordenado sobre gate verde `data · comisiones-motor`. La `devengos` huérfana (0 filas) se renombró a `devengos_descartado` — nada se borra; sus índices también, porque bloqueaban los nombres globales. Ciclo up/down/reaplica + 4 pruebas funcionales (23505, CHECKs). Aplicada a Neon. |
+| 2026-09-15 | M43a · `montoDeNumero` a lib/dinero | ✅ aceptada | Cierre sobre gate verde `full` 12/12 (2º intento; e2e transitorio). Helper único, 4 copias fuera, 4 tests nuevos. Suite 113 ✅. 6 archivos (excepción ≤5: swap de import). **Cadena "ejecuta todo".** |
 | 2026-09-15 | M42 · nómina a half-up | ✅ aceptada | Cierre sobre gate verde `full` 12/12. Un solo redondeo en horas/faltas/prima/tarifas (D2); total y descuento exactos; entrada >2 decimales → 400. TDD: 9 rojos primero. Suite 109 ✅. 2 archivos. ⚠️ Base 48 h mantenida (C4 del doc dice 40) — confirmar. **Cadena "ejecuta todo".** |
 | 2026-09-15 | M41 · egresos e inversionistas a half-up | ✅ aceptada | Cierre sobre gate verde `full` 12/12 (corrió el perfil completo). Cero `toFixed` en ambos controllers; épsilon 0.009 fuera; entrada >2 decimales → 400. TDD: 4 rojos primero. Suite 98 ✅. 4 archivos. **Ejecutada en cadena por instrucción explícita ("ejecuta todo": M41→M44 en la misma sesión).** |
 | 2026-09-11 | M40 · préstamos a half-up | ✅ aceptada | Cierre sobre gate verde `logic` 6/6. Cero `toFixed`; épsilon 0.009 eliminado (comparación exacta); moratorio y anticipado con C3 fijado en rojo primero. Suite 89 ✅. |

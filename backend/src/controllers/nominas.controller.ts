@@ -1,22 +1,9 @@
 import { Request, Response } from 'express';
 import pool from '../config/database';
-import { restaPiso0, sumaMontos, proporcionHalfUp, aCentavos, deCentavos, esCero } from '../lib/dinero';
+import { restaPiso0, sumaMontos, proporcionHalfUp, aCentavos, esCero, montoDeNumero } from '../lib/dinero';
 
 const HORAS_SEMANA = 48;
 const MULTIPLICADOR: Record<string, number> = { Normal: 1, Doble: 2, Triple: 3 };
-
-// ── Money input (M42, docs/DINERO.md D1) ─────────────────────────────────
-// DTO amounts arrive as JSON numbers; math runs on exact 2-decimal strings.
-// Returns null when it is not plain money (>2 decimals, NaN) so the caller
-// can 400 instead of rounding. `conSigno` admits a leading '-' (ajuste libre).
-const montoDeNumero = (
-  n: number | string | undefined | null, def = '0', conSigno = false,
-): string | null => {
-  if (n === undefined || n === null || n === '') return def;
-  const s = String(n);
-  if (!(conSigno ? /^-?\d+(\.\d{1,2})?$/ : /^\d+(\.\d{1,2})?$/).test(s)) return null;
-  return deCentavos(aCentavos(s)); // canonical 2-decimal form ('0.3' → '0.30')
-};
 
 // Quantities with up to 2 decimals (horas, faltas — NUMERIC(5,2)) as integer
 // hundredths, so sueldo × cantidad / base runs in exact integers (D2).

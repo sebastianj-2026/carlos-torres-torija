@@ -48,6 +48,22 @@ export const porcentajeHalfUp = (base: string, tasa: string): string =>
  * For payroll shapes like (sueldo ÷ 6) × días × 0.25 → proporcion(sueldo, días×25, 600):
  * intermediates stay exact integers, the error never multiplies.
  */
+/**
+ * DTO money input (M43a, D1). Amounts arrive as JSON numbers or strings; math
+ * runs on exact 2-decimal strings. Returns the canonical 2-decimal form
+ * ('0.3' → '0.30'), `def` when empty, and null when it is not plain money
+ * (>2 decimals, NaN, negative unless `conSigno`) so the caller can 400
+ * instead of rounding.
+ */
+export const montoDeNumero = (
+  n: number | string | undefined | null, def = '0', conSigno = false,
+): string | null => {
+  if (n === undefined || n === null || n === '') return def;
+  const s = String(n);
+  if (!(conSigno ? /^-?\d+(\.\d{1,2})?$/ : /^\d+(\.\d{1,2})?$/).test(s)) return null;
+  return deCentavos(aCentavos(s));
+};
+
 export const proporcionHalfUp = (monto: string, por: number, entre: number): string => {
   if (!Number.isInteger(por) || !Number.isInteger(entre) || entre <= 0 || por < 0) {
     throw new Error(`Proporción inválida: ${por}/${entre} (enteros, divisor > 0)`);

@@ -568,10 +568,39 @@ Si no cumple → se parte. No se negocia.
   11 tests nuevos; suite 109 ✅. 2 archivos. Agregados de `costoReal`
   (`parseFloat` pass-through) quedan para M43.
 
-### M43 · Display a la misma aritmética
-- **Tipo:** `logic` · **Depende de:** M39–M42 · **Estado:** ⬜
-- `dashboard`, `ingresos`, `tesoreria`, `pagos`, mensajes de error (D4).
-  Los porcentajes/ratios (ocupación, variación) NO son dinero y se quedan.
+### M43 · Display a la misma aritmética — partida el 2026-09-15
+> Inventario al arrancar: dashboard 16 `toFixed`, ingresos 28, tesorería 3,
+> pagos 3, cuentas_pagar 1 (mensaje), más 4 copias locales de `montoDeNumero`.
+> Un solo commit tocaría ~12 archivos: se parte en M43a–M43d (precedente M10).
+> Los porcentajes/ratios (ocupación, variación, cobertura) NO son dinero y se
+> quedan con `toFixed(1)`.
+
+### M43a · `montoDeNumero` a `lib/dinero.ts`
+- **Tipo:** `motor` · **Depende de:** M42 · **Estado:** ✅ (2026-09-15)
+- Versión canónica (normaliza a 2 decimales, `conSigno` opcional) exportada
+  desde `lib/dinero.ts`; las 4 copias locales (préstamos, egresos,
+  inversionistas, nómina) importan de ahí — cero `const montoDeNumero` fuera
+  de lib. TDD: 4 rojos ("not a function") primero. Suite 113 ✅. 6 archivos
+  (excepción a ≤5: swap mecánico de import). Gate verde al 2º intento: el
+  e2e `/egresos@1440` dio timeout de `networkidle` una vez, transitorio.
+
+### M43b · Display de ingresos a la misma aritmética
+- **Tipo:** `logic` · **Depende de:** M43a · **Estado:** ⬜
+- `ingresos.controller`: los 28 agregados (`reduce` + `toFixed`) pasan a
+  `sumaMontos`/`restaMontos`/`restaPiso0` sobre los NUMERIC de pg (D4).
+  La variación % (l.417) se queda.
+
+### M43c · Display del dashboard a la misma aritmética
+- **Tipo:** `logic` · **Depende de:** M43a · **Estado:** ⬜
+- `dashboard.controller`: totales, utilidades y `capital_atorado` con
+  `sumaMontos`/`restaMontos` (D4). Ratios de ocupación/cobertura se quedan.
+
+### M43d · Display de tesorería, pagos y CxP + mensajes de error
+- **Tipo:** `logic` · **Depende de:** M43a · **Estado:** ⬜
+- `tesoreria.controller` (flujo neto, ingresos externos, mensaje de saldo),
+  `pagos.controller` (monto de entrada, totales), `cuentas_pagar.controller`
+  (mensaje de saldo insuficiente). D4: ningún total puede diferir de la suma
+  de sus renglones.
 
 ### M44 · Recálculo retroactivo (D3)
 - **Tipo:** `data` · **Depende de:** M39–M43 · **Estado:** ⬜

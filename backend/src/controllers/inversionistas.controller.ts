@@ -9,19 +9,10 @@ import {
   TransferirOficinaDto,
   EstatusInversion,
 } from '../models/inversionista.model';
-import { porcentajeHalfUp, sumaMontos, restaMontos, comparaMontos, esCero } from '../lib/dinero';
+import { porcentajeHalfUp, sumaMontos, restaMontos, comparaMontos, esCero, montoDeNumero } from '../lib/dinero';
 
 // Escapa los wildcards de LIKE/ILIKE (% _ \) en entradas de búsqueda.
 const escapeLikeWildcards = (s: string): string => s.replace(/[\\%_]/g, '\\$&');
-
-// DTO amounts arrive as JSON numbers; money math runs on exact 2-decimal
-// strings (M41, docs/DINERO.md D1). Returns null when it is not plain money
-// (>2 decimals, negative, NaN) so the caller can 400 instead of rounding.
-const montoDeNumero = (n: number | string | undefined | null, def = '0'): string | null => {
-  if (n === undefined || n === null || n === '') return def;
-  const s = String(n);
-  return /^\d+(\.\d{1,2})?$/.test(s) ? s : null;
-};
 
 // ================================================================
 // IMPORTACIÓN MASIVA

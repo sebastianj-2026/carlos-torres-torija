@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   sumaMontos, restaMontos, restaPiso0, comparaMontos, esCero,
-  porcentajeHalfUp, proporcionHalfUp,
+  porcentajeHalfUp, proporcionHalfUp, montoDeNumero,
 } from './dinero';
 
 describe('lib/dinero (deuda 5)', () => {
@@ -60,5 +60,28 @@ describe('proporcionHalfUp — monto × por / entre en un solo redondeo (D2)', (
   });
   it('divisor cero truena, no da Infinity', () => {
     expect(() => proporcionHalfUp('100.00', 1, 0)).toThrow();
+  });
+});
+
+describe('montoDeNumero — entrada de dinero del DTO (M43a, D1)', () => {
+  it('normaliza a 2 decimales y nunca redondea', () => {
+    expect(montoDeNumero(0.3)).toBe('0.30');
+    expect(montoDeNumero('100')).toBe('100.00');
+    expect(montoDeNumero(175.02)).toBe('175.02');
+  });
+  it('rechaza más de 2 decimales, negativos y basura (null → el caller da 400)', () => {
+    expect(montoDeNumero(10.005)).toBeNull();
+    expect(montoDeNumero(-5)).toBeNull();
+    expect(montoDeNumero('abc')).toBeNull();
+    expect(montoDeNumero(NaN)).toBeNull();
+  });
+  it('vacío devuelve el default, tal cual', () => {
+    expect(montoDeNumero(undefined)).toBe('0');
+    expect(montoDeNumero(null, '')).toBe('');
+    expect(montoDeNumero('', '')).toBe('');
+  });
+  it('conSigno admite negativos (ajuste libre de nómina)', () => {
+    expect(montoDeNumero(-5.5, '0', true)).toBe('-5.50');
+    expect(montoDeNumero(-5.505, '0', true)).toBeNull();
   });
 });

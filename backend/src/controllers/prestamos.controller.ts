@@ -13,21 +13,12 @@ import {
 } from '../models/prestamo.model';
 
 import {
-  porcentajeHalfUp, sumaMontos, restaMontos, restaPiso0, comparaMontos,
+  porcentajeHalfUp, sumaMontos, restaMontos, restaPiso0, comparaMontos, montoDeNumero,
 } from '../lib/dinero';
 
 const DIRECCIONES_VALIDAS = ['ASC', 'DESC'] as const;
 
 const escapeLikeWildcards = (s: string): string => s.replace(/[\\%_]/g, '\\$&');
-
-// DTO amounts arrive as JSON numbers; money math runs on exact 2-decimal
-// strings (M40, docs/DINERO.md D1). Returns null when it is not plain money
-// (>2 decimals, negative, NaN) so the caller can 400 instead of rounding.
-const montoDeNumero = (n: number | undefined | null, def = '0'): string | null => {
-  if (n === undefined || n === null) return def;
-  const s = String(n);
-  return /^\d+(\.\d{1,2})?$/.test(s) ? s : null;
-};
 
 const TIPOS_ARCHIVO_VALIDOS: TipoArchivoPrestamo[] = [
   'avaluo', 'gastos_notariales', 'escritura', 'contrato_firmado',
