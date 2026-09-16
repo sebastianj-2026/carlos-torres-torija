@@ -49,6 +49,7 @@ todo el cálculo.
 | **M18** | Pantalla de pendientes: Carlos selecciona, el sistema no decide | ui |
 | **M19** | Registrar pago: forma, cuenta, comprobante, autorización | logic |
 | **M20** | Filtro inversionistas / referenciadores (al final del módulo) | ui |
+| **M45** | **Corrección (2026-09-15):** referenciadores dentro de Inversionistas — una lista, un menú; filtro Todos/Inversionistas/Referenciadores; badge *Ambos*; columna *Ligado a* (la otra fila de la misma persona, no los referidos). Porqué: al revisar, Sebastian vio dos módulos separados; la decisión del 2026-08-17 era un solo módulo. | ui |
 
 **M12–M20 no arrancan** hasta cerrar los 3 ⛔ con Carlos.
 

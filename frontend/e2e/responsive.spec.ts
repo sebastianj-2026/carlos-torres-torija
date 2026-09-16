@@ -49,7 +49,6 @@ const VIEWPORTS = [
 const PANTALLAS = [
   '/dashboard',
   '/inversionistas',
-  '/referenciadores',
   '/referenciadores/nuevo',
   '/prestamos',
   '/egresos',

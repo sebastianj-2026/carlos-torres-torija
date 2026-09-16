@@ -14,7 +14,6 @@ import {
   Receipt,
   Banknote,
   HardHat,
-  UserCog,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -31,7 +30,6 @@ const itemsMenu: ItemMenu[] = [
   { etiqueta: 'Dashboard',          ruta: '/dashboard',       Icono: LayoutDashboard, soloAdmin: true },
   { etiqueta: 'Clientes',           ruta: '/clientes',        Icono: Users                            },
   { etiqueta: 'Inversionistas',     ruta: '/inversionistas',  Icono: TrendingUp                       },
-  { etiqueta: 'Referenciadores',    ruta: '/referenciadores', Icono: UserCog                          },
   { etiqueta: 'Préstamos',           ruta: '/prestamos',       Icono: FileText                         },
   { etiqueta: 'Caja Chica y Bancos', ruta: '/caja',           Icono: Wallet                           },
   { etiqueta: 'Gastos',             ruta: '/egresos',         Icono: Receipt                          },

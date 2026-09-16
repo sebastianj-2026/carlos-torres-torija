@@ -633,6 +633,42 @@ Si no cumple → se parte. No se negocia.
   Gate `full` 12/12 (ciclo up→down→up). 2 archivos. **Serie dinero
   half-up M38–M44 completa.**
 
+## Corrección de organización (revisión de Sebastian, 2026-09-15)
+
+> Al revisar el sistema: los referenciadores **no** son un módulo aparte.
+> Viven dentro de Inversionistas, con filtro, badge de "ambos" y liga al
+> inversionista de la misma persona. El modelo ya lo soporta (M1–M20); es UI.
+
+### M45 · Referenciadores dentro de Inversionistas (una lista, un menú)
+- **Tipo:** `ui` · **Depende de:** M20 · **Estado:** ✅ (2026-09-15)
+- **Hecho:** `/inversionistas` es la lista combinada (stats + Importar +
+  Nuevo inversionista + Nuevo referenciador); filtro Todos/Inversionistas/
+  Referenciadores; badge *Inversionista*/*Ambos*/*Referenciador*; columna
+  **Ligado a** → "Su perfil de inversionista" en forma 2 (opción a). Menú sin
+  "Referenciadores"; `/referenciadores` → `Navigate` a `/inversionistas`.
+  `ListaReferenciadores.tsx` a `_to_delete/frontend/`. Verificado en
+  navegador con un referenciador demo ligado a Carlos Jiménez Peña (queda en
+  la DB de desarrollo como ejemplo de forma 2). 6 archivos (5 + e2e).
+- **Lee:** `docs/DISENO.md` + `docs/modulos/inversionistas/FLUJOS.md` §1.
+- `/inversionistas` pasa a mostrar la lista combinada de las tres formas
+  (hoy en `/referenciadores`), conservando las tarjetas de stats, *Importar*
+  y *Nuevo inversionista* de la lista legacy, y sumando *Nuevo referenciador*.
+- Filtro de tres botones: `[ Todos ] [ Inversionistas ] [ Referenciadores ]`.
+  Inversionistas = formas 1+2; Referenciadores = formas 2+3.
+- Badge por fila: *Inversionista* / *Referenciador* / *Ambos* (forma 2).
+- Columna **Ligado a**: en forma 2, el inversionista de la misma persona
+  (`inversionista_id`, ya viene en `PersonaLista`), con clic a
+  `/inversionistas/:id`. Decisión de Sebastian: opción (a), la otra fila de
+  la misma persona; no los referidos (eso ya está en el detalle).
+- Entrada "Referenciadores" fuera del sidebar; `/referenciadores` redirige a
+  `/inversionistas`. Detalle, alta y edición de referenciador conservan sus
+  rutas y se abren desde la lista.
+- Sin backend ni migración. `ListaReferenciadores.tsx` se retira a
+  `_to_delete/` (nada se borra). Archivos: `App.tsx`, `Sidebar.tsx`,
+  `ListaInversionistas.tsx`, `ListaReferenciadores.tsx` (mover), `BadgeForma`.
+  Gate `ui inversionistas` (e2e responsive: `/referenciadores` sale de
+  `PANTALLAS`, `/inversionistas` la cubre).
+
 ## Conteo
 
 | Bloque | Tareas | Estado |

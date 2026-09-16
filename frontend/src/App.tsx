@@ -20,7 +20,6 @@ import FormularioCliente from './pages/clientes/FormularioCliente';
 import ExpedienteCliente from './pages/clientes/ExpedienteCliente';
 
 // Módulo inversionistas
-import ListaReferenciadores from './pages/referenciadores/ListaReferenciadores';
 import DetalleReferenciador from './pages/referenciadores/DetalleReferenciador';
 import FormularioReferenciador from './pages/referenciadores/FormularioReferenciador';
 import ListaInversionistas from './pages/inversionistas/ListaInversionistas';
@@ -144,17 +143,8 @@ const App: React.FC = () => {
             }
           />
 
-          {/* Referenciadores — todos los roles */}
-          <Route
-            path="/referenciadores"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <ListaReferenciadores />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+          {/* Referenciadores — viven dentro de Inversionistas (M45); la lista vieja redirige */}
+          <Route path="/referenciadores" element={<Navigate to="/inversionistas" replace />} />
           <Route
             path="/referenciadores/nuevo"
             element={

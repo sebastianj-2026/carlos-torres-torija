@@ -13,10 +13,11 @@ export const BadgeForma: React.FC<{ forma: FormaPersona }> = ({ forma }) => {
     2: 'bg-purple-50 text-purple-600',
     3: 'bg-sky-50 text-sky-600',
   };
+  // M45: una sola lista en Inversionistas — el badge dice qué es cada persona
   const textos: Record<FormaPersona, string> = {
-    1: 'Solo inv.',
-    2: 'Inv. y ref.',
-    3: 'Solo ref.',
+    1: 'Inversionista',
+    2: 'Ambos',
+    3: 'Referenciador',
   };
   return (
     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold ${estilos[forma]}`}>
@@ -63,6 +64,23 @@ export const CeldaDeuda: React.FC<{ valor: string | null; grande?: boolean }> = 
   );
 };
 
+// Ligado a (M45, FLUJOS §1): en forma 2, la OTRA fila de la misma persona —
+// su registro de inversionista (`referenciadores.inversionista_id`). No son
+// sus referidos: esos viven en el detalle (§4).
+const CeldaLigado: React.FC<{ p: PersonaLista }> = ({ p }) => {
+  const navigate = useNavigate();
+  if (p.forma !== 2 || !p.inversionista_id) return <span className="text-slate-400">—</span>;
+  return (
+    <button
+      onClick={() => navigate(`/inversionistas/${p.inversionista_id}`)}
+      className="text-sky-600 hover:text-sky-700 hover:underline text-left"
+      title="Abrir su perfil de inversionista"
+    >
+      Su perfil de inversionista
+    </button>
+  );
+};
+
 // Al corriente: ✅ / ⚠️ según haya devengos pendientes. `—` mientras no exista el motor.
 const CeldaCorriente: React.FC<{ valor: boolean | null }> = ({ valor }) => {
   if (valor === null) return <span className="text-slate-400" title={PENDIENTE_MOTOR}>—</span>;
@@ -86,7 +104,7 @@ interface TablaReferenciadoresProps {
 
 const EsqueletoFila: React.FC = () => (
   <tr className="animate-pulse">
-    {[...Array(9)].map((_, i) => (
+    {[...Array(10)].map((_, i) => (
       <td key={i} className="px-4 py-3">
         <div className="h-4 bg-slate-200 rounded w-3/4" />
       </td>
@@ -196,7 +214,8 @@ const TablaReferenciadores: React.FC<TablaReferenciadoresProps> = ({
             <tr className="border-b border-slate-100 bg-slate-50">
               <th className="px-4 py-3 text-center font-semibold text-slate-500 text-xs uppercase tracking-wide w-10">#</th>
               <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">Nombre</th>
-              <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">Forma</th>
+              <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">Es</th>
+              <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">Ligado a</th>
               <th className="px-4 py-3 text-left font-semibold text-slate-500 text-xs uppercase tracking-wide">Teléfono</th>
               <th className="px-4 py-3 text-center font-semibold text-slate-500 text-xs uppercase tracking-wide">Referidos activos</th>
               <th className="px-4 py-3 text-right font-semibold text-slate-500 text-xs uppercase tracking-wide">Se le debe</th>
@@ -222,6 +241,7 @@ const TablaReferenciadores: React.FC<TablaReferenciadoresProps> = ({
                       </button>
                     </td>
                     <td className="px-4 py-3"><BadgeForma forma={p.forma} /></td>
+                    <td className="px-4 py-3 text-sm"><CeldaLigado p={p} /></td>
                     <td className="px-4 py-3 text-slate-600">
                       {p.telefono ?? <span className="text-slate-400">—</span>}
                     </td>
@@ -267,6 +287,12 @@ const TablaReferenciadores: React.FC<TablaReferenciadoresProps> = ({
                   </span>
                   <BadgeEstado activo={p.activo} />
                 </div>
+                {p.forma === 2 && (
+                  <div className="text-sm mb-1">
+                    <span className="text-slate-400 text-xs mr-1">Ligado a:</span>
+                    <CeldaLigado p={p} />
+                  </div>
+                )}
                 <div className="flex items-center justify-between gap-2 text-sm">
                   <span className="text-slate-400" title={PENDIENTE_REFERENCIAS}>
                     Referidos activos: —

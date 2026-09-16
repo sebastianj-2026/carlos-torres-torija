@@ -10,10 +10,27 @@
 
 ---
 
-## 1 · Lista de referenciadores (M5, M6)
+## 1 · Lista de referenciadores (M5, M6) → **lista del módulo Inversionistas (M45)**
 
-**Filtro principal — las tres formas de ganar.** Es lo primero que se ve, no un
-filtro escondido en un menú.
+> **Corrección 2026-09-15 (Sebastian):** los referenciadores no son un módulo
+> aparte. Esta lista **es** la de `/inversionistas`; la entrada "Referenciadores"
+> del menú desaparece y `/referenciadores` redirige. Se conservan las tarjetas
+> de stats, *Importar* y *Nuevo inversionista* de la lista legacy.
+
+**Filtro principal.** Es lo primero que se ve, no un filtro escondido en un menú.
+
+```
+[ Todos ] [ Inversionistas ] [ Referenciadores ]
+```
+
+Inversionistas = formas 1 y 2 · Referenciadores = formas 2 y 3. Los de forma 2
+aparecen en ambos y llevan badge **Ambos**.
+
+**Columna "Ligado a" (M45):** en forma 2, el inversionista de la misma persona
+(`inversionista_id`), con clic a `/inversionistas/:id`. Es la **otra fila** de la
+misma persona, no sus referidos (esos van en el detalle §4).
+
+*(Versión original M5, sustituida por lo de arriba:)*
 
 ```
 [ Todos ] [ Solo inversionista ] [ Inversionista y referenciador ] [ Solo referenciador ]
