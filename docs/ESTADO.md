@@ -239,6 +239,8 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 
 | Fecha | Tarea | Veredicto | Nota |
 |---|---|---|---|
+| 2026-09-16 | M47 · service y tipos de referencias | ✅ cerrada | Gate `ui` 7/7. `referenciasService.ts` (get por origen, crear, editar) con `ReferenciaError` que conserva status + mensaje del backend; tasa string; sin `fecha_inicio`. 2 archivos. |
+| 2026-09-16 | M46 · consultar referencia por origen | ✅ cerrada | Gate `logic` 6/6. `GET /api/referencias?inversion_id=` \| `?prestamo_id=` con join al nombre del referenciador; 400 sin DB en los 3 casos; 5 tests (suite 132). 3 archivos. Cadena "termina todo". |
 | 2026-09-16 | Sprint referencias · Fase 1 (docs) | ✅ cerrada | R25/R26 + preguntas abiertas en `comisiones-motor/REGLAS.md`; criterios derivados confirmados; C4 de `DINERO.md` a base 48; D1–D3 en decisiones; FLUJOS §3 con el flujo de M49–M52; M46–M54 en backlog. Sin código. **Ejecutada en cadena por instrucción explícita de Sebastian ("termina todo").** |
 | 2026-09-16 | Sprint referencias · Fase 0 (verificación) | ✅ cerrada | Sin cambios. `con_ref_vieja = 0`. Rama `sprint-referencias` creada desde `df7a812`. Gate 11/12 + e2e 18/18 solo (timeout del dev server dentro del gate, transitorio). Hallazgo: no existe pantalla de edición de inversión → M50 en tarjetas del perfil. |
 | 2026-08-19 | M1 · tabla `referenciadores` | ✅ aceptada | Cierre autorizado sobre gate verde (`data · inversionistas`, v0.1.1). Migración escrita, **sin aplicar a Neon** — la aplica Sebastian. |

@@ -102,6 +102,51 @@ export interface ReferenciadorDetalle {
   referencias: ReferenciaConOrigen[];
 }
 
+// ----------------------------------------------------------------
+// Referencias por origen (sprint M46–M53)
+// ----------------------------------------------------------------
+
+// Lo que devuelve GET /api/referencias?inversion_id= | ?prestamo_id= (M46).
+// null cuando el origen no tiene referenciador ligado.
+export interface ReferenciaOrigen {
+  id: string;
+  referenciador_id: string;
+  referenciador_nombre: string;
+  tipo_referido: TipoReferido;
+  inversion_id: string | null;
+  prestamo_id: string | null;
+  // Porcentaje con 2 decimales como string: 0.50 = 0.5%
+  tasa: string;
+  estado: EstadoReferencia;
+  fecha_inicio: string;
+  fecha_fin: string | null;
+}
+
+// Payload de POST /api/referencias. fecha_inicio la pone el servidor: no va.
+// Exactamente uno de inversion_id | prestamo_id, según tipo_referido.
+export interface CrearReferenciaPayload {
+  referenciador_id: string;
+  tipo_referido: TipoReferido;
+  inversion_id?: string;
+  prestamo_id?: string;
+  tasa: string;
+  notas?: string;
+}
+
+// PATCH /api/referencias/:id — solo estado/tasa/fecha_fin/notas (R9, M29).
+export interface EditarReferenciaPayload {
+  estado?: EstadoReferencia;
+  tasa?: string;
+  fecha_fin?: string;
+  notas?: string;
+}
+
+// Valor que reporta SelectorReferenciador (M48). Sin referenciador, tasa vacía.
+export interface SeleccionReferenciador {
+  referenciador_id: string | null;
+  tasa: string;
+}
+
 // '' = todas las formas
 export type FiltroForma = '' | '1' | '2' | '3';
 

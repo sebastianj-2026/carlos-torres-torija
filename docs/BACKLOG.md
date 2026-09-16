@@ -689,7 +689,8 @@ Si no cumple → se parte. No se negocia.
   200 `data: null` · If faltan los dos / llegan los dos / UUID inválido → 400 sin consultar
   la DB · Envelope `{ success, data, error }`.
 - **Fase 0:** ningún endpoint devuelve la referencia por origen → **procede**.
-- **Estado:** ⬜
+- **Estado:** ✅ (2026-09-16) — `obtenerReferenciaPorOrigen` + ruta `GET /api/referencias`;
+  join al nombre del referenciador; 400 sin DB en los 3 casos; 5 tests (suite 132). 3 archivos.
 
 ### M47 · Service y tipos de referencias (frontend)
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M46
@@ -701,7 +702,9 @@ Si no cumple → se parte. No se negocia.
   mensaje del backend).
 - **EARS:** tasa como string · no manda `fecha_inicio` · When 409 → expone status y mensaje
   del backend sin cambiarlos.
-- **Estado:** ⬜
+- **Estado:** ✅ (2026-09-16) — `referenciasService.ts` con `ReferenciaError { status, message }`
+  (mensaje del backend tal cual); tipos `ReferenciaOrigen`, `CrearReferenciaPayload`,
+  `EditarReferenciaPayload`, `SeleccionReferenciador`. Gate `ui` 7/7. 2 archivos.
 
 ### M48 · Componente compartido `SelectorReferenciador`
 - **Módulo:** shared (**tarea propia**, precedente M25) · **Tipo:** `ui` · **Depende de:** —
