@@ -20,8 +20,15 @@ import {
 } from '../../services/prestamosService';
 import { listarClientes } from '../../services/clientesService';
 import { listarInversionistas } from '../../services/inversionistasService';
+import { crearReferencia, ReferenciaError } from '../../services/referenciasService';
 import { ClienteResumen } from '../../types/cliente.types';
 import { InversionistaResumen } from '../../types/inversionista.types';
+import { SeleccionReferenciador } from '../../types/referenciador.types';
+import { useAuth } from '../../context/AuthContext';
+import SelectorReferenciador, {
+  SELECCION_VACIA,
+  validarSeleccionReferenciador,
+} from '../../components/shared/SelectorReferenciador';
 
 // ── Tipos internos ────────────────────────────────────────────────
 interface InvParticipante {
@@ -659,6 +666,15 @@ const FormularioPrestamo: React.FC = () => {
   const [clientes, setClientes]             = useState<ClienteResumen[]>([]);
   const [inversionistas, setInversionistas] = useState<InversionistaResumen[]>([]);
 
+  // Referenciador (M51): optional, admin-only (M28). Persisted in `referencias`
+  // right after the loan exists; the loan payload never carries it.
+  const { usuario } = useAuth();
+  const esAdmin = usuario?.rol === 'administrador';
+  const [seleccionRef, setSeleccionRef] = useState<SeleccionReferenciador>(SELECCION_VACIA);
+  // Partial failure: loan saved, referenciador not linked (loan stays, P6)
+  const [avisoReferencia, setAvisoReferencia] = useState<string | null>(null);
+  const [prestamoGuardadoId, setPrestamoGuardadoId] = useState<string | null>(null);
+
   const esHipotecaria = datos.tipo_garantia === 'hipotecaria';
   const pasos = ['Cliente y garantía', 'Resumen Financiero', 'Documentación'];
 
@@ -844,8 +860,11 @@ const FormularioPrestamo: React.FC = () => {
 
   const handleGuardar = async () => {
     if (!validarPaso1() || !validarPaso2() || !validarPaso3()) return;
+    const errorSeleccion = esAdmin && !esEdicion ? validarSeleccionReferenciador(seleccionRef) : null;
+    if (errorSeleccion) { setError(errorSeleccion); return; }
     setCargando(true);
     setError(null);
+    setAvisoReferencia(null);
     try {
       const tiposArchivo = archivosParaTipo(datos.tipo_garantia);
       const payload = {
@@ -877,6 +896,23 @@ const FormularioPrestamo: React.FC = () => {
         prestamoId = res.prestamo.id;
       }
 
+      // M51: link the referenciador only once the loan exists. If linking
+      // fails the loan stays (P6) and the user is told; nothing rolls back.
+      let avisoRef: string | null = null;
+      if (esAdmin && !esEdicion && seleccionRef.referenciador_id) {
+        try {
+          await crearReferencia({
+            referenciador_id: seleccionRef.referenciador_id,
+            tipo_referido:    'prestamo',
+            prestamo_id:      prestamoId,
+            tasa:             seleccionRef.tasa.trim(),
+          });
+        } catch (err: unknown) {
+          const mensaje = err instanceof ReferenciaError ? err.message : 'error desconocido';
+          avisoRef = `El préstamo se guardó, pero no se pudo ligar el referenciador: ${mensaje}. Puedes ligarlo desde la edición del préstamo.`;
+        }
+      }
+
       // Subir archivos binarios
       const archivosASubir = tiposArchivo.filter((t) => archivos[t] !== null);
       for (let i = 0; i < archivosASubir.length; i++) {
@@ -889,8 +925,14 @@ const FormularioPrestamo: React.FC = () => {
       }
 
       setProgresoArchivos('');
-      setExito(true);
-      setTimeout(() => navigate(`/prestamos/${prestamoId}`), 1200);
+      if (avisoRef) {
+        // Keep the user on the page so the warning is read; no auto-redirect.
+        setAvisoReferencia(avisoRef);
+        setPrestamoGuardadoId(prestamoId);
+      } else {
+        setExito(true);
+        setTimeout(() => navigate(`/prestamos/${prestamoId}`), 1200);
+      }
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { mensaje?: string } } };
       setError(axiosError?.response?.data?.mensaje ?? 'Error al guardar el préstamo.');
@@ -1257,6 +1299,15 @@ const FormularioPrestamo: React.FC = () => {
               );
             })()}
 
+            {/* Referenciador (M51) — admin only; linked after the loan is created */}
+            {esAdmin && !esEdicion && (
+              <SelectorReferenciador
+                valor={seleccionRef}
+                onCambio={(v) => { setSeleccionRef(v); setError(null); }}
+                deshabilitado={cargando}
+              />
+            )}
+
             {/* Notas */}
             <div>
               <label className="block text-xs font-medium text-slate-600 mb-1.5">Notas</label>
@@ -1288,6 +1339,19 @@ const FormularioPrestamo: React.FC = () => {
           <p className="text-sm text-green-700 bg-green-50 px-4 py-2.5 rounded-xl">
             ✓ Guardado correctamente. Redirigiendo...
           </p>
+        )}
+        {avisoReferencia && prestamoGuardadoId && (
+          <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-100 rounded-lg">
+            <AlertCircle size={15} className="text-amber-500 mt-0.5 shrink-0" />
+            <p className="text-sm text-amber-700 flex-1">{avisoReferencia}</p>
+            <button
+              type="button"
+              onClick={() => navigate(`/prestamos/${prestamoGuardadoId}`)}
+              className="text-sm font-medium text-amber-700 hover:underline shrink-0"
+            >
+              Ver préstamo
+            </button>
+          </div>
         )}
 
         {/* Navegación */}

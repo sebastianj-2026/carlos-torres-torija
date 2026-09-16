@@ -239,6 +239,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 
 | Fecha | Tarea | Veredicto | Nota |
 |---|---|---|---|
+| 2026-09-16 | M51 · ligar referenciador al crear préstamo | ✅ cerrada | Gate `ui prestamos` 7/7. Sección admin-only en el paso 3; alta legacy → `id` → `POST /api/referencias`; falla parcial = préstamo conservado + aviso ámbar sin auto-redirect. 1 archivo. |
 | 2026-09-16 | M50 · ligar referenciador en inversión existente | ✅ cerrada | Gate `ui` 7/7. Sin pantalla de edición de inversión, el bloque vive bajo cada tarjeta del perfil (`ReferenciaInversion`): solo lectura si ya tiene; selector + Ligar para admin si no; 409 → mensaje y recarga. Sin editar tasa ni terminar/cancelar. 2 archivos. |
 | 2026-09-16 | M49 · ligar referenciador al crear inversión | ✅ cerrada | Gate `ui` 7/7. El form inline del perfil deja de escribir la columna deprecada; alta legacy → `id` → `POST /api/referencias`; falla parcial = inversión conservada + banner ámbar. Selector solo admin. 1 archivo. |
 | 2026-09-16 | M48 · `SelectorReferenciador` (shared) | ✅ cerrada | Tarea propia de `shared/` (precedente M25). Autocompletar solo activos, badge Ambos/Referenciador, auto-referencia filtrada, tasa string validada (regex 2 dec, > 0, ≤ 999.99), no llama a `/api/referencias`, sin roles. Gate `ui` 7/7. 1 archivo. |

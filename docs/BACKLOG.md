@@ -778,7 +778,10 @@ Si no cumple → se parte. No se negocia.
   campo, cálculo ni validación cambia.
 - **EARS:** When admin crea con referenciador válido → fila `referencias` prestamo · When sin
   → igual que antes · If falla → préstamo conservado + aviso · While no admin → sin sección.
-- **Estado:** ⬜
+- **Estado:** ✅ (2026-09-16) — sección *Referenciador* en el paso 3 (solo admin, solo alta);
+  `crearPrestamo` → `id` → `crearReferencia` antes de subir archivos; falla parcial = aviso
+  ámbar con botón "Ver préstamo" y **sin** auto-redirección (para que se lea). Ningún otro
+  campo/cálculo del form cambió. Gate `ui prestamos` 7/7. 1 archivo.
 
 ### M52 · Ligar referenciador en la EDICIÓN de préstamo
 - **Módulo:** prestamos · **Tipo:** `ui` · **Depende de:** M46, M47, M48, M51
