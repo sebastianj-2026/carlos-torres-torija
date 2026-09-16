@@ -1,9 +1,43 @@
 import { Request, Response } from 'express';
 import pool from '../config/database';
-import { restaPiso0 } from '../lib/dinero';
+import { restaPiso0, sumaMontos, proporcionHalfUp, aCentavos, deCentavos, esCero } from '../lib/dinero';
 
 const HORAS_SEMANA = 48;
 const MULTIPLICADOR: Record<string, number> = { Normal: 1, Doble: 2, Triple: 3 };
+
+// ── Money input (M42, docs/DINERO.md D1) ─────────────────────────────────
+// DTO amounts arrive as JSON numbers; math runs on exact 2-decimal strings.
+// Returns null when it is not plain money (>2 decimals, NaN) so the caller
+// can 400 instead of rounding. `conSigno` admits a leading '-' (ajuste libre).
+const montoDeNumero = (
+  n: number | string | undefined | null, def = '0', conSigno = false,
+): string | null => {
+  if (n === undefined || n === null || n === '') return def;
+  const s = String(n);
+  if (!(conSigno ? /^-?\d+(\.\d{1,2})?$/ : /^\d+(\.\d{1,2})?$/).test(s)) return null;
+  return deCentavos(aCentavos(s)); // canonical 2-decimal form ('0.3' → '0.30')
+};
+
+// Quantities with up to 2 decimals (horas, faltas — NUMERIC(5,2)) as integer
+// hundredths, so sueldo × cantidad / base runs in exact integers (D2).
+const centesimasDeCantidad = (n: number | string | undefined | null): number | null => {
+  const s = montoDeNumero(n);
+  return s === null ? null : Number(aCentavos(s));
+};
+
+// Payroll formulas — ONE half-up rounding at the end (D2):
+//   horas extra : sueldo × horas × mult / 48    → proporcion(sueldo, horas¢ × mult, 4800)
+//   faltas      : sueldo / 6 × faltas           → proporcion(sueldo, faltas¢, 600)
+//   prima       : sueldo / 6 × días × 0.25      → proporcion(sueldo, días × 25, 600)
+//   tarifa hora : sueldo / 48 × mult            → proporcion(sueldo, mult, 48)
+const montoHorasExtras = (sueldo: string, horasCent: number, mult: number): string =>
+  proporcionHalfUp(sueldo, horasCent * mult, HORAS_SEMANA * 100);
+const montoFaltas = (sueldo: string, faltasCent: number): string =>
+  proporcionHalfUp(sueldo, faltasCent, 600);
+const montoPrima = (sueldo: string, dias: number): string =>
+  proporcionHalfUp(sueldo, dias * 25, 600);
+const tarifaHora = (sueldo: string, mult: number): string =>
+  proporcionHalfUp(sueldo, mult, HORAS_SEMANA);
 
 // ================================================================
 // GET  /nominas/empleados
@@ -138,20 +172,21 @@ export const preCalculo = async (req: Request, res: Response): Promise<void> => 
     if ((empRes.rowCount ?? 0) === 0) { res.status(404).json({ mensaje: 'Empleado no encontrado.' }); return; }
 
     const emp   = empRes.rows[0];
-    const sueldo = parseFloat(emp.sueldo_semanal);
+    const sueldo = String(emp.sueldo_semanal);
     const dias   = parseInt(dias_vacaciones as string) || 0;
 
-    let prima_vacacional = 0;
+    // Single rounding at the end (D2, C5): (sueldo/6)×días×0.25 as integers
+    let prima_vacacional = '0.00';
     if (emp.estatus === 'Vacaciones' && dias > 0) {
-      prima_vacacional = parseFloat(((sueldo / 6) * dias * 0.25).toFixed(2));
+      prima_vacacional = montoPrima(sueldo, dias);
     }
 
     const dias_disponibles = Math.max(0, emp.dias_vacaciones_totales - emp.dias_vacaciones_tomados);
-    const tarifa_hora = parseFloat((sueldo / HORAS_SEMANA).toFixed(4));
+    // No intermediate toFixed(4) rate (D2, C4): each tariff is one exact division
     const tarifas_extra = {
-      Normal: parseFloat((tarifa_hora * MULTIPLICADOR.Normal).toFixed(2)),
-      Doble:  parseFloat((tarifa_hora * MULTIPLICADOR.Doble ).toFixed(2)),
-      Triple: parseFloat((tarifa_hora * MULTIPLICADOR.Triple).toFixed(2)),
+      Normal: Number(tarifaHora(sueldo, MULTIPLICADOR.Normal)),
+      Doble:  Number(tarifaHora(sueldo, MULTIPLICADOR.Doble)),
+      Triple: Number(tarifaHora(sueldo, MULTIPLICADOR.Triple)),
     };
 
     let prestamo_activo = null;
@@ -169,14 +204,15 @@ export const preCalculo = async (req: Request, res: Response): Promise<void> => 
     res.json({
       empleado: {
         id: emp.id, nombre: emp.nombre, puesto: emp.puesto,
-        sueldo_semanal: sueldo, estatus: emp.estatus,
+        sueldo_semanal: Number(sueldo), estatus: emp.estatus,
         dias_vacaciones_totales: emp.dias_vacaciones_totales,
         dias_vacaciones_tomados: emp.dias_vacaciones_tomados,
         dias_disponibles,
         cliente_id: emp.cliente_id, cliente_nombre: emp.cliente_nombre,
         activo_imss: emp.activo_imss, monto_imss: parseFloat(emp.monto_imss),
       },
-      calculo: { sueldo_base: sueldo, prima_vacacional, dias_vacaciones: dias, tarifas_hora_extra: tarifas_extra },
+      // numbers at the API edge (frontend contract unchanged); math stayed exact
+      calculo: { sueldo_base: Number(sueldo), prima_vacacional: Number(prima_vacacional), dias_vacaciones: dias, tarifas_hora_extra: tarifas_extra },
       prestamo_activo,
     });
   } catch (e) {
@@ -211,52 +247,67 @@ export const pagarNomina = async (req: Request, res: Response): Promise<void> =>
     const empRes = await client.query(`SELECT * FROM empleados WHERE id = $1 FOR UPDATE`, [empleado_id]);
     if ((empRes.rowCount ?? 0) === 0) { res.status(404).json({ mensaje: 'Empleado no encontrado.' }); return; }
     const emp    = empRes.rows[0];
-    const sueldo = parseFloat(emp.sueldo_semanal);
+    const sueldo = String(emp.sueldo_semanal);
+
+    // ── Entrada de dinero/cantidades: nunca se redondea (D1) ──────
+    const entrada = {
+      horasCent:  centesimasDeCantidad(horas_extras_cantidad),
+      faltasCent: centesimasDeCantidad(faltas_cantidad),
+      ovHoras:    montoDeNumero(req.body.monto_horas_extras, ''),
+      ovPrima:    montoDeNumero(req.body.monto_prima_vacacional, ''),
+      ovFaltas:   montoDeNumero(req.body.monto_faltas, ''),
+      bonos:      montoDeNumero(bonos),
+      ajuste:     montoDeNumero(ajuste_monto, '0', true),
+      descuento:  montoDeNumero(descuento_prestamo),
+    };
+    if (Object.values(entrada).some((v) => v === null)) {
+      res.status(400).json({ mensaje: 'Montos y cantidades deben tener máximo 2 decimales.' }); return;
+    }
+    const horasCent   = entrada.horasCent as number;
+    const faltasCent  = entrada.faltasCent as number;
+    const ovHoras     = entrada.ovHoras as string;
+    const ovPrima     = entrada.ovPrima as string;
+    const ovFaltas    = entrada.ovFaltas as string;
+    const monto_bonos = entrada.bonos as string;
+    const ajuste      = entrada.ajuste as string;
+    const descuento   = entrada.descuento as string;
 
     // ── Horas extras (acepta override de monto desde el cliente) ──
-    const horas = parseFloat(horas_extras_cantidad) || 0;
+    const horas = horasCent / 100;
     const tipo  = tipo_hora_extra || null;
-    let monto_horas_extras: number;
-    if (req.body.monto_horas_extras !== undefined && req.body.monto_horas_extras !== null) {
-      monto_horas_extras = parseFloat(req.body.monto_horas_extras) || 0;
+    let monto_horas_extras: string;
+    if (ovHoras) {
+      monto_horas_extras = ovHoras;
     } else if (horas > 0 && tipo && MULTIPLICADOR[tipo] !== undefined) {
-      monto_horas_extras = parseFloat(((sueldo / HORAS_SEMANA) * horas * MULTIPLICADOR[tipo]).toFixed(2));
+      monto_horas_extras = montoHorasExtras(sueldo, horasCent, MULTIPLICADOR[tipo]);
     } else {
-      monto_horas_extras = 0;
+      monto_horas_extras = '0.00';
     }
 
     // ── Prima vacacional (acepta override) ────────────────────────
     const dias_vac = parseInt(dias_vacaciones_periodo) || 0;
-    let monto_prima: number;
-    if (req.body.monto_prima_vacacional !== undefined && req.body.monto_prima_vacacional !== null) {
-      monto_prima = parseFloat(req.body.monto_prima_vacacional) || 0;
+    let monto_prima: string;
+    if (ovPrima) {
+      monto_prima = ovPrima;
     } else if (emp.estatus === 'Vacaciones' && dias_vac > 0) {
-      monto_prima = parseFloat(((sueldo / 6) * dias_vac * 0.25).toFixed(2));
+      monto_prima = montoPrima(sueldo, dias_vac);
     } else {
-      monto_prima = 0;
+      monto_prima = '0.00';
     }
-
-    // ── Bonos ─────────────────────────────────────────────────────
-    const monto_bonos = parseFloat(bonos) || 0;
 
     // ── Faltas (acepta override de monto) ─────────────────────────
-    const faltas = parseFloat(faltas_cantidad) || 0;
-    let monto_faltas: number;
-    if (req.body.monto_faltas !== undefined && req.body.monto_faltas !== null) {
-      monto_faltas = parseFloat(req.body.monto_faltas) || 0;
+    const faltas = faltasCent / 100;
+    let monto_faltas: string;
+    if (ovFaltas) {
+      monto_faltas = ovFaltas;
     } else {
-      monto_faltas = faltas > 0 ? parseFloat(((sueldo / 6) * faltas).toFixed(2)) : 0;
+      monto_faltas = faltas > 0 ? montoFaltas(sueldo, faltasCent) : '0.00';
     }
 
-    // ── Ajuste libre ──────────────────────────────────────────────
-    const ajuste = parseFloat(ajuste_monto) || 0;
-
-    // ── Descuento préstamo ────────────────────────────────────────
-    const descuento = parseFloat(descuento_prestamo) || 0;
-
-    // ── Total neto ────────────────────────────────────────────────
-    const total = parseFloat(
-      Math.max(0, sueldo + monto_horas_extras + monto_prima + monto_bonos + ajuste - monto_faltas - descuento).toFixed(2)
+    // ── Total neto: centavos exactos, piso en cero ────────────────
+    const total = restaPiso0(
+      sumaMontos([sueldo, monto_horas_extras, monto_prima, monto_bonos, ajuste]),
+      sumaMontos([monto_faltas, descuento]),
     );
 
     await client.query('BEGIN');
@@ -295,7 +346,7 @@ export const pagarNomina = async (req: Request, res: Response): Promise<void> =>
     }
 
     // 3. Reducir saldo del préstamo vinculado
-    if (descuento > 0 && emp.cliente_id) {
+    if (!esCero(descuento) && emp.cliente_id) {
       const pRes = await client.query(`
         SELECT id, saldo_pendiente FROM prestamos
         WHERE cliente_id = $1 AND estatus IN ('activo', 'atrasado')
@@ -304,7 +355,7 @@ export const pagarNomina = async (req: Request, res: Response): Promise<void> =>
 
       if ((pRes.rowCount ?? 0) > 0) {
         const p = pRes.rows[0];
-        const nuevoSaldo = restaPiso0(String(p.saldo_pendiente), descuento.toFixed(2)); // exact cents (deuda 5)
+        const nuevoSaldo = restaPiso0(String(p.saldo_pendiente), descuento); // exact cents (deuda 5)
         await client.query(`
           UPDATE prestamos SET saldo_pendiente = $1,
             estatus = CASE WHEN $1 = 0 THEN 'liquidado' ELSE estatus END,
@@ -319,7 +370,7 @@ export const pagarNomina = async (req: Request, res: Response): Promise<void> =>
     }
 
     // 4. Salida en caja chica si es efectivo
-    if ((forma_pago || 'efectivo') === 'efectivo' && total > 0) {
+    if ((forma_pago || 'efectivo') === 'efectivo' && !esCero(total)) {
       await client.query(`
         INSERT INTO movimientos_caja (tipo, concepto, monto, fecha, encargado, registrado_por)
         VALUES ('salida', $1, $2, CURRENT_DATE, $3, $4)
@@ -332,7 +383,13 @@ export const pagarNomina = async (req: Request, res: Response): Promise<void> =>
     await client.query('COMMIT');
     res.status(201).json({
       nomina,
-      desglose: { sueldo_base: sueldo, monto_horas_extras, monto_prima_vacacional: monto_prima, monto_bonos, monto_faltas, ajuste, descuento_prestamo: descuento, total_pagado: total },
+      // numbers at the API edge (frontend contract unchanged); math stayed exact
+      desglose: {
+        sueldo_base: Number(sueldo), monto_horas_extras: Number(monto_horas_extras),
+        monto_prima_vacacional: Number(monto_prima), monto_bonos: Number(monto_bonos),
+        monto_faltas: Number(monto_faltas), ajuste: Number(ajuste),
+        descuento_prestamo: Number(descuento), total_pagado: Number(total),
+      },
     });
   } catch (e) {
     await client.query('ROLLBACK');
@@ -389,9 +446,12 @@ export const pagarBase = async (req: Request, res: Response): Promise<void> => {
     if ((empRes.rowCount ?? 0) === 0) { res.status(404).json({ mensaje: 'Empleado no encontrado.' }); return; }
 
     const emp     = empRes.rows[0];
-    const sueldo  = parseFloat(emp.sueldo_semanal);
-    const descuento = parseFloat(descuento_prestamo) || 0;
-    const total   = parseFloat(Math.max(0, sueldo - descuento).toFixed(2));
+    const sueldo  = String(emp.sueldo_semanal);
+    const descuento = montoDeNumero(descuento_prestamo);
+    if (descuento === null) {
+      res.status(400).json({ mensaje: 'descuento_prestamo debe tener máximo 2 decimales.' }); return;
+    }
+    const total   = restaPiso0(sueldo, descuento); // exact cents, floor at zero (D1)
     const pago    = forma_pago || 'efectivo';
 
     await client.query('BEGIN');
@@ -408,7 +468,7 @@ export const pagarBase = async (req: Request, res: Response): Promise<void> => {
       RETURNING *
     `, [empleado_id, semana_inicio, semana_fin, sueldo, descuento, total, pago, notas?.trim() || null, registrado_por ?? null]);
 
-    if (descuento > 0 && emp.cliente_id) {
+    if (!esCero(descuento) && emp.cliente_id) {
       const pRes = await client.query(`
         SELECT id, saldo_pendiente FROM prestamos
         WHERE cliente_id = $1 AND estatus IN ('activo', 'atrasado')
@@ -417,7 +477,7 @@ export const pagarBase = async (req: Request, res: Response): Promise<void> => {
 
       if ((pRes.rowCount ?? 0) > 0) {
         const p = pRes.rows[0];
-        const nuevoSaldo = restaPiso0(String(p.saldo_pendiente), descuento.toFixed(2)); // exact cents (deuda 5)
+        const nuevoSaldo = restaPiso0(String(p.saldo_pendiente), descuento); // exact cents (deuda 5)
         await client.query(`
           UPDATE prestamos SET saldo_pendiente = $1,
             estatus = CASE WHEN $1 = 0 THEN 'liquidado' ELSE estatus END,
@@ -431,7 +491,7 @@ export const pagarBase = async (req: Request, res: Response): Promise<void> => {
       }
     }
 
-    if (pago === 'efectivo' && total > 0) {
+    if (pago === 'efectivo' && !esCero(total)) {
       await client.query(`
         INSERT INTO movimientos_caja (tipo, concepto, monto, fecha, encargado, registrado_por)
         VALUES ('salida', $1, $2, CURRENT_DATE, $3, $4)
@@ -439,7 +499,7 @@ export const pagarBase = async (req: Request, res: Response): Promise<void> => {
     }
 
     await client.query('COMMIT');
-    res.status(201).json({ nomina: nomRes.rows[0], desglose: { sueldo_base: sueldo, descuento_prestamo: descuento, total_pagado: total } });
+    res.status(201).json({ nomina: nomRes.rows[0], desglose: { sueldo_base: Number(sueldo), descuento_prestamo: Number(descuento), total_pagado: Number(total) } });
   } catch (e) {
     await client.query('ROLLBACK');
     console.error(e);
@@ -528,6 +588,8 @@ export const costoReal = async (req: Request, res: Response): Promise<void> => {
 
     const total_pagado = parseFloat(n.total_pagado);
     const total_imss   = parseFloat(i.total_imss);
+    // costo_real is a computed sum → exact cents (D4); the rest is pass-through display (M43)
+    const costo_real   = Number(sumaMontos([String(n.total_pagado), String(i.total_imss)]));
 
     res.json({
       periodo: { mes, anio },
@@ -550,7 +612,7 @@ export const costoReal = async (req: Request, res: Response): Promise<void> => {
         total:          parseFloat(s.total),
         num_empleados:  parseInt(s.num_empleados),
       })),
-      costo_real: parseFloat((total_pagado + total_imss).toFixed(2)),
+      costo_real,
     });
   } catch (e) {
     console.error(e);

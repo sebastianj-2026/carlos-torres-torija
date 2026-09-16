@@ -555,9 +555,18 @@ Si no cumple → se parte. No se negocia.
   (`parseFloat` en KPIs y stats) queda para M43.
 
 ### M42 · Nómina a half-up
-- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ⬜
-- `nominas.controller`: prima, horas extras, faltas, total, costo_real.
-  D2 estricto: fuera el `tarifa_hora.toFixed(4)` intermedio. Tests con C4/C5.
+- **Tipo:** `logic` · **Depende de:** M38 · **Estado:** ✅ (2026-09-15)
+- `nominas.controller`: horas extras, faltas, prima y tarifas por hora vía
+  `proporcionHalfUp` con un solo redondeo (D2) — fuera el `toFixed(4)`
+  intermedio. Horas/faltas `NUMERIC(5,2)` van como centésimas enteras
+  (`sueldo × horas¢ × mult / 4800`). Total con `sumaMontos`/`restaPiso0`,
+  string exacto al INSERT; descuento de préstamo y `costo_real` exactos.
+  Entrada >2 decimales → 400; `ajuste_monto` admite signo. ⚠️ Base semanal
+  del código es **48 h** (C4 del doc ilustra con 40): la base es regla de
+  negocio y no se tocó — C4 se fijó como 120.24 ÷ 48 = 2.505 → 2.51.
+  TDD: 9 rojos primero (C4 daba 2.50, faltas 100.015 daba 100.01, strings).
+  11 tests nuevos; suite 109 ✅. 2 archivos. Agregados de `costoReal`
+  (`parseFloat` pass-through) quedan para M43.
 
 ### M43 · Display a la misma aritmética
 - **Tipo:** `logic` · **Depende de:** M39–M42 · **Estado:** ⬜
