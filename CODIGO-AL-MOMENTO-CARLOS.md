@@ -2,6 +2,14 @@
 
 > **Corte:** 2026-09-16 · commit `df7a812` · rama `main` (el release se desarrolló
 > en `rediseno-referidor-inversionista`, ya integrado).
+>
+> **Actualización del mismo día (rama `sprint-referencias`, sin merge):** el sprint
+> `docs/SPRINT-REFERENCIAS.md` (M46–M53) cerró los huecos **15.2, 15.3 y 15.6** de
+> este documento — ya existe UI para ligar referenciadores a inversiones y préstamos
+> (alta y existentes) y ningún camino escribe `inversiones.referenciador_id`. El
+> hueco **15.1 (corte sin disparador) pasó a decisión: el corte queda apagado a
+> propósito (D1)**. 15.4, 15.5 y 15.7 siguen abiertos. Nuevas reglas R25/R26 en
+> `docs/modulos/comisiones-motor/REGLAS.md`. Detalle en `docs/ESTADO.md`.
 > **Propósito:** volcado completo del estado real del sistema para contrastarlo
 > contra lo que falta por crear. Todo lo de aquí está verificado contra el código,
 > contra Neon en vivo y contra la suite de tests (127 ✅ al momento de escribir).

@@ -24,6 +24,12 @@ M50 se hospeda en las tarjetas de inversión del perfil. Rol en frontend:
 `useAuth().usuario?.rol === 'administrador'` inline; `RoleGuard` solo para rutas.
 Gate en `main`: 11/12 OK en el corredor; el e2e no arrancó dentro del gate
 (timeout del dev server) y corrió solo en verde 18/18. Backend 127 ✅.
+**Fase 1 + M46–M53 cerradas el mismo día** (cadena "termina todo", 9 commits
+locales en `sprint-referencias`, **sin push**). Suite backend **135 ✅**.
+**Pendiente: M54 (prueba humana de Sebastian, checklist en
+`SPRINT-REFERENCIAS.md` §8) y el merge a `main`.** Fuera del sprint y sin
+tocar: el corte (D1), la columna `inversiones.referenciador_id` (D2), la
+validación de R25 en pagos-devengo, las columnas de dinero en `—`.
 (2026-09-11: frontend a Vercel, backend a Railway; Railway re-ligado al repo
 `carlos-torres-torija` → push a `main` auto-despliega el backend).
 Las 7 decisiones (R22–R24, ⛔4/⛔5→M28/M29, criterio de M14 y rechazo de monto
