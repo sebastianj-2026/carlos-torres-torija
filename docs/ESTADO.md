@@ -5,7 +5,25 @@
 
 **Metodología:** v0.1.2  ·  **Perfil:** frontback-drizzle (con overrides — ver `gate.sh`)
 **Rama activa:** `rediseno-referidor-inversionista`
-**Última actualización:** 2026-09-15 (M45 · referenciadores dentro de Inversionistas; serie dinero half-up M38–M44 completa) · **RELEASE COMPLETO, VALIDADO Y DESPLEGADO**
+**Última actualización:** 2026-09-16 (sprint **Ligado de referenciadores** M46–M54, rama `sprint-referencias` — ver `docs/SPRINT-REFERENCIAS.md`) · release anterior **COMPLETO, VALIDADO Y DESPLEGADO** (2026-09-15)
+
+### Sprint en curso — Ligado de referenciadores (2026-09-16)
+Spec: `docs/SPRINT-REFERENCIAS.md`. Objetivo: que un admin pueda ligar un
+referenciador a una inversión o préstamo desde la UI (hoy `POST /api/referencias`
+no tiene consumidor) y que nadie vuelva a escribir `inversiones.referenciador_id`.
+**Fase 0 (verificación, 2026-09-16):** Neon → `con_ref_vieja = 0`,
+`referencias = 0`, `referenciadores activos = 1`. Escritores de la columna
+deprecada: `PerfilInversionista.tsx:148-149` (frontend) y el `INSERT` de
+`crearInversion` en `inversionistas.controller.ts` (backend). `editarInversion`
+**no** la toca; la importación XLSX **no** lee ni escribe referenciador.
+Contratos: `POST /inversionistas/:id/inversiones` → `{ mensaje, inversion }`
+(trae `id`); `POST /prestamos` → `{ mensaje, prestamo }` (trae `id`). Ningún
+endpoint devuelve la referencia por origen (→ M46 procede). **No existe pantalla
+de edición de inversión** (`editarInversion` del service no tiene consumidor):
+M50 se hospeda en las tarjetas de inversión del perfil. Rol en frontend:
+`useAuth().usuario?.rol === 'administrador'` inline; `RoleGuard` solo para rutas.
+Gate en `main`: 11/12 OK en el corredor; el e2e no arrancó dentro del gate
+(timeout del dev server) y corrió solo en verde 18/18. Backend 127 ✅.
 (2026-09-11: frontend a Vercel, backend a Railway; Railway re-ligado al repo
 `carlos-torres-torija` → push a `main` auto-despliega el backend).
 Las 7 decisiones (R22–R24, ⛔4/⛔5→M28/M29, criterio de M14 y rechazo de monto
@@ -119,6 +137,12 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 - [x] ~~**Dos escalas de tasa**~~ — resuelta el 2026-09-09: M11 aplicada a Neon
       (`tasa_referenciador` ya es `NUMERIC(5,2)`, 0.50 = 0.5%) y M21 alineó el
       form legacy. Todo el sistema usa porcentaje con 2 decimales.
+- [ ] **`POST /api/pagos-devengo` no valida R25** (el pago del devengo no se
+      cruza contra los cobros del cliente). Inofensivo mientras el corte esté
+      apagado (D1). Se programa el día que se conecte el corte, junto con las 2
+      preguntas abiertas de `comisiones-motor/REGLAS.md`.
+- [x] ~~**Base de horas semanales 48 (código) vs 40 (C4 de `DINERO.md`)**~~ —
+      resuelta el 2026-09-16 (D3): son 48; el doc se corrigió, el código no se tocó.
 - [~] **Backend sin tests de controllers** — atacada el 2026-09-11 (M33): los 3
       controllers nuevos del release (`referenciadores`, `referencias`,
       `pagos_devengo`) tienen 41 tests unitarios con `pool` mockeado.
@@ -172,6 +196,12 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 
 | Fecha | Tarea | Decisión | Por qué |
 |---|---|---|---|
+| 2026-09-16 | sprint referencias · **D1** | **El corte mensual queda apagado a propósito.** `generarCorte()` se queda escrito y probado, sin endpoint, cron ni botón. `devengos` en 0, pestaña Devengos vacía y columnas *se le debe* en `—` **no son bug** | Decisión de Sebastian. Antes de conectarlo hay 2 preguntas abiertas de R25 (`comisiones-motor/REGLAS.md`) que no se inventan. Lo que era "hueco" en `CODIGO-AL-MOMENTO-CARLOS.md` §15.1 pasa a decisión. |
+| 2026-09-16 | sprint referencias · **D2** | **El form legacy de inversión migra a `referencias`; no se construye el puente `inversionista(id) → referenciadores(id)`.** La columna `inversiones.referenciador_id` **no se borra** (tarea `data` futura) | Con 0 filas en la columna vieja el puente no tiene qué copiar. El backend deja de aceptar los campos en M53. |
+| 2026-09-16 | sprint referencias · **D3** | **Base de horas semanales de nómina = 48.** Se corrigió C4 de `DINERO.md` (decía 40); el código ya usaba 48 | Confirmación de Sebastian; cierra el pendiente de M42. |
+| 2026-09-16 | sprint referencias · **R25** | **El pago depende del cobro:** lo devengado se acumula pero no se paga hasta que el cliente pague; se libera FIFO por lo que alcance el cobro | Regla de negocio de Sebastian. Solo documentación: `POST /api/pagos-devengo` no la valida (deuda, inofensiva con el corte apagado). |
+| 2026-09-16 | sprint referencias · **R26** | **Pago mayor a lo pendiente se rechaza completo;** dinero extra = dos movimientos (pago del devengo + entrada de capital en `movimientos_inversionistas` si es inversionista) | Confirma el comportamiento de M19. Sin cambio de código. |
+| 2026-09-16 | M50 (host) | **La liga de referenciador a una inversión existente vive en las tarjetas de inversión de `PerfilInversionista`, no en una "pantalla de edición"** | Fase 0: no existe pantalla de edición de inversión (`editarInversion` del service no tiene consumidor). Las tarjetas son el único lugar donde se gestiona una inversión; se agrega un bloque *Referenciador* por tarjeta (solo lectura si ya tiene; selector para admin si no). |
 | 2026-09-15 | M45 | **Los referenciadores no tienen menú propio: `/inversionistas` es la única lista (tres formas), con filtro Todos/Inversionistas/Referenciadores y badge *Ambos*. "Ligado a" apunta a la otra fila de la misma persona (opción a), no a sus referidos** | Revisión de Sebastian en el sistema: dos entradas de menú contradecían la decisión del 2026-08-17 (un solo módulo). El modelo ya lo soportaba; fue solo UI. Los referidos ya viven en el detalle (§4), duplicarlos en la lista confundía "ligado" con "refirió". |
 | 2026-09-15 | M44 | **El recálculo retroactivo solo pisa filas cuya diferencia es drift de redondeo (≤1¢ por componente, ≤3¢ en el total de nómina); una diferencia mayor se trata como override manual y se conserva. `moratorios_prestamo` queda fuera: no persiste la base del cálculo** | D3 autoriza recalcular todo, pero nómina y CxP aceptan montos capturados a mano que no vienen de la fórmula; pisarlos sería inventar que eran cálculos. El umbral es exactamente el error máximo de `toFixed` sobre un double. Postgres `ROUND(x,2)` es half-up para positivos: misma aritmética que `lib/dinero.ts`. Inventario en Neon: 0 filas con drift — la migración codifica la regla, no corrige datos. |
 | 2026-09-15 | M43 (split) | **M43 se parte en M43a (helper a lib, `motor`), M43b (ingresos), M43c (dashboard), M43d (tesorería/pagos/CxP + mensajes)** | Inventario real: 51 sitios `toFixed` en 5 controllers + 4 copias de `montoDeNumero`; un solo commit tocaría ~12 archivos. Precedente M10. El helper va primero porque las tres tareas de display lo importan. |
@@ -209,6 +239,8 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 
 | Fecha | Tarea | Veredicto | Nota |
 |---|---|---|---|
+| 2026-09-16 | Sprint referencias · Fase 1 (docs) | ✅ cerrada | R25/R26 + preguntas abiertas en `comisiones-motor/REGLAS.md`; criterios derivados confirmados; C4 de `DINERO.md` a base 48; D1–D3 en decisiones; FLUJOS §3 con el flujo de M49–M52; M46–M54 en backlog. Sin código. **Ejecutada en cadena por instrucción explícita de Sebastian ("termina todo").** |
+| 2026-09-16 | Sprint referencias · Fase 0 (verificación) | ✅ cerrada | Sin cambios. `con_ref_vieja = 0`. Rama `sprint-referencias` creada desde `df7a812`. Gate 11/12 + e2e 18/18 solo (timeout del dev server dentro del gate, transitorio). Hallazgo: no existe pantalla de edición de inversión → M50 en tarjetas del perfil. |
 | 2026-08-19 | M1 · tabla `referenciadores` | ✅ aceptada | Cierre autorizado sobre gate verde (`data · inversionistas`, v0.1.1). Migración escrita, **sin aplicar a Neon** — la aplica Sebastian. |
 | 2026-08-19 | M2 · tabla `referencias` | ✅ aceptada | Cierre autorizado sobre gate verde. Copia diferida (0 filas hoy). **Sin aplicar a Neon.** |
 | 2026-08-19 | M9 · datos bancarios | ✅ aceptada | `numero_cuenta`/`banco` opcionales en inversionistas. **Sin aplicar a Neon.** |

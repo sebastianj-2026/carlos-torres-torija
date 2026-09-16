@@ -97,6 +97,47 @@ pantalla propia.
 - No se puede elegir a la misma persona que el referido (`no_auto_referencia`) —
   se filtra del buscador, no se deja fallar en el servidor.
 
+### Cómo se liga en la práctica (sprint referencias, M46–M53 · 2026-09-16)
+
+El selector es el componente compartido `SelectorReferenciador` (M48): busca en
+`GET /api/referenciadores`, muestra **solo activos** (P6) con badge *Ambos* /
+*Referenciador*, y **no llama** a `/api/referencias` — solo reporta
+`{ referenciador_id, tasa }`. Quien lo usa decide cuándo guardar.
+
+**Visibilidad:** solo administrador (`usuario.rol === 'administrador'`). El
+backend ya exige admin en `POST/PATCH /api/referencias` (M28); la UI además lo
+oculta. Un oficinista sigue creando inversiones y préstamos sin la sección.
+
+**Orden de las llamadas en el alta** (M49 inversión · M51 préstamo):
+1. Se crea la inversión / el préstamo con el endpoint legacy de siempre y se
+   toma su `id` de la respuesta.
+2. **Solo si** se eligió referenciador, se llama `POST /api/referencias` con
+   `{ referenciador_id, tipo_referido, inversion_id | prestamo_id, tasa }`.
+   `fecha_inicio` la pone el servidor.
+
+**Falla parcial:** si el origen se creó pero la referencia falló, **el origen se
+queda** (P6, nada se borra ni se revierte) y se muestra un aviso ámbar:
+*"La inversión / El préstamo se guardó, pero no se pudo ligar el referenciador:
+{mensaje del backend}. Puedes ligarlo desde la edición."* El botón de guardar se
+deshabilita mientras corren las dos llamadas.
+
+**Origen ya existente** (M50 inversión · M52 préstamo): al abrir, se consulta
+`GET /api/referencias?inversion_id=` / `?prestamo_id=` (M46).
+- **Sin referencia:** selector (solo admin). Al guardar con referenciador, se crea.
+- **Con referencia:** **solo lectura** — nombre, tasa con `%`, estado y fecha de
+  inicio. No se cambia el referenciador (P3, y el API no lo permite). Sin botones
+  de editar tasa ni terminar/cancelar (no especificado).
+- **409** (alguien la ligó mientras tanto): se muestra el mensaje del backend y
+  se recarga la referencia.
+
+**Dónde vive:** en préstamos, dentro de `FormularioPrestamo` (alta y edición).
+En inversiones, en el form inline *Nueva inversión* del perfil (alta) y en un
+bloque *Referenciador* bajo cada tarjeta de inversión del perfil (existentes) —
+no hay pantalla de edición de inversión.
+
+**El form legacy ya no escribe `inversiones.referenciador_id`** (M49 + M53). La
+columna se conserva sin lector (decisión D2).
+
 ---
 
 ## 4 · Detalle de referenciador (M7)

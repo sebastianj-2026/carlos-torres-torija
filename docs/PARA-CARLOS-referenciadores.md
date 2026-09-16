@@ -140,6 +140,9 @@ En inversiones, solo `activo` genera.
 definido), pero el capital de un préstamo atrasado sigue trabajando. Si Carlos
 prefiere que un préstamo atrasado/en juicio **congele** la comisión del
 referenciador, se cambia con un ajuste puntual.
+**✅ Confirmado (Sebastian, 2026-09-16 — D4 del sprint de referencias):** sí
+genera comisión. Complemento: lo generado **no se paga** hasta que el cliente
+pague (**R25**, abajo).
 
 ## ⛔ 7 · Si al pagar se captura más dinero del que se debe, ¿qué pasa con el sobrante?
 
@@ -154,6 +157,29 @@ excede lo pendiente de esa línea:
 **Por qué se decidió A:** el sobrante no tiene destino legal definido — no hay
 regla que diga de quién es ese dinero. Antes que inventarla, se rechaza. Si
 Carlos quiere manejo de saldo a favor, es una regla nueva (y su tarea propia).
+**✅ Confirmado (Sebastian, 2026-09-16) = R26.** Si la persona deja dinero de
+más, son dos movimientos: el pago del devengo por lo pendiente exacto y, aparte,
+una entrada de capital en su perfil de inversionista (si lo es).
+
+---
+
+# Regla nueva (2026-09-16) — R25 · El pago depende del cobro
+
+Lo generado (rendimiento o comisión) se sigue acumulando cada mes aunque el
+cliente no pague, pero **no se le paga** al inversionista ni al referenciador
+hasta que el cliente pague. Cuando el cliente se pone al corriente o termina el
+juicio, lo pendiente se paga FIFO desde el periodo más viejo; si paga solo una
+parte, se liberan solo los periodos más viejos que esa parte alcance.
+
+**Ejemplo:** Juan trajo a Ana (préstamo de $200,000.00, tasa de referenciador
+0.50 → $1,000.00/mes). Ana no paga julio, agosto ni septiembre → Juan acumula
+$3,000.00 y no cobra nada. En octubre Ana paga un mes → se libera julio. En
+noviembre se pone al corriente → se liberan agosto y septiembre.
+
+**Dos preguntas quedan abiertas** para el día que se conecte el corte mensual
+(hoy está apagado a propósito): (1) cuando el capital de un inversionista está
+repartido en varios préstamos, ¿el pago de qué cliente libera su rendimiento?
+(2) si el juicio no recupera el capital, ¿qué pasa con lo acumulado?
 
 ---
 

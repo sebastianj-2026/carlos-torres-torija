@@ -77,6 +77,68 @@ residuo debe cuadrar exacto con el total cobrado, cada mes.
 
 ---
 
+## Reglas definidas el 2026-09-16 (Sebastian)
+
+### R25 · El pago depende del cobro
+Lo generado (rendimiento o comisión) se sigue generando y acumulando cada mes
+aunque el cliente no pague (R11, R13), pero **no se le paga** al inversionista
+ni al referenciador hasta que el cliente pague. Cuando el cliente se pone al
+corriente o termina el juicio, lo pendiente se paga **FIFO**, empezando por el
+periodo más viejo (R12, R15). Si el cliente paga solo una parte, se liberan solo
+los periodos más viejos que esa parte alcance.
+
+**Ejemplo:** Juan trajo a Ana. Préstamo de Ana con `saldo_pendiente`
+$200,000.00 y tasa de referenciador 0.50 → comisión de **$1,000.00/mes**
+(200,000 × 0.50 / 100). Ana no paga julio, agosto ni septiembre → Juan tiene 3
+periodos pendientes = **$3,000.00**, y la oficina no le paga nada. En octubre
+Ana paga solo un mes → se libera **julio** ($1,000.00). Agosto y septiembre
+siguen pendientes. En noviembre Ana se pone al corriente → se liberan agosto y
+septiembre ($2,000.00).
+
+> ⚠️ `POST /api/pagos-devengo` **hoy no valida R25** (no cruza el pago del
+> devengo contra los cobros del cliente). Es inofensivo mientras el corte esté
+> apagado; queda como deuda en `docs/ESTADO.md`.
+
+### R26 · No se paga más de lo pendiente
+Si el monto capturado excede lo pendiente de la línea (beneficiario + concepto +
+origen, R16), el pago **se rechaza completo** con el sobrante exacto en el
+mensaje. No se crea saldo a favor ni se aplica a otra línea. Si la persona deja
+dinero de más, se registran **dos movimientos separados**: (1) el pago del
+devengo por lo pendiente exacto y (2) una entrada de capital en
+`movimientos_inversionistas`, solo si la persona es inversionista.
+
+**Ejemplo:** a Juan se le deben $2,000.00 por el préstamo de Ana. Se captura
+$2,500.00 → **400**, sobrante $500.00. Se corrige a $2,000.00 y se registra. Si
+Juan quiere dejar los $500.00 invertidos y también es inversionista, se capturan
+como entrada de capital en su perfil.
+
+`POST /api/pagos-devengo` ya cumple R26 desde M19.
+
+### Criterios derivados — confirmados
+- **Préstamo `atrasado` o `en_juicio` sí genera comisión** (C12). Confirmado por
+  Sebastian el 2026-09-16 (D4 del sprint de referencias).
+- **Monto excedente al pagar se rechaza completo** — confirmado = **R26**.
+
+---
+
+## Preguntas abiertas — antes de conectar el corte
+
+> ⛔ PENDIENTE (no bloqueante mientras el corte esté apagado)
+>
+> El corte mensual (`generarCorte`) está escrito y probado pero **apagado a
+> propósito** (decisión D1, 2026-09-16). Estas dos preguntas solo importan el
+> día que se conecte. **No se inventa respuesta.**
+>
+> 1. **R25 con rendimientos de inversión:** el capital de un inversionista
+>    puede estar repartido en varios préstamos (`participantes_prestamo`).
+>    ¿El pago de qué cliente libera su rendimiento?
+> 2. **R25 si el juicio no recupera el capital:** ¿qué pasa con lo acumulado?
+>
+> *El día que se conecte el corte, estas preguntas pasan a encabezado
+> `## ⛔ REGLA NO DEFINIDA · …` y bloquean el módulo hasta tener respuesta.*
+
+---
+
 ## Referencia de implementación
 
 El motor del módulo `comisiones` descartado **ya resolvió** el reparto y el FIFO

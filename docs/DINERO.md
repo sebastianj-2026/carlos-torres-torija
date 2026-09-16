@@ -56,9 +56,13 @@ Monto $100.50 × tasa 1.00% = $1.005 → **$1.01** (half-up).
 `(1.005).toFixed(2) === "1.00"` — este es el bug que motiva D1.
 
 ### C4 · Nómina — un solo redondeo (D2)
-Sueldo $100.20, 1 hora extra Normal (×1): tarifa exacta = 100.20 ÷ 40 =
+Base semanal: **48 horas** (confirmado por Sebastian el 2026-09-16; es la base
+que ya usa `nominas.controller`).
+Sueldo $120.24, 1 hora extra Normal (×1): tarifa exacta = 120.24 ÷ 48 =
 $2.505 → monto **$2.51** (half-up al final).
+Paso a paso en centavos: 12024 × 1 hora × 1 (mult) ÷ 48 = 250.5 ¢ → 251 ¢.
 Regla vieja: `(2.505).toFixed(2) === "2.50"` — un centavo abajo.
+Fijado en `nominas.controller.test.ts` ("sueldo 120.24 ÷ 48 h = 2.505 → 2.51").
 
 ### C5 · Nómina — el intermedio no se redondea (D2)
 Sueldo $1,000.00, prima vacacional 3 días: (1000 ÷ 6) × 3 × 0.25 =

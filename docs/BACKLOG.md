@@ -669,6 +669,132 @@ Si no cumple → se parte. No se negocia.
   Gate `ui inversionistas` (e2e responsive: `/referenciadores` sale de
   `PANTALLAS`, `/inversionistas` la cubre).
 
+## Sprint — Ligado de referenciadores (M46–M54 · 2026-09-16)
+
+> Spec completa: `docs/SPRINT-REFERENCIAS.md` (decisiones D1–D6, R25, R26,
+> reglas del sprint, condiciones de paro). Rama `sprint-referencias`. Orden:
+> `M46 → M47 → M48 → M49 → M50 → M51 → M52 → M53 → M54(humana)`.
+> **No lleva migraciones. No conecta el corte (D1). No borra la columna vieja (D2).**
+
+### M46 · Consultar la referencia de un origen
+- **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** —
+- **Lee:** `referencias.controller.ts`, `referenciadores.routes.ts`, su `.test.ts`, `DATOS.md`
+- **Toca (≤5):** `referencias.controller.ts`, `referenciadores.routes.ts`, `referencias.controller.test.ts`
+- **Pasos:** `GET /api/referencias?inversion_id=<uuid>` | `?prestamo_id=<uuid>` (auth, ambos
+  roles). Exactamente uno de los dos, UUID válido → si no, 400 en español sin DB.
+  Devuelve `{ success, data: referencia | null }` con `id`, `referenciador_id`, nombre
+  completo del referenciador, `tasa` (string), `estado`, `fecha_inicio`, `fecha_fin`.
+  Sin importar el estado (la unicidad es por origen). Tests con pool mockeado.
+- **EARS:** When `inversion_id` válido con referencia → 200 con ella · When sin referencia →
+  200 `data: null` · If faltan los dos / llegan los dos / UUID inválido → 400 sin consultar
+  la DB · Envelope `{ success, data, error }`.
+- **Fase 0:** ningún endpoint devuelve la referencia por origen → **procede**.
+- **Estado:** ⬜
+
+### M47 · Service y tipos de referencias (frontend)
+- **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M46
+- **Lee:** `services/referenciadoresService.ts`, `types/referenciador.types.ts`
+- **Toca (≤5):** `services/referenciasService.ts` (nuevo), `types/referenciador.types.ts`
+- **Pasos:** mismo `apiClient`; `crearReferencia`, `editarReferencia`,
+  `obtenerReferenciaPorInversion`, `obtenerReferenciaPorPrestamo`. `tipo_referido` unión
+  literal, `tasa: string`, **sin `fecha_inicio`** en el alta. Errores normalizados (status +
+  mensaje del backend).
+- **EARS:** tasa como string · no manda `fecha_inicio` · When 409 → expone status y mensaje
+  del backend sin cambiarlos.
+- **Estado:** ⬜
+
+### M48 · Componente compartido `SelectorReferenciador`
+- **Módulo:** shared (**tarea propia**, precedente M25) · **Tipo:** `ui` · **Depende de:** —
+- **Lee:** `docs/DISENO.md`, `components/shared/`, `Campo`, `referenciadoresService.ts`
+- **Toca (≤5):** `components/shared/SelectorReferenciador.tsx` (nuevo)
+- **Props:** `valor { referenciador_id | null, tasa }` · `onCambio` · `excluirInversionistaId?` ·
+  `deshabilitado?` · `error?`
+- **Pasos:** autocompletar sobre `GET /api/referenciadores`, **solo `activo = true`**, badge
+  *Ambos* / *Referenciador*. Oculta al de `inversionista_id === excluirInversionistaId`.
+  Opcional; "Quitar" limpia referenciador **y** tasa. Tasa obligatoria solo con
+  referenciador: regex `^\d{1,3}(\.\d{1,2})?$`, > 0, ≤ 999.99, sufijo `%`, hint
+  "0.50 = 0.5% mensual". **No llama a `/api/referencias`.** No sabe de roles. Tokens de
+  diseño, lucide, sin inline. 375/768/1440.
+- **EARS:** When sin referenciador → valor válido con tasa vacía · When con referenciador y
+  tasa vacía/0/>2 dec/>999.99 → error visible y valor inválido · Where
+  `excluirInversionistaId` → no lo ofrece · Solo activos.
+- **Estado:** ⬜
+
+### M49 · Ligar referenciador en el ALTA de inversión
+- **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M47, M48
+- **Lee:** `PerfilInversionista.tsx` (148-149), `FLUJOS.md` §3, `referenciasService.ts`
+- **Toca (≤5):** `PerfilInversionista.tsx`
+- **Pasos:** quitar `referenciador_id`/`tasa_referenciador` del payload y los campos viejos.
+  `SelectorReferenciador` con `excluirInversionistaId = id del perfil`, **solo admin**. Al
+  guardar: crear inversión (legacy) → tomar `id` → si hay referenciador, `crearReferencia`.
+  Falla parcial: la inversión se queda; aviso ámbar *"La inversión se guardó, pero no se pudo
+  ligar el referenciador: {mensaje}. Puedes ligarlo desde la edición de la inversión."*
+  Guardar deshabilitado mientras corren las llamadas.
+- **EARS:** no manda los campos viejos · When admin guarda con referenciador y tasa válidos →
+  inversión + fila en `referencias` (`tipo_referido='inversion'`) · When sin referenciador →
+  solo la inversión · If falla la referencia → inversión conservada + aviso · While no admin →
+  sin selector · 375/768/1440 limpio.
+- **Estado:** ⬜
+
+### M50 · Ligar referenciador en inversión EXISTENTE
+- **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M46, M47, M48
+- **Lee:** `PerfilInversionista.tsx`, `CardInversion.tsx`, `referenciasService.ts`
+- **Toca (≤5):** `components/inversionistas/ReferenciaInversion.tsx` (nuevo),
+  `PerfilInversionista.tsx`
+- **Hallazgo Fase 0:** **no existe pantalla de edición de inversión** (`editarInversion` del
+  service sin consumidor). Host: bloque *Referenciador* bajo cada tarjeta de inversión del
+  perfil (decisión en `ESTADO.md`).
+- **Pasos:** al montar, `obtenerReferenciaPorInversion`. Sin referencia → selector (solo
+  admin) + botón "Ligar" → `crearReferencia`. Con referencia → solo lectura (nombre, tasa `%`,
+  estado, fecha inicio); sin cambiar referenciador; **sin** botones de editar tasa ni
+  terminar/cancelar. 409 → mensaje del backend y recarga.
+- **EARS:** When sin referencia y admin elige → fila en `referencias` · When ya tiene → solo
+  lectura, sin selector · If 409 → mensaje + recarga · While no admin → ve la existente, no
+  liga.
+- **Estado:** ⬜
+
+### M51 · Ligar referenciador en el ALTA de préstamo
+- **Módulo:** prestamos · **Tipo:** `ui` · **Depende de:** M47, M48
+- **Lee:** `FormularioPrestamo.tsx`, `prestamosService.ts`, `referenciasService.ts`, C9/C10
+- **Toca (≤5):** `FormularioPrestamo.tsx`
+- **Pasos:** sección opcional *Referenciador* (solo admin, sin `excluirInversionistaId`). Al
+  guardar: crear préstamo (legacy) → `id` → si hay referenciador, `crearReferencia`
+  (`tipo_referido='prestamo'`). Falla parcial: *"El préstamo se guardó, pero no se pudo ligar
+  el referenciador: {mensaje}. Puedes ligarlo desde la edición del préstamo."* Ningún otro
+  campo, cálculo ni validación cambia.
+- **EARS:** When admin crea con referenciador válido → fila `referencias` prestamo · When sin
+  → igual que antes · If falla → préstamo conservado + aviso · While no admin → sin sección.
+- **Estado:** ⬜
+
+### M52 · Ligar referenciador en la EDICIÓN de préstamo
+- **Módulo:** prestamos · **Tipo:** `ui` · **Depende de:** M46, M47, M48, M51
+- **Lee:** `FormularioPrestamo.tsx` (modo `esEdicion`), `referenciasService.ts`
+- **Toca (≤5):** `FormularioPrestamo.tsx`
+- **Pasos:** como M50 con `prestamo_id`: al cargar, `obtenerReferenciaPorPrestamo`; sin
+  referencia → selector (admin) y al guardar `crearReferencia`; con referencia → solo lectura;
+  409 → mensaje y recarga. Sin editar ni cancelar.
+- **EARS:** los de M50 aplicados al préstamo.
+- **Estado:** ⬜
+
+### M53 · El backend deja de escribir las columnas deprecadas
+- **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M49 ✅
+- **Lee:** `inversionistas.controller.ts` (`crearInversion`), su `.test.ts`, inventario Fase 0
+- **Toca (≤5):** `inversionistas.controller.ts`, `inversionistas.controller.test.ts`,
+  `models/inversionista.model.ts`
+- **Inventario Fase 0:** único escritor backend = `INSERT` de `crearInversion`.
+  `editarInversion` no toca las columnas; la importación XLSX no lee referenciador.
+- **Pasos:** quitar `referenciador_id`/`tasa_referenciador` del `INSERT`. Si el cuerpo trae
+  alguno → 400 `{ mensaje: 'El referenciador ya no se captura aquí. Usa la sección
+  Referenciador (referencias).' }` sin escribir. No borrar la columna ni cambiar lecturas (D2).
+- **EARS:** If trae alguno → 400 sin escribir · Ningún endpoint escribe esas columnas · When
+  no las trae → igual que antes (tests existentes verdes).
+- **Estado:** ⬜
+
+### M54 · ✋ Prueba humana (Sebastian, en dev)
+- **Tipo:** humana · **Depende de:** M53 · Claude solo prepara la lista; la marca Sebastian.
+- Checklist completo en `docs/SPRINT-REFERENCIAS.md` §8.
+- **Estado:** ⬜
+
 ## Conteo
 
 | Bloque | Tareas | Estado |
