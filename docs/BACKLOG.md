@@ -617,10 +617,21 @@ Si no cumple → se parte. No se negocia.
   1 ingresos). M43 completa.
 
 ### M44 · Recálculo retroactivo (D3)
-- **Tipo:** `data` · **Depende de:** M39–M43 · **Estado:** ⬜
-- Migración par fecha_*.up/.down que recalcula lo persistido con la regla
-  vieja, **con respaldo `_respaldo_*`** de cada tabla tocada. ⚠️ Válida solo
-  pre-producción (D3). Inventariar columnas derivadas antes de escribirla.
+- **Tipo:** `data` · **Depende de:** M39–M43 · **Estado:** ✅ (2026-09-15)
+- `database/2026-09-15_recalculo_half_up.up/.down.sql`, aplicada a Neon y
+  sellada. **Inventario previo (Neon):** 0 filas con drift en `prestamos`
+  (10), `participantes_prestamo` (10; 4 `NULL` de oficina con tasa 0 —
+  intencionales), `nominas_pagadas` (1), rendimientos en CxP (0).
+  `moratorios_prestamo` no recomputable (no persiste la base) y con 0 filas.
+  La migración queda como regla codificada: recalcula con `ROUND(…,2)` de
+  Postgres (= half-up de `lib/dinero.ts`) solo filas cuya diferencia es
+  drift (≤1¢ por componente, ≤3¢ en total de nómina); una diferencia mayor
+  es override manual y no se pisa. Respaldo `_respaldo_recalculo_half_up`
+  (tabla, fila, columna, anterior, nuevo); la reversa restaura solo si la
+  fila conserva el valor nuevo. Probada con drift forzado: up corrige y
+  respalda, down restaura y suelta la tabla; estado limpio al final.
+  Gate `full` 12/12 (ciclo up→down→up). 2 archivos. **Serie dinero
+  half-up M38–M44 completa.**
 
 ## Conteo
 
