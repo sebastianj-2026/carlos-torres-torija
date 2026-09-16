@@ -229,3 +229,52 @@ export const editarReferencia = async (req: Request, res: Response): Promise<voi
     res.status(500).json({ success: false, data: null, error: 'Error interno al actualizar la referencia.' });
   }
 };
+
+// ----------------------------------------------------------------
+// Consultar la referencia de un origen (M46)
+// GET /api/referencias?inversion_id=<uuid> | ?prestamo_id=<uuid>
+//   Exactly one of the two. Returns the reference regardless of its state:
+//   uniqueness is per origin (P3), so there is at most one row. `null` when
+//   the origin has none. Read access for both roles.
+// ----------------------------------------------------------------
+export const obtenerReferenciaPorOrigen = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const inversionId = typeof req.query.inversion_id === 'string' ? req.query.inversion_id.trim() : '';
+    const prestamoId  = typeof req.query.prestamo_id  === 'string' ? req.query.prestamo_id.trim()  : '';
+
+    if ((inversionId && prestamoId) || (!inversionId && !prestamoId)) {
+      res.status(400).json({ success: false, data: null, error: 'Indica exactamente un origen: inversion_id o prestamo_id.' });
+      return;
+    }
+    const origenId = inversionId || prestamoId;
+    if (!esUuid(origenId)) {
+      res.status(400).json({ success: false, data: null, error: 'El id del origen no es un UUID válido.' });
+      return;
+    }
+
+    const columna = inversionId ? 'ref.inversion_id' : 'ref.prestamo_id';
+    const resultado = await pool.query(
+      `SELECT
+          ref.id,
+          ref.referenciador_id,
+          TRIM(CONCAT_WS(' ', r.nombres, r.apellido_paterno, r.apellido_materno)) AS referenciador_nombre,
+          ref.tipo_referido,
+          ref.inversion_id,
+          ref.prestamo_id,
+          ref.tasa::text AS tasa,
+          ref.estado,
+          ref.fecha_inicio,
+          ref.fecha_fin
+        FROM referencias ref
+        JOIN referenciadores r ON r.id = ref.referenciador_id
+       WHERE ${columna} = $1
+       LIMIT 1`,
+      [origenId]
+    );
+
+    res.json({ success: true, data: resultado.rows[0] ?? null, error: null });
+  } catch (error) {
+    console.error('Error al consultar referencia por origen:', error);
+    res.status(500).json({ success: false, data: null, error: 'Error interno al consultar la referencia.' });
+  }
+};

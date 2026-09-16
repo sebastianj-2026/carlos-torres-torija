@@ -11,6 +11,7 @@ import {
 import {
   crearReferencia,
   editarReferencia,
+  obtenerReferenciaPorOrigen,
 } from '../controllers/referencias.controller';
 
 // ================================================================
@@ -31,6 +32,9 @@ referenciadoresRouter.patch('/:id', validateUuid('id'), editarReferenciador);
 export const referenciasRouter = Router();
 
 referenciasRouter.use(authMiddleware);
+
+// M46: lectura por origen (?inversion_id= | ?prestamo_id=), ambos roles.
+referenciasRouter.get('/', obtenerReferenciaPorOrigen);
 
 // M28 (⛔4=A): ligar/editar una referencia fija dinero — solo administrador,
 // igual que editar una inversión.

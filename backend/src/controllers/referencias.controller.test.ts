@@ -12,7 +12,7 @@ vi.mock('../config/database', () => ({
 }));
 
 import pool from '../config/database';
-import { crearReferencia, editarReferencia } from './referencias.controller';
+import { crearReferencia, editarReferencia, obtenerReferenciaPorOrigen } from './referencias.controller';
 
 const mockQuery = pool.query as unknown as ReturnType<typeof vi.fn>;
 
@@ -142,5 +142,52 @@ describe('editarReferencia — M29: estados solo hacia adelante', () => {
     await editarReferencia(mkReq({ params: { id: UUID_REF }, body: { notas: 'x' } }), mkRes());
     const sql = mockQuery.mock.calls[1][0] as string;
     expect(sql).not.toMatch(/referenciador_id|inversion_id|prestamo_id|tipo_referido/);
+  });
+});
+
+describe('obtenerReferenciaPorOrigen — M46: consulta por origen', () => {
+  const UUID_PRE = 'bbbbbbbb-cccc-4ddd-8eee-ffffffffffff';
+
+  it('200 con la referencia cuando inversion_id la tiene', async () => {
+    const fila = { id: 'ref-1', referenciador_id: UUID_REF, referenciador_nombre: 'Juan Pérez', tasa: '0.50', estado: 'activa' };
+    mockQuery.mockResolvedValueOnce({ rowCount: 1, rows: [fila] });
+    const res = mkRes();
+    await obtenerReferenciaPorOrigen(mkReq({ query: { inversion_id: UUID_INV } }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ success: true, data: fila, error: null });
+    expect(String(mockQuery.mock.calls[0][0])).toContain('ref.inversion_id = $1');
+    expect(mockQuery.mock.calls[0][1]).toEqual([UUID_INV]);
+  });
+
+  it('200 con data: null cuando el préstamo no tiene referencia', async () => {
+    mockQuery.mockResolvedValueOnce({ rowCount: 0, rows: [] });
+    const res = mkRes();
+    await obtenerReferenciaPorOrigen(mkReq({ query: { prestamo_id: UUID_PRE } }), res);
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toEqual({ success: true, data: null, error: null });
+    expect(String(mockQuery.mock.calls[0][0])).toContain('ref.prestamo_id = $1');
+  });
+
+  it('400 sin tocar la DB si faltan los dos parámetros', async () => {
+    const res = mkRes();
+    await obtenerReferenciaPorOrigen(mkReq({ query: {} }), res);
+    expect(res.statusCode).toBe(400);
+    expect(mockQuery).not.toHaveBeenCalled();
+    expect((res.body as { error: string }).error).toMatch(/exactamente un origen/i);
+  });
+
+  it('400 sin tocar la DB si llegan los dos parámetros', async () => {
+    const res = mkRes();
+    await obtenerReferenciaPorOrigen(mkReq({ query: { inversion_id: UUID_INV, prestamo_id: UUID_PRE } }), res);
+    expect(res.statusCode).toBe(400);
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it('400 sin tocar la DB si el UUID es inválido', async () => {
+    const res = mkRes();
+    await obtenerReferenciaPorOrigen(mkReq({ query: { inversion_id: 'no-uuid' } }), res);
+    expect(res.statusCode).toBe(400);
+    expect(mockQuery).not.toHaveBeenCalled();
+    expect((res.body as { error: string }).error).toMatch(/UUID/);
   });
 });
