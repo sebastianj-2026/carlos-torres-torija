@@ -1,5 +1,21 @@
 import { Request, Response } from 'express';
 import pool from '../config/database';
+import { sumaMontos, restaMontos, restaPiso0, comparaMontos, esCero } from '../lib/dinero';
+
+// pg NUMERIC arrives as a string; missing → '0'. Aggregates run in exact cents
+// (M43b, docs/DINERO.md D4) and become numbers only at the API edge.
+const numerico = (v: unknown): string => (v === null || v === undefined ? '0' : String(v));
+type EstadoMes = {
+  count_total: number; count_pagados: number; count_pendientes: number; count_atrasados: number;
+  monto_esperado: string; monto_cobrado: string; monto_pendiente: string; monto_atrasado: string;
+};
+const estadoSalida = (e: EstadoMes) => ({
+  ...e,
+  monto_esperado:  Number(e.monto_esperado),
+  monto_cobrado:   Number(e.monto_cobrado),
+  monto_pendiente: Number(e.monto_pendiente),
+  monto_atrasado:  Number(e.monto_atrasado),
+});
 
 // Fallback for missing ingresos_hub objects (pensiones_estacionamiento,
 // ingresos_directos, metricas_cancha, movimientos_extras_pension,
@@ -322,133 +338,138 @@ export const dashboardCentral = async (req: Request, res: Response): Promise<voi
     ]);
 
     // ── Cobrado ─────────────────────────────────────────────────
+    // Exact cents end to end (D4): strings inside, numbers only in the response
     const porOrigenCobrado = cobradoRes.rows.map((r: any) => ({
-      origen:   r.origen,
-      utilidad: parseFloat(r.utilidad),
-      capital:  parseFloat(r.capital),
-      total:    parseFloat(r.total),
+      origen:   r.origen as string,
+      utilidad: numerico(r.utilidad),
+      capital:  numerico(r.capital),
+      total:    numerico(r.total),
     }));
-    const totalCobrado  = porOrigenCobrado.reduce((s, r) => s + r.total,    0);
-    const totalUtilidad = porOrigenCobrado.reduce((s, r) => s + r.utilidad, 0);
-    const totalCapital  = porOrigenCobrado.reduce((s, r) => s + r.capital,  0);
+    const totalCobrado  = sumaMontos(porOrigenCobrado.map(r => r.total));
+    const totalUtilidad = sumaMontos(porOrigenCobrado.map(r => r.utilidad));
+    const totalCapital  = sumaMontos(porOrigenCobrado.map(r => r.capital));
 
     // ── Estado préstamos ────────────────────────────────────────
     const prestRows = (prestamosRes.rows as any[]).map(p => {
-      const interes   = parseFloat(p.interes_mensual);
-      const cobrado   = parseFloat(p.ya_cobrado);
-      const pendiente = Math.max(0, interes - cobrado);
-      const atrasado  = pendiente > 0 && parseInt(p.dia_pago) <= diaHoy;
+      const interes   = numerico(p.interes_mensual);
+      const cobrado   = numerico(p.ya_cobrado);
+      const pendiente = restaPiso0(interes, cobrado);
+      const atrasado  = !esCero(pendiente) && parseInt(p.dia_pago) <= diaHoy;
       return { interes, cobrado, pendiente, atrasado };
     });
-    const estadoPrestamos = {
+    const estadoPrestamos: EstadoMes = {
       count_total:      prestRows.length,
-      count_pagados:    prestRows.filter(p => p.pendiente === 0).length,
-      count_pendientes: prestRows.filter(p => p.pendiente > 0).length,
+      count_pagados:    prestRows.filter(p => esCero(p.pendiente)).length,
+      count_pendientes: prestRows.filter(p => !esCero(p.pendiente)).length,
       count_atrasados:  prestRows.filter(p => p.atrasado).length,
-      monto_esperado:   parseFloat(prestRows.reduce((s, p) => s + p.interes,   0).toFixed(2)),
-      monto_cobrado:    parseFloat(prestRows.reduce((s, p) => s + p.cobrado,   0).toFixed(2)),
-      monto_pendiente:  parseFloat(prestRows.reduce((s, p) => s + p.pendiente, 0).toFixed(2)),
-      monto_atrasado:   parseFloat(prestRows.filter(p => p.atrasado).reduce((s, p) => s + p.pendiente, 0).toFixed(2)),
+      monto_esperado:   sumaMontos(prestRows.map(p => p.interes)),
+      monto_cobrado:    sumaMontos(prestRows.map(p => p.cobrado)),
+      monto_pendiente:  sumaMontos(prestRows.map(p => p.pendiente)),
+      monto_atrasado:   sumaMontos(prestRows.filter(p => p.atrasado).map(p => p.pendiente)),
     };
 
     // ── Estado rentas ───────────────────────────────────────────
     const rr = rentasEstadoRes.rows[0] ?? {};
-    const estadoRentas = {
+    const estadoRentas: EstadoMes = {
       count_total:      parseInt(rr.total     ?? 0),
       count_pagados:    parseInt(rr.cobradas  ?? 0),
       count_pendientes: parseInt(rr.pendientes ?? 0),
       count_atrasados:  parseInt(rr.atrasadas ?? 0),
-      monto_esperado:   parseFloat(rr.monto_total     ?? 0),
-      monto_cobrado:    parseFloat(rr.monto_cobrado   ?? 0),
-      monto_pendiente:  parseFloat(rr.monto_pendiente ?? 0),
-      monto_atrasado:   parseFloat(rr.monto_atrasado  ?? 0),
+      monto_esperado:   numerico(rr.monto_total),
+      monto_cobrado:    numerico(rr.monto_cobrado),
+      monto_pendiente:  numerico(rr.monto_pendiente),
+      monto_atrasado:   numerico(rr.monto_atrasado),
     };
 
     // ── Estado pensiones ────────────────────────────────────────
     const pe = pensionesEstadoRes.rows[0] ?? {};
-    const estadoPensiones = {
+    const estadoPensiones: EstadoMes = {
       count_total:      parseInt(pe.total   ?? 0),
       count_pagados:    parseInt(pe.activas ?? 0),
       count_pendientes: parseInt(pe.vencidas ?? 0),
       count_atrasados:  parseInt(pe.vencidas ?? 0),
-      monto_esperado:   parseFloat(pe.monto_total    ?? 0),
-      monto_cobrado:    parseFloat(pe.monto_activas  ?? 0),
-      monto_pendiente:  parseFloat(pe.monto_vencidas ?? 0),
-      monto_atrasado:   parseFloat(pe.monto_vencidas ?? 0),
+      monto_esperado:   numerico(pe.monto_total),
+      monto_cobrado:    numerico(pe.monto_activas),
+      monto_pendiente:  numerico(pe.monto_vencidas),
+      monto_atrasado:   numerico(pe.monto_vencidas),
     };
 
-    const granTotalEsperado  = estadoPrestamos.monto_esperado + estadoRentas.monto_esperado + estadoPensiones.monto_esperado;
-    const granTotalCobrado   = estadoPrestamos.monto_cobrado  + estadoRentas.monto_cobrado  + estadoPensiones.monto_cobrado;
-    const granTotalPendiente = parseFloat((granTotalEsperado - granTotalCobrado).toFixed(2));
-    const granTotalAtrasado  = parseFloat((estadoPrestamos.monto_atrasado + estadoRentas.monto_atrasado + estadoPensiones.monto_atrasado).toFixed(2));
+    const estados = [estadoPrestamos, estadoRentas, estadoPensiones];
+    const granTotalEsperado  = sumaMontos(estados.map(e => e.monto_esperado));
+    const granTotalCobrado   = sumaMontos(estados.map(e => e.monto_cobrado));
+    const granTotalPendiente = restaMontos(granTotalEsperado, granTotalCobrado);
+    const granTotalAtrasado  = sumaMontos(estados.map(e => e.monto_atrasado));
 
     // ── Método de pago ──────────────────────────────────────────
-    const efectivoCanchaEst = porOrigenCobrado
+    const efectivoCanchaEst = sumaMontos(porOrigenCobrado
       .filter(r => r.origen === 'Cancha' || r.origen === 'Estacionamiento')
-      .reduce((s, r) => s + r.total, 0);
+      .map(r => r.total));
 
-    const rentasPorMetodo: Record<string, number> = {};
-    const tarjetaDetalle:  { cuenta: string; monto: number }[] = [];
+    const rentasPorMetodo: Record<string, string> = {};
+    const tarjetaDetalle:  { cuenta: string; monto: string }[] = [];
     for (const r of metodoRentasRes.rows as any[]) {
       const metodo = r.metodo ?? 'efectivo';
-      const monto  = parseFloat(r.monto);
-      rentasPorMetodo[metodo] = (rentasPorMetodo[metodo] ?? 0) + monto;
+      const monto  = numerico(r.monto);
+      rentasPorMetodo[metodo] = sumaMontos([rentasPorMetodo[metodo], monto]);
       if (metodo === 'tarjeta' && r.cuenta) {
         const ex = tarjetaDetalle.find(d => d.cuenta === r.cuenta);
-        if (ex) ex.monto += monto; else tarjetaDetalle.push({ cuenta: r.cuenta, monto });
+        if (ex) ex.monto = sumaMontos([ex.monto, monto]); else tarjetaDetalle.push({ cuenta: r.cuenta, monto });
       }
     }
-    const prestamosEfectivo = (metodoPrestamosRes.rows as any[]).reduce((s, r) => s + parseFloat(r.monto), 0);
-    const totalEfectivo = efectivoCanchaEst + (rentasPorMetodo['efectivo'] ?? 0) + prestamosEfectivo;
-    const totalTarjeta  = rentasPorMetodo['tarjeta'] ?? 0;
+    const prestamosEfectivo = sumaMontos((metodoPrestamosRes.rows as any[]).map(r => numerico(r.monto)));
+    const rentasEfectivo    = rentasPorMetodo['efectivo'] ?? '0.00';
+    const totalEfectivo = sumaMontos([efectivoCanchaEst, rentasEfectivo, prestamosEfectivo]);
+    const totalTarjeta  = rentasPorMetodo['tarjeta'] ?? '0.00';
     const efectivoDetalle = [
-      { origen: 'Cancha + Estacionamiento', monto: parseFloat(efectivoCanchaEst.toFixed(2)) },
-      { origen: 'Rentas',                   monto: parseFloat((rentasPorMetodo['efectivo'] ?? 0).toFixed(2)) },
-      { origen: 'Préstamos',                monto: parseFloat(prestamosEfectivo.toFixed(2)) },
+      { origen: 'Cancha + Estacionamiento', monto: Number(efectivoCanchaEst) },
+      { origen: 'Rentas',                   monto: Number(rentasEfectivo) },
+      { origen: 'Préstamos',                monto: Number(prestamosEfectivo) },
     ].filter(d => d.monto > 0);
 
     // ── Vs mes anterior ─────────────────────────────────────────
-    const prevPorOrigen: Record<string, number> = {};
-    let totalPrev = 0;
-    for (const r of cobradoPrevRes.rows as any[]) {
-      const t = parseFloat(r.total); prevPorOrigen[r.origen] = t; totalPrev += t;
-    }
-    const variacionPct = totalPrev > 0
-      ? parseFloat(((totalCobrado - totalPrev) / totalPrev * 100).toFixed(1)) : 0;
+    const prevPorOrigen: Record<string, string> = {};
+    for (const r of cobradoPrevRes.rows as any[]) prevPorOrigen[r.origen] = numerico(r.total);
+    const totalPrev = sumaMontos(Object.values(prevPorOrigen));
+    // Ratio, not money: float + toFixed(1) stays (D4)
+    const variacionPct = !esCero(totalPrev)
+      ? parseFloat(((Number(totalCobrado) - Number(totalPrev)) / Number(totalPrev) * 100).toFixed(1)) : 0;
 
     // ── Mejor día ───────────────────────────────────────────────
-    type DiaEntry = { fecha: string; monto: number };
-    const globalDia:   Record<string, number>   = {};
+    type DiaEntry = { fecha: string; monto: string };
+    const globalDia:   Record<string, string>   = {};
     const porOrigenDia: Record<string, DiaEntry> = {};
     for (const r of mejorDiaRes.rows as any[]) {
       const fecha = r.fecha_cobro instanceof Date
         ? r.fecha_cobro.toISOString().split('T')[0]
         : String(r.fecha_cobro).split('T')[0];
-      const monto = parseFloat(r.total);
-      globalDia[fecha] = (globalDia[fecha] ?? 0) + monto;
-      if (!porOrigenDia[r.origen] || monto > porOrigenDia[r.origen].monto)
+      const monto = numerico(r.total);
+      globalDia[fecha] = sumaMontos([globalDia[fecha], monto]);
+      if (!porOrigenDia[r.origen] || comparaMontos(monto, porOrigenDia[r.origen].monto) > 0)
         porOrigenDia[r.origen] = { fecha, monto };
     }
     let mejorDiaGlobal: DiaEntry | null = null;
     for (const [fecha, monto] of Object.entries(globalDia))
-      if (!mejorDiaGlobal || monto > mejorDiaGlobal.monto) mejorDiaGlobal = { fecha, monto };
+      if (!mejorDiaGlobal || comparaMontos(monto, mejorDiaGlobal.monto) > 0) mejorDiaGlobal = { fecha, monto };
+    const diaSalida = (d: DiaEntry) => ({ fecha: d.fecha, monto: Number(d.monto) });
 
     res.json({
       periodo: { mes, anio },
       cobrado: {
-        total:           parseFloat(totalCobrado.toFixed(2)),
-        utilidad:        parseFloat(totalUtilidad.toFixed(2)),
-        retorno_capital: parseFloat(totalCapital.toFixed(2)),
-        por_origen:      porOrigenCobrado,
+        total:           Number(totalCobrado),
+        utilidad:        Number(totalUtilidad),
+        retorno_capital: Number(totalCapital),
+        por_origen:      porOrigenCobrado.map(r => ({
+          origen: r.origen, utilidad: Number(r.utilidad), capital: Number(r.capital), total: Number(r.total),
+        })),
       },
       estado_mes: {
-        prestamos:             estadoPrestamos,
-        rentas:                estadoRentas,
-        pensiones:             estadoPensiones,
-        gran_total_esperado:   parseFloat(granTotalEsperado.toFixed(2)),
-        gran_total_cobrado:    parseFloat(granTotalCobrado.toFixed(2)),
-        gran_total_pendiente:  granTotalPendiente,
-        gran_total_atrasado:   granTotalAtrasado,
+        prestamos:             estadoSalida(estadoPrestamos),
+        rentas:                estadoSalida(estadoRentas),
+        pensiones:             estadoSalida(estadoPensiones),
+        gran_total_esperado:   Number(granTotalEsperado),
+        gran_total_cobrado:    Number(granTotalCobrado),
+        gran_total_pendiente:  Number(granTotalPendiente),
+        gran_total_atrasado:   Number(granTotalAtrasado),
       },
       log_pagos: (logRes.rows as any[]).map(r => ({
         id:          r.id,
@@ -460,23 +481,28 @@ export const dashboardCentral = async (req: Request, res: Response): Promise<voi
         metodo_pago: r.metodo_pago ?? 'efectivo',
       })),
       metodo_pago: {
-        efectivo: { total: parseFloat(totalEfectivo.toFixed(2)), detalle: efectivoDetalle },
-        tarjeta:  { total: parseFloat(totalTarjeta.toFixed(2)),  detalle: tarjetaDetalle.sort((a, b) => b.monto - a.monto) },
+        efectivo: { total: Number(totalEfectivo), detalle: efectivoDetalle },
+        tarjeta:  {
+          total:   Number(totalTarjeta),
+          detalle: tarjetaDetalle
+            .sort((a, b) => comparaMontos(b.monto, a.monto))
+            .map(d => ({ cuenta: d.cuenta, monto: Number(d.monto) })),
+        },
       },
       vs_mes_anterior: {
-        cobrado_actual:   parseFloat(totalCobrado.toFixed(2)),
-        cobrado_anterior: parseFloat(totalPrev.toFixed(2)),
+        cobrado_actual:   Number(totalCobrado),
+        cobrado_anterior: Number(totalPrev),
         variacion_pct:    variacionPct,
         por_origen: porOrigenCobrado.map(r => ({
           origen:   r.origen,
-          actual:   r.total,
-          anterior: prevPorOrigen[r.origen] ?? 0,
-          delta:    parseFloat((r.total - (prevPorOrigen[r.origen] ?? 0)).toFixed(2)),
+          actual:   Number(r.total),
+          anterior: Number(prevPorOrigen[r.origen] ?? '0'),
+          delta:    Number(restaMontos(r.total, prevPorOrigen[r.origen] ?? '0')),
         })),
       },
       mejor_dia: {
-        global:     mejorDiaGlobal,
-        por_origen: Object.entries(porOrigenDia).map(([origen, d]) => ({ origen, ...d })),
+        global:     mejorDiaGlobal ? diaSalida(mejorDiaGlobal) : null,
+        por_origen: Object.entries(porOrigenDia).map(([origen, d]) => ({ origen, ...diaSalida(d) })),
       },
     });
   } catch (e) {
@@ -523,32 +549,37 @@ export const cxcPrestamos = async (req: Request, res: Response): Promise<void> =
       ORDER BY cp.dia_pago ASC
     `, [mes, anio]);
 
-    const prestamos = r.rows.map((p: any) => {
-      const interes = parseFloat(p.monto_interes);
-      const yaCobI  = parseFloat(p.ya_cobrado_interes);
-      const yaCobK  = parseFloat(p.ya_cobrado_capital);
+    // Exact cents (D4): strings for the math, numbers only at the response edge
+    const filas = r.rows.map((p: any) => {
+      const interes   = numerico(p.monto_interes);
+      const yaCobI    = numerico(p.ya_cobrado_interes);
+      const pendiente = restaPiso0(interes, yaCobI);
       return {
-        id:                   p.id,
-        folio:                p.folio,
-        cliente_id:           p.cliente_id,
-        cliente_nombre:       p.cliente_nombre,
-        monto_capital:        parseFloat(p.monto_capital),
-        monto_interes:        interes,
-        dia_pago:             p.dia_pago,
-        tasa_interes_mensual: parseFloat(p.tasa_interes_mensual),
-        estatus:              p.estatus,
-        ya_cobrado_interes:   yaCobI,
-        ya_cobrado_capital:   yaCobK,
-        pendiente_interes:    parseFloat(Math.max(0, interes - yaCobI).toFixed(2)),
-        cobrado_completo:     yaCobI >= interes && interes > 0,
+        fila: {
+          id:                   p.id,
+          folio:                p.folio,
+          cliente_id:           p.cliente_id,
+          cliente_nombre:       p.cliente_nombre,
+          monto_capital:        Number(numerico(p.monto_capital)),
+          monto_interes:        Number(interes),
+          dia_pago:             p.dia_pago,
+          tasa_interes_mensual: Number(numerico(p.tasa_interes_mensual)),
+          estatus:              p.estatus,
+          ya_cobrado_interes:   Number(yaCobI),
+          ya_cobrado_capital:   Number(numerico(p.ya_cobrado_capital)),
+          pendiente_interes:    Number(pendiente),
+          cobrado_completo:     comparaMontos(yaCobI, interes) >= 0 && !esCero(interes),
+        },
+        interes, yaCobI, pendiente,
       };
     });
+    const prestamos = filas.map(f => f.fila);
 
     const totales = {
-      monto_interes_esperado: parseFloat(prestamos.reduce((s: number, p: any) => s + p.monto_interes,   0).toFixed(2)),
-      ya_cobrado:             parseFloat(prestamos.reduce((s: number, p: any) => s + p.ya_cobrado_interes, 0).toFixed(2)),
-      pendiente:              parseFloat(prestamos.reduce((s: number, p: any) => s + p.pendiente_interes, 0).toFixed(2)),
-      cobrados_completos:     prestamos.filter((p: any) => p.cobrado_completo).length,
+      monto_interes_esperado: Number(sumaMontos(filas.map(f => f.interes))),
+      ya_cobrado:             Number(sumaMontos(filas.map(f => f.yaCobI))),
+      pendiente:              Number(sumaMontos(filas.map(f => f.pendiente))),
+      cobrados_completos:     prestamos.filter(p => p.cobrado_completo).length,
       total_prestamos:        prestamos.length,
     };
 
@@ -609,13 +640,15 @@ export const proyeccionCxCPrestamos = async (req: Request, res: Response): Promi
         END ASC
     `, [mes, anio]);
 
-    const prestamos = r.rows.map((p: any) => {
-      const monto_interes   = parseFloat(p.monto_interes);
-      const ya_cobrado      = parseFloat(p.ya_cobrado_interes);
+    // Exact cents (D4): strings for the math, numbers only at the response edge
+    const filas = r.rows.map((p: any) => {
+      const monto_interes    = numerico(p.monto_interes);
+      const ya_cobrado       = numerico(p.ya_cobrado_interes);
+      const pendiente        = restaPiso0(monto_interes, ya_cobrado);
       const tiene_obligacion = !!p.obligacion_id;
 
       let estatus_proyeccion: 'Cobrado' | 'Pendiente' | 'Por Generar';
-      if (monto_interes > 0 && ya_cobrado >= monto_interes) {
+      if (!esCero(monto_interes) && comparaMontos(ya_cobrado, monto_interes) >= 0) {
         estatus_proyeccion = 'Cobrado';
       } else if (tiene_obligacion) {
         estatus_proyeccion = 'Pendiente';
@@ -624,26 +657,30 @@ export const proyeccionCxCPrestamos = async (req: Request, res: Response): Promi
       }
 
       return {
-        id:                   p.id,
-        folio:                p.folio,
-        cliente_id:           p.cliente_id,
-        cliente_nombre:       p.cliente_nombre,
-        capital_prestado:     parseFloat(p.capital_prestado),
-        tasa_interes_mensual: parseFloat(p.tasa_interes_mensual),
-        monto_interes,
-        dia_pago:             parseInt(p.dia_pago),
-        estatus:              p.estatus,
-        ya_cobrado_interes:   ya_cobrado,
-        pendiente_interes:    parseFloat(Math.max(0, monto_interes - ya_cobrado).toFixed(2)),
-        estatus_proyeccion,
-        obligacion_id:        p.obligacion_id ?? null,
+        fila: {
+          id:                   p.id,
+          folio:                p.folio,
+          cliente_id:           p.cliente_id,
+          cliente_nombre:       p.cliente_nombre,
+          capital_prestado:     Number(numerico(p.capital_prestado)),
+          tasa_interes_mensual: Number(numerico(p.tasa_interes_mensual)),
+          monto_interes:        Number(monto_interes),
+          dia_pago:             parseInt(p.dia_pago),
+          estatus:              p.estatus,
+          ya_cobrado_interes:   Number(ya_cobrado),
+          pendiente_interes:    Number(pendiente),
+          estatus_proyeccion,
+          obligacion_id:        p.obligacion_id ?? null,
+        },
+        monto_interes, ya_cobrado, pendiente,
       };
     });
+    const prestamos = filas.map(f => f.fila);
 
     const totales = {
-      total_esperado:  parseFloat(prestamos.reduce((s, p) => s + p.monto_interes,     0).toFixed(2)),
-      total_cobrado:   parseFloat(prestamos.reduce((s, p) => s + p.ya_cobrado_interes, 0).toFixed(2)),
-      total_pendiente: parseFloat(prestamos.reduce((s, p) => s + p.pendiente_interes,  0).toFixed(2)),
+      total_esperado:  Number(sumaMontos(filas.map(f => f.monto_interes))),
+      total_cobrado:   Number(sumaMontos(filas.map(f => f.ya_cobrado))),
+      total_pendiente: Number(sumaMontos(filas.map(f => f.pendiente))),
       por_generar:     prestamos.filter(p => p.estatus_proyeccion === 'Por Generar').length,
       pendientes:      prestamos.filter(p => p.estatus_proyeccion === 'Pendiente').length,
       cobrados:        prestamos.filter(p => p.estatus_proyeccion === 'Cobrado').length,

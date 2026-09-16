@@ -585,10 +585,14 @@ Si no cumple → se parte. No se negocia.
   e2e `/egresos@1440` dio timeout de `networkidle` una vez, transitorio.
 
 ### M43b · Display de ingresos a la misma aritmética
-- **Tipo:** `logic` · **Depende de:** M43a · **Estado:** ⬜
-- `ingresos.controller`: los 28 agregados (`reduce` + `toFixed`) pasan a
-  `sumaMontos`/`restaMontos`/`restaPiso0` sobre los NUMERIC de pg (D4).
-  La variación % (l.417) se queda.
+- **Tipo:** `logic` · **Depende de:** M43a · **Estado:** ✅ (2026-09-15)
+- `ingresos.controller`: `dashboardCentral`, `cxcPrestamos` y
+  `proyeccionCxCPrestamos` acumulan en strings exactos (`sumaMontos`,
+  `restaMontos`, `restaPiso0`, `comparaMontos`) y convierten a number solo
+  en la respuesta — contrato del frontend intacto. Cero `toFixed` de dinero;
+  queda el `toFixed(1)` de `variacion_pct` (ratio). Tests de caracterización
+  (4, escritos antes del refactor, verdes antes y después: refactor que
+  preserva comportamiento, no cambio de regla). Suite 117 ✅. 2 archivos.
 
 ### M43c · Display del dashboard a la misma aritmética
 - **Tipo:** `logic` · **Depende de:** M43a · **Estado:** ⬜
