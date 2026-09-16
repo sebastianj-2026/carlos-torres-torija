@@ -721,7 +721,10 @@ Si no cumple → se parte. No se negocia.
 - **EARS:** When sin referenciador → valor válido con tasa vacía · When con referenciador y
   tasa vacía/0/>2 dec/>999.99 → error visible y valor inválido · Where
   `excluirInversionistaId` → no lo ofrece · Solo activos.
-- **Estado:** ⬜
+- **Estado:** ✅ (2026-09-16) — `components/shared/SelectorReferenciador.tsx` + helper exportado
+  `validarSeleccionReferenciador(valor)` (mensaje en español o `null`) y `SELECCION_VACIA`.
+  Debounce 250 ms sobre `GET /api/referenciadores?buscar=&limite=100`, filtra `activo` y la
+  auto-referencia en cliente. Gate `ui` 7/7. 1 archivo.
 
 ### M49 · Ligar referenciador en el ALTA de inversión
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M47, M48
