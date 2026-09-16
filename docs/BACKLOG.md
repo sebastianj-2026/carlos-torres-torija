@@ -761,7 +761,11 @@ Si no cumple → se parte. No se negocia.
 - **EARS:** When sin referencia y admin elige → fila en `referencias` · When ya tiene → solo
   lectura, sin selector · If 409 → mensaje + recarga · While no admin → ve la existente, no
   liga.
-- **Estado:** ⬜
+- **Estado:** ✅ (2026-09-16) — `components/inversionistas/ReferenciaInversion.tsx` montado bajo
+  cada `CardInversion` del perfil: consulta `GET /api/referencias?inversion_id=`; con
+  referencia → solo lectura (nombre, tasa %, estado, desde); sin referencia y admin → liga
+  "Ligar referenciador" que abre el selector + botón Ligar; 409 → mensaje y recarga; no admin
+  sin referencia → nada. Gate `ui` 7/7. 2 archivos.
 
 ### M51 · Ligar referenciador en el ALTA de préstamo
 - **Módulo:** prestamos · **Tipo:** `ui` · **Depende de:** M47, M48

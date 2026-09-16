@@ -11,6 +11,7 @@ import { crearReferencia, ReferenciaError } from '../../services/referenciasServ
 import { useAuth } from '../../context/AuthContext';
 import SelectorReferenciador, { SELECCION_VACIA, validarSeleccionReferenciador } from '../../components/shared/SelectorReferenciador';
 import CardInversion from '../../components/inversionistas/CardInversion';
+import ReferenciaInversion from '../../components/inversionistas/ReferenciaInversion';
 import HistorialMovimientos from '../../components/inversionistas/HistorialMovimientos';
 import ModalPagoInteres from '../../components/inversionistas/ModalPagoInteres';
 import ModalAgregarFondos from '../../components/inversionistas/ModalAgregarFondos';
@@ -594,6 +595,9 @@ const PerfilInversionista: React.FC = () => {
                       </div>
                     )}
                   </div>
+
+                  {/* Referenciador ligado a esta inversión (M50) */}
+                  <ReferenciaInversion inversionId={inv.id} esAdmin={esAdmin} />
 
                   {/* Historial desplegable por inversión */}
                   <button
