@@ -2,11 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Pencil, Plus, Phone, Mail, User,
-  TrendingUp, History, ChevronDown, ChevronUp,
+  TrendingUp, History, ChevronDown, ChevronUp, AlertTriangle,
 } from 'lucide-react';
-import { PerfilInversionista as TPerfilInversionista, Inversion, EstatusInversion, InversionistaResumen } from '../../types/inversionista.types';
-import { obtenerInversionista, cambiarEstatusInversion, crearInversion, listarInversionistas } from '../../services/inversionistasService';
+import { PerfilInversionista as TPerfilInversionista, Inversion, EstatusInversion } from '../../types/inversionista.types';
+import { SeleccionReferenciador } from '../../types/referenciador.types';
+import { obtenerInversionista, cambiarEstatusInversion, crearInversion } from '../../services/inversionistasService';
+import { crearReferencia, ReferenciaError } from '../../services/referenciasService';
 import { useAuth } from '../../context/AuthContext';
+import SelectorReferenciador, { SELECCION_VACIA, validarSeleccionReferenciador } from '../../components/shared/SelectorReferenciador';
 import CardInversion from '../../components/inversionistas/CardInversion';
 import HistorialMovimientos from '../../components/inversionistas/HistorialMovimientos';
 import ModalPagoInteres from '../../components/inversionistas/ModalPagoInteres';
@@ -21,8 +24,11 @@ const formatearMoneda = (valor: string | number): string => {
 // Mini formulario de nueva inversión (inline)
 interface FormNuevaInversionProps {
   inversionistaId: string;
+  esAdmin: boolean;
   onCancelar: () => void;
-  onExito: () => void;
+  // avisoReferencia: set when the investment was saved but linking the
+  // referenciador failed (partial failure — the investment stays, P6).
+  onExito: (avisoReferencia?: string) => void;
 }
 
 const inputCls = `w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm
@@ -40,6 +46,7 @@ const mostrarMoneda = (raw: string): string => {
 
 const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
   inversionistaId,
+  esAdmin,
   onCancelar,
   onExito,
 }) => {
@@ -57,23 +64,10 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
   const [guardando, setGuardando] = useState(false);
   const [error, setError]         = useState<string | null>(null);
 
-  // Referidor (otro inversionista) + su tasa de comisión.
-  const [referidor, setReferidor]     = useState<InversionistaResumen | null>(null);
-  const [qRef, setQRef]               = useState('');
-  const [resultadosRef, setResultRef] = useState<InversionistaResumen[]>([]);
-  const [tasaRef, setTasaRef]         = useState('');
-
-  useEffect(() => {
-    if (referidor || qRef.trim().length < 2) { setResultRef([]); return; }
-    let vivo = true;
-    const t = setTimeout(async () => {
-      try {
-        const r = await listarInversionistas({ buscar: qRef.trim() });
-        if (vivo) setResultRef(r.inversionistas.filter((i) => i.id !== inversionistaId));
-      } catch { if (vivo) setResultRef([]); }
-    }, 250);
-    return () => { vivo = false; clearTimeout(t); };
-  }, [qRef, referidor, inversionistaId]);
+  // Referenciador (M49): optional link persisted in `referencias` AFTER the
+  // investment exists. The legacy inversiones.referenciador_id is no longer
+  // written (D2). Only admins can link (M28), so the selector is admin-only.
+  const [seleccion, setSeleccion] = useState<SeleccionReferenciador>(SELECCION_VACIA);
 
   // Día de pago y fecha de vencimiento se derivan de fecha_inicio
   useEffect(() => {
@@ -105,15 +99,6 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
     setDatos((prev) => ({ ...prev, tasa_interes_mensual: limpio }));
   };
 
-  // Percentage with 2 decimals — 0.50 means 0.5% (NUMERIC(5,2) scale, M11)
-  const handleTasaRefChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/[^0-9.]/g, '');
-    const partes = raw.split('.');
-    let limpio = partes[0];
-    if (partes.length > 1) limpio += '.' + partes[1].slice(0, 2);
-    setTasaRef(limpio);
-  };
-
   const handleGuardar = async () => {
     const monto = parseFloat(datos.monto_inicial.replace(/,/g, '')) || 0;
     const tasa  = parseFloat(datos.tasa_interes_mensual) || 0;
@@ -127,15 +112,18 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
     if (!datos.fecha_inicio) {
       setError('La fecha de inicio es obligatoria.'); return;
     }
-    const tasaReferidor = parseFloat(tasaRef) || 0;
-    if (referidor && tasaReferidor <= 0) {
-      setError('Indica la tasa mensual del referidor.'); return;
+    const errorSeleccion = esAdmin ? validarSeleccionReferenciador(seleccion) : null;
+    if (errorSeleccion) {
+      setError(errorSeleccion); return;
     }
 
     setGuardando(true);
     setError(null);
+
+    // 1) The investment, through the legacy endpoint (no referenciador fields).
+    let inversionId: string;
     try {
-      await crearInversion(inversionistaId, {
+      const res = await crearInversion(inversionistaId, {
         monto_inicial:        String(monto),
         tasa_interes_mensual: String(tasa),
         dia_pago:             datos.dia_pago,
@@ -145,16 +133,35 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
         fecha_inicio:         datos.fecha_inicio,
         fecha_vencimiento:    datos.fecha_vencimiento,
         notas:                datos.notas,
-        referenciador_id:     referidor ? referidor.id : undefined,
-        tasa_referenciador:   referidor ? tasaRef.trim() : undefined,
       } as never);
-      onExito();
+      inversionId = res.inversion.id;
     } catch (err: unknown) {
       const axiosError = err as { response?: { data?: { mensaje?: string } } };
       setError(axiosError?.response?.data?.mensaje ?? 'Error al crear la inversión.');
-    } finally {
       setGuardando(false);
+      return;
     }
+
+    // 2) The link, only if a referenciador was chosen. If this fails the
+    //    investment stays (P6): report it, never roll back.
+    if (esAdmin && seleccion.referenciador_id) {
+      try {
+        await crearReferencia({
+          referenciador_id: seleccion.referenciador_id,
+          tipo_referido:    'inversion',
+          inversion_id:     inversionId,
+          tasa:             seleccion.tasa.trim(),
+        });
+      } catch (err: unknown) {
+        const mensaje = err instanceof ReferenciaError ? err.message : 'error desconocido';
+        setGuardando(false);
+        onExito(`La inversión se guardó, pero no se pudo ligar el referenciador: ${mensaje}. Puedes ligarlo desde la edición de la inversión.`);
+        return;
+      }
+    }
+
+    setGuardando(false);
+    onExito();
   };
 
   return (
@@ -278,63 +285,15 @@ const FormNuevaInversion: React.FC<FormNuevaInversionProps> = ({
         <span className="text-sm text-slate-700">Tiene pagaré</span>
       </label>
 
-      {/* Referidor (otro inversionista) + su tasa */}
-      <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3">
-        <p className="text-xs font-medium text-slate-600">Referidor (opcional)</p>
-        {referidor ? (
-          <div className="flex flex-col sm:flex-row sm:items-end gap-3">
-            <div className="flex-1 flex items-center justify-between gap-2 px-3 py-2 bg-sky-50 rounded-lg border border-sky-100">
-              <span className="text-sm text-slate-800">
-                {referidor.nombres} {referidor.apellido_paterno}
-              </span>
-              <button
-                type="button"
-                onClick={() => { setReferidor(null); setQRef(''); setTasaRef(''); }}
-                className="text-xs text-slate-400 hover:text-slate-700"
-              >
-                Quitar
-              </button>
-            </div>
-            <div className="sm:w-40">
-              <label className="block text-xs font-medium text-slate-600 mb-1">Tasa referidor (%)</label>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={tasaRef}
-                onChange={handleTasaRefChange}
-                placeholder="Ej: 0.50"
-                className={inputCls}
-              />
-              <p className="mt-1 text-[11px] text-slate-400">0.50 = 0.5% mensual</p>
-            </div>
-          </div>
-        ) : (
-          <div className="relative">
-            <input
-              type="text"
-              value={qRef}
-              onChange={(e) => setQRef(e.target.value)}
-              placeholder="Buscar inversionista que refirió…"
-              className={inputCls}
-            />
-            {resultadosRef.length > 0 && (
-              <ul className="absolute z-10 mt-1 w-full bg-white border border-slate-100 rounded-xl shadow-lg max-h-48 overflow-y-auto">
-                {resultadosRef.map((r) => (
-                  <li key={r.id}>
-                    <button
-                      type="button"
-                      onClick={() => { setReferidor(r); setResultRef([]); }}
-                      className="w-full text-left px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
-                    >
-                      {r.nombres} {r.apellido_paterno}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
-      </div>
+      {/* Referenciador (M49) — admin only; persisted in `referencias` after the alta */}
+      {esAdmin && (
+        <SelectorReferenciador
+          valor={seleccion}
+          onCambio={setSeleccion}
+          excluirInversionistaId={inversionistaId}
+          deshabilitado={guardando}
+        />
+      )}
 
       {/* Notas */}
       <div>
@@ -385,6 +344,7 @@ const PerfilInversionista: React.FC = () => {
   const [cargando, setCargando]                 = useState(true);
   const [error, setError]                       = useState<string | null>(null);
   const [mostrarFormInv, setMostrarFormInv]     = useState(false);
+  const [avisoReferencia, setAvisoReferencia]   = useState<string | null>(null);
   const [inversionSeleccionada, setInvSelec]    = useState<Inversion | null>(null);
   const [modalAbierto, setModalAbierto]         = useState<'pago' | 'fondos' | null>(null);
   const [recargarHistorial, setRecargarHistorial] = useState(0);
@@ -572,9 +532,24 @@ const PerfilInversionista: React.FC = () => {
           {mostrarFormInv && esAdmin && (
             <FormNuevaInversion
               inversionistaId={perfil.id}
+              esAdmin={esAdmin}
               onCancelar={() => setMostrarFormInv(false)}
-              onExito={() => { setMostrarFormInv(false); cargarPerfil(); }}
+              onExito={(aviso) => { setMostrarFormInv(false); setAvisoReferencia(aviso ?? null); cargarPerfil(); }}
             />
+          )}
+
+          {/* Partial failure (M49): investment saved, referenciador not linked */}
+          {avisoReferencia && (
+            <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-100 rounded-xl">
+              <AlertTriangle size={16} className="text-amber-500 mt-0.5 shrink-0" />
+              <p className="text-sm text-amber-700 flex-1">{avisoReferencia}</p>
+              <button
+                onClick={() => setAvisoReferencia(null)}
+                className="text-xs text-amber-700 hover:underline shrink-0"
+              >
+                Cerrar
+              </button>
+            </div>
           )}
 
           {/* Cards de inversiones */}

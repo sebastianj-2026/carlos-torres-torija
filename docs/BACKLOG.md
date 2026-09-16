@@ -740,7 +740,11 @@ Si no cumple → se parte. No se negocia.
   inversión + fila en `referencias` (`tipo_referido='inversion'`) · When sin referenciador →
   solo la inversión · If falla la referencia → inversión conservada + aviso · While no admin →
   sin selector · 375/768/1440 limpio.
-- **Estado:** ⬜
+- **Estado:** ✅ (2026-09-16) — `FormNuevaInversion` ya no manda `referenciador_id`/
+  `tasa_referenciador`; selector admin-only con `excluirInversionistaId`; alta → `id` →
+  `crearReferencia`; falla parcial sube por `onExito(aviso)` a un banner ámbar del perfil (la
+  inversión queda). Gate `ui` 7/7. 1 archivo. Nota: el tipo `FormularioInversionData` del
+  frontend conserva los campos opcionales viejos sin uso — limpiar junto con M53 o después.
 
 ### M50 · Ligar referenciador en inversión EXISTENTE
 - **Módulo:** inversionistas · **Tipo:** `ui` · **Depende de:** M46, M47, M48

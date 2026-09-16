@@ -239,6 +239,7 @@ demo y FKs intactas. Todo el rastro del módulo descartado vive ahora bajo
 
 | Fecha | Tarea | Veredicto | Nota |
 |---|---|---|---|
+| 2026-09-16 | M49 · ligar referenciador al crear inversión | ✅ cerrada | Gate `ui` 7/7. El form inline del perfil deja de escribir la columna deprecada; alta legacy → `id` → `POST /api/referencias`; falla parcial = inversión conservada + banner ámbar. Selector solo admin. 1 archivo. |
 | 2026-09-16 | M48 · `SelectorReferenciador` (shared) | ✅ cerrada | Tarea propia de `shared/` (precedente M25). Autocompletar solo activos, badge Ambos/Referenciador, auto-referencia filtrada, tasa string validada (regex 2 dec, > 0, ≤ 999.99), no llama a `/api/referencias`, sin roles. Gate `ui` 7/7. 1 archivo. |
 | 2026-09-16 | M47 · service y tipos de referencias | ✅ cerrada | Gate `ui` 7/7. `referenciasService.ts` (get por origen, crear, editar) con `ReferenciaError` que conserva status + mensaje del backend; tasa string; sin `fecha_inicio`. 2 archivos. |
 | 2026-09-16 | M46 · consultar referencia por origen | ✅ cerrada | Gate `logic` 6/6. `GET /api/referencias?inversion_id=` \| `?prestamo_id=` con join al nombre del referenciador; 400 sin DB en los 3 casos; 5 tests (suite 132). 3 archivos. Cadena "termina todo". |
