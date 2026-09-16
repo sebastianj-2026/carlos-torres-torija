@@ -604,11 +604,17 @@ Si no cumple → se parte. No se negocia.
   antes y después. Suite 120 ✅. 2 archivos.
 
 ### M43d · Display de tesorería, pagos y CxP + mensajes de error
-- **Tipo:** `logic` · **Depende de:** M43a · **Estado:** ⬜
-- `tesoreria.controller` (flujo neto, ingresos externos, mensaje de saldo),
-  `pagos.controller` (monto de entrada, totales), `cuentas_pagar.controller`
-  (mensaje de saldo insuficiente). D4: ningún total puede diferir de la suma
-  de sus renglones.
+- **Tipo:** `logic` · **Depende de:** M43a · **Estado:** ✅ (2026-09-15)
+- `tesoreria.controller`: flujo neto e ingresos externos con
+  `restaMontos`/`sumaMontos`; `crearTraspaso` con monto string exacto,
+  comparación `comparaMontos` y mensaje de saldo sin `toFixed`; validación
+  antes de tomar conexión. `pagos.controller`: `monto_pagado` vía
+  `montoDeNumero` (>2 decimales → 400), saldo con el string directo, deuda
+  activa sumada exacta. `cuentas_pagar.controller`: `monto_real` igual,
+  mensaje de saldo con el NUMERIC tal cual. TDD: 3 rojos (los 400 nuevos
+  daban 500) + 4 caracterización. 7 tests; suite 127 ✅. 4 archivos.
+  **Backend sin `toFixed` de dinero:** quedan 7, todos ratios (6 dashboard,
+  1 ingresos). M43 completa.
 
 ### M44 · Recálculo retroactivo (D3)
 - **Tipo:** `data` · **Depende de:** M39–M43 · **Estado:** ⬜

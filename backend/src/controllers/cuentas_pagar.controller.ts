@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import pool from '../config/database';
 import { UsuarioAutenticado } from '../middlewares/auth.middleware';
+import { comparaMontos, esCero, montoDeNumero } from '../lib/dinero';
 
 // ── Audit helper ───────────────────────────────────────────────────
 const log = async (
@@ -274,30 +275,33 @@ export const generarRendimientosInversionistas = async (req: Request, res: Respo
 
 // POST /api/tesoreria/cuentas-pagar/:id/pagar
 export const liquidarCuentaPagar = async (req: Request, res: Response): Promise<void> => {
+  const usuario        = req.usuario;
+  const { id }         = req.params;
+  const file           = (req as Request & { file?: Express.Multer.File }).file;
+  // Exact 2-decimal string (D1): >2 decimals is a 400, never rounded
+  const monto_real     = montoDeNumero(req.body.monto_real, '');
+  const quien_pago     = req.body.quien_pago as string;
+  const fuente_fondos  = req.body.fuente_fondos as string;
+  const cuenta_banca_id = (req.body.cuenta_bancaria_id as string) || null;
+  const notas          = req.body.notas as string | undefined;
+  const fecha_pago     = req.body.fecha_pago as string | undefined;
+
+  // Validation runs before taking a pool connection
+  if (!monto_real || esCero(monto_real)) {
+    res.status(400).json({ mensaje: 'Monto real debe ser mayor a cero, con máximo 2 decimales.' }); return;
+  }
+  if (!quien_pago?.trim()) {
+    res.status(400).json({ mensaje: 'Quien pagó es requerido.' }); return;
+  }
+  if (!['caja_chica', 'cuenta_bancaria'].includes(fuente_fondos)) {
+    res.status(400).json({ mensaje: 'Fuente de fondos inválida.' }); return;
+  }
+  if (fuente_fondos === 'cuenta_bancaria' && !cuenta_banca_id) {
+    res.status(400).json({ mensaje: 'Selecciona la cuenta bancaria.' }); return;
+  }
+
   const client = await pool.connect();
   try {
-    const usuario        = req.usuario;
-    const { id }         = req.params;
-    const file           = (req as Request & { file?: Express.Multer.File }).file;
-    const monto_real     = parseFloat(req.body.monto_real);
-    const quien_pago     = req.body.quien_pago as string;
-    const fuente_fondos  = req.body.fuente_fondos as string;
-    const cuenta_banca_id = (req.body.cuenta_bancaria_id as string) || null;
-    const notas          = req.body.notas as string | undefined;
-    const fecha_pago     = req.body.fecha_pago as string | undefined;
-
-    if (!monto_real || monto_real <= 0) {
-      res.status(400).json({ mensaje: 'Monto real debe ser mayor a cero.' }); return;
-    }
-    if (!quien_pago?.trim()) {
-      res.status(400).json({ mensaje: 'Quien pagó es requerido.' }); return;
-    }
-    if (!['caja_chica', 'cuenta_bancaria'].includes(fuente_fondos)) {
-      res.status(400).json({ mensaje: 'Fuente de fondos inválida.' }); return;
-    }
-    if (fuente_fondos === 'cuenta_bancaria' && !cuenta_banca_id) {
-      res.status(400).json({ mensaje: 'Selecciona la cuenta bancaria.' }); return;
-    }
 
     // Validate account exists
     const cpResult = await client.query(
@@ -324,10 +328,12 @@ export const liquidarCuentaPagar = async (req: Request, res: Response): Promise<
         await client.query('ROLLBACK');
         res.status(404).json({ mensaje: 'Cuenta bancaria no encontrada.' }); return;
       }
-      if (parseFloat(cuentaResult.rows[0].saldo_actual) < monto_real) {
+      // Exact cent comparison; the message shows the NUMERIC as stored (D1, no toFixed)
+      const saldoCuenta = String(cuentaResult.rows[0].saldo_actual ?? '0');
+      if (comparaMontos(monto_real, saldoCuenta) > 0) {
         await client.query('ROLLBACK');
         res.status(400).json({
-          mensaje: `Saldo insuficiente (${parseFloat(cuentaResult.rows[0].saldo_actual).toFixed(2)} MXN).`
+          mensaje: `Saldo insuficiente (${saldoCuenta} MXN).`
         }); return;
       }
       await client.query(
@@ -379,7 +385,7 @@ export const liquidarCuentaPagar = async (req: Request, res: Response): Promise<
       'SELECT * FROM cuentas_pagar WHERE id = $1', [id]
     );
     await log('cuentas_pagar', id as string, 'pagar',
-      { monto_real, fuente_fondos, quien_pago }, usuario);
+      { monto_real: Number(monto_real), fuente_fondos, quien_pago }, usuario);
 
     res.status(201).json({
       mensaje: 'Pago registrado correctamente.',

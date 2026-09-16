@@ -4,6 +4,10 @@ import {
   CrearCuentaDto, EditarCuentaDto,
   CrearCategoriaDto, CrearMovimientoDto, CrearTraspasoDto,
 } from '../models/tesoreria.model';
+import { sumaMontos, restaMontos, comparaMontos, esCero, montoDeNumero } from '../lib/dinero';
+
+// pg NUMERIC arrives as a string; missing → '0' (M43d, docs/DINERO.md D4)
+const numerico = (v: unknown): string => (v === null || v === undefined ? '0' : String(v));
 import { UsuarioAutenticado } from '../middlewares/auth.middleware';
 
 // ── Audit helper ───────────────────────────────────────────────────
@@ -483,25 +487,28 @@ export const listarTraspasos = async (req: Request, res: Response): Promise<void
 };
 
 export const crearTraspaso = async (req: Request, res: Response): Promise<void> => {
+  const usuario          = req.usuario;
+  const file             = (req as Request & { file?: Express.Multer.File }).file;
+  // Exact 2-decimal string (D1): >2 decimals is a 400, never rounded
+  const monto            = montoDeNumero(req.body.monto, '');
+  const concepto         = req.body.concepto  as string | undefined;
+  const fecha            = req.body.fecha     as string | undefined;
+  const cuentaOrigenId   = (req.body.cuenta_origen_id  as string) || null;
+  const cuentaDestinoId  = (req.body.cuenta_destino_id as string) || null;
+
+  // Validation runs before taking a pool connection
+  if (!monto || esCero(monto)) {
+    res.status(400).json({ mensaje: 'El monto debe ser mayor a cero, con máximo 2 decimales.' }); return;
+  }
+  if (cuentaOrigenId && cuentaOrigenId === cuentaDestinoId) {
+    res.status(400).json({ mensaje: 'Origen y destino no pueden ser la misma cuenta.' }); return;
+  }
+  if (!cuentaOrigenId && !cuentaDestinoId) {
+    res.status(400).json({ mensaje: 'Especifica al menos origen o destino como cuenta bancaria.' }); return;
+  }
+
   const client = await pool.connect();
   try {
-    const usuario          = req.usuario;
-    const file             = (req as Request & { file?: Express.Multer.File }).file;
-    const monto            = parseFloat(req.body.monto);
-    const concepto         = req.body.concepto  as string | undefined;
-    const fecha            = req.body.fecha     as string | undefined;
-    const cuentaOrigenId   = (req.body.cuenta_origen_id  as string) || null;
-    const cuentaDestinoId  = (req.body.cuenta_destino_id as string) || null;
-
-    if (!monto || monto <= 0) {
-      res.status(400).json({ mensaje: 'El monto debe ser mayor a cero.' }); return;
-    }
-    if (cuentaOrigenId && cuentaOrigenId === cuentaDestinoId) {
-      res.status(400).json({ mensaje: 'Origen y destino no pueden ser la misma cuenta.' }); return;
-    }
-    if (!cuentaOrigenId && !cuentaDestinoId) {
-      res.status(400).json({ mensaje: 'Especifica al menos origen o destino como cuenta bancaria.' }); return;
-    }
 
     await client.query('BEGIN');
 
@@ -515,10 +522,12 @@ export const crearTraspaso = async (req: Request, res: Response): Promise<void> 
         await client.query('ROLLBACK');
         res.status(404).json({ mensaje: 'Cuenta origen no encontrada.' }); return;
       }
-      if (parseFloat(origen.rows[0].saldo_actual) < monto) {
+      // Exact cent comparison; the message shows the NUMERIC as stored (D1, no toFixed)
+      const saldoOrigen = numerico(origen.rows[0].saldo_actual);
+      if (comparaMontos(monto, saldoOrigen) > 0) {
         await client.query('ROLLBACK');
         res.status(400).json({
-          mensaje: `Saldo insuficiente en cuenta origen (${parseFloat(origen.rows[0].saldo_actual).toFixed(2)} MXN).`
+          mensaje: `Saldo insuficiente en cuenta origen (${saldoOrigen} MXN).`
         }); return;
       }
       await client.query(
@@ -585,7 +594,7 @@ export const crearTraspaso = async (req: Request, res: Response): Promise<void> 
     await client.query('COMMIT');
     const traspaso = traspasoResult.rows[0];
     await registrarLog('tesoreria', 'traspasos', traspaso.id, 'crear',
-      { monto, origen: cuentaOrigenId, destino: cuentaDestinoId }, usuario);
+      { monto: Number(monto), origen: cuentaOrigenId, destino: cuentaDestinoId }, usuario);
 
     res.status(201).json({ mensaje: 'Traspaso registrado correctamente.', traspaso });
   } catch (error) {
@@ -701,27 +710,28 @@ export const resumenFlujoCaja = async (req: Request, res: Response): Promise<voi
       [anio, mes]
     );
 
+    // Exact cents (D4): strings for the math, numbers only in the response
     const { total_entradas, total_salidas, total_movimientos } = totalesResult.rows[0];
-    const te = parseFloat(total_entradas ?? '0');
-    const ts = parseFloat(total_salidas  ?? '0');
+    const te = numerico(total_entradas);
+    const ts = numerico(total_salidas);
 
-    const ingresosPorOrigen = origenResult.rows.map(r => ({
+    const origenStr = origenResult.rows.map(r => ({
       origen:   r.origen,
-      total:    parseFloat(r.total ?? '0'),
+      total:    numerico(r.total),
       cantidad: r.cantidad ?? 0,
     }));
-    const totalIngresosExternos = ingresosPorOrigen.reduce((s, r) => s + r.total, 0);
+    const totalIngresosExternos = sumaMontos(origenStr.map(r => r.total));
 
     res.json({
       mes,
       anio,
-      total_entradas:          te,
-      total_salidas:           ts,
-      flujo_neto:              parseFloat((te - ts).toFixed(2)),
+      total_entradas:          Number(te),
+      total_salidas:           Number(ts),
+      flujo_neto:              Number(restaMontos(te, ts)),
       total_movimientos:       total_movimientos ?? 0,
       por_categoria:           catResult.rows,
-      ingresos_por_origen:     ingresosPorOrigen,
-      total_ingresos_externos: parseFloat(totalIngresosExternos.toFixed(2)),
+      ingresos_por_origen:     origenStr.map(r => ({ ...r, total: Number(r.total) })),
+      total_ingresos_externos: Number(totalIngresosExternos),
     });
   } catch (error) {
     console.error('Error al calcular flujo de caja:', error);

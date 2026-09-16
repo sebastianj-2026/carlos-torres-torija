@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import pool from '../config/database';
-import { restaPiso0, esCero } from '../lib/dinero';
+import { restaPiso0, esCero, sumaMontos, montoDeNumero } from '../lib/dinero';
 
 // ================================================================
 // POST /api/pagos/registrar
@@ -25,9 +25,10 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
     res.status(400).json({ mensaje: "modulo_origen debe ser 'prestamo' o 'renta'." });
     return;
   }
-  const monto = parseFloat(monto_pagado);
-  if (!Number.isFinite(monto) || monto <= 0) {
-    res.status(400).json({ mensaje: 'monto_pagado debe ser un número positivo.' });
+  // Exact 2-decimal string (D1): >2 decimals is a 400, never rounded
+  const monto = montoDeNumero(monto_pagado, '');
+  if (!monto || esCero(monto)) {
+    res.status(400).json({ mensaje: 'monto_pagado debe ser un monto positivo con máximo 2 decimales.' });
     return;
   }
 
@@ -106,10 +107,7 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
 
     // --- 4. Actualizar saldo y estado en la tabla de origen ---
     // Exact cents (deuda 5): balance math never goes through floats
-    const nuevoSaldo = restaPiso0(
-      String(obligacion!.saldo_pendiente),
-      Number(monto).toFixed(2),
-    );
+    const nuevoSaldo = restaPiso0(String(obligacion!.saldo_pendiente), monto);
     const liquidado  = esCero(nuevoSaldo);
 
     // Calcular fecha_proximo_pago: sumar 1 mes a la fecha anterior (o a hoy si era null)
@@ -158,7 +156,7 @@ export const registrarPago = async (req: Request, res: Response): Promise<void> 
       modulo_origen,
       referencia_id,
       cliente_id,
-      monto_pagado:     monto,
+      monto_pagado:     Number(monto), // number at the API edge; math stayed exact
       nuevo_saldo:      Number(nuevoSaldo), // API contract: number (display-only)
       liquidado,
       fecha_proximo_pago: liquidado ? null : nuevaFechaProximoPago,
@@ -251,12 +249,13 @@ export const deudaActivaCliente = async (req: Request, res: Response): Promise<v
        ORDER BY fecha_inicio DESC`,
       [clienteId]
     );
-    const total = r.rows.reduce((s: number, p: any) => s + parseFloat(p.saldo_pendiente), 0);
+    // Exact cents (D4): sum over the pg strings, number only at the edge
+    const total = Number(sumaMontos(r.rows.map((p: any) => (p.saldo_pendiente === null || p.saldo_pendiente === undefined ? '0' : String(p.saldo_pendiente)))));
     res.json({
       prestamos:       r.rows,
-      total_prestamos: parseFloat(total.toFixed(2)),
+      total_prestamos: total,
       total_rentas:    0,
-      total_activo:    parseFloat(total.toFixed(2)),
+      total_activo:    total,
     });
   } catch (err) {
     console.error('[pagos] Error al obtener deuda activa:', err);
