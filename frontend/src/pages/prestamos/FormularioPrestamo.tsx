@@ -20,10 +20,10 @@ import {
 } from '../../services/prestamosService';
 import { listarClientes } from '../../services/clientesService';
 import { listarInversionistas } from '../../services/inversionistasService';
-import { crearReferencia, ReferenciaError } from '../../services/referenciasService';
+import { crearReferencia, obtenerReferenciaPorPrestamo, ReferenciaError } from '../../services/referenciasService';
 import { ClienteResumen } from '../../types/cliente.types';
 import { InversionistaResumen } from '../../types/inversionista.types';
-import { SeleccionReferenciador } from '../../types/referenciador.types';
+import { SeleccionReferenciador, ReferenciaOrigen } from '../../types/referenciador.types';
 import { useAuth } from '../../context/AuthContext';
 import SelectorReferenciador, {
   SELECCION_VACIA,
@@ -674,6 +674,19 @@ const FormularioPrestamo: React.FC = () => {
   // Partial failure: loan saved, referenciador not linked (loan stays, P6)
   const [avisoReferencia, setAvisoReferencia] = useState<string | null>(null);
   const [prestamoGuardadoId, setPrestamoGuardadoId] = useState<string | null>(null);
+  // M52: existing reference of the loan being edited (read-only when present)
+  const [referenciaExistente, setReferenciaExistente] = useState<ReferenciaOrigen | null>(null);
+  const [cargandoReferencia, setCargandoReferencia] = useState(esEdicion);
+
+  useEffect(() => {
+    if (!esEdicion || !id) return;
+    let vivo = true;
+    obtenerReferenciaPorPrestamo(id)
+      .then((r) => { if (vivo) setReferenciaExistente(r); })
+      .catch(logError)
+      .finally(() => { if (vivo) setCargandoReferencia(false); });
+    return () => { vivo = false; };
+  }, [esEdicion, id]);
 
   const esHipotecaria = datos.tipo_garantia === 'hipotecaria';
   const pasos = ['Cliente y garantía', 'Resumen Financiero', 'Documentación'];
@@ -860,7 +873,7 @@ const FormularioPrestamo: React.FC = () => {
 
   const handleGuardar = async () => {
     if (!validarPaso1() || !validarPaso2() || !validarPaso3()) return;
-    const errorSeleccion = esAdmin && !esEdicion ? validarSeleccionReferenciador(seleccionRef) : null;
+    const errorSeleccion = esAdmin && !referenciaExistente ? validarSeleccionReferenciador(seleccionRef) : null;
     if (errorSeleccion) { setError(errorSeleccion); return; }
     setCargando(true);
     setError(null);
@@ -896,10 +909,12 @@ const FormularioPrestamo: React.FC = () => {
         prestamoId = res.prestamo.id;
       }
 
-      // M51: link the referenciador only once the loan exists. If linking
-      // fails the loan stays (P6) and the user is told; nothing rolls back.
+      // M51/M52: link the referenciador only once the loan exists (alta) or
+      // when the loan being edited has none yet. If linking fails the loan
+      // stays (P6) and the user is told; nothing rolls back. A 409 means
+      // someone linked it meanwhile: reload what is there now (P3).
       let avisoRef: string | null = null;
-      if (esAdmin && !esEdicion && seleccionRef.referenciador_id) {
+      if (esAdmin && !referenciaExistente && seleccionRef.referenciador_id) {
         try {
           await crearReferencia({
             referenciador_id: seleccionRef.referenciador_id,
@@ -909,7 +924,12 @@ const FormularioPrestamo: React.FC = () => {
           });
         } catch (err: unknown) {
           const mensaje = err instanceof ReferenciaError ? err.message : 'error desconocido';
-          avisoRef = `El préstamo se guardó, pero no se pudo ligar el referenciador: ${mensaje}. Puedes ligarlo desde la edición del préstamo.`;
+          avisoRef = `El préstamo se guardó, pero no se pudo ligar el referenciador: ${mensaje}.`
+            + (esEdicion ? '' : ' Puedes ligarlo desde la edición del préstamo.');
+          if (err instanceof ReferenciaError && err.status === 409) {
+            setReferenciaExistente(await obtenerReferenciaPorPrestamo(prestamoId).catch(() => null));
+            setSeleccionRef(SELECCION_VACIA);
+          }
         }
       }
 
@@ -1299,14 +1319,36 @@ const FormularioPrestamo: React.FC = () => {
               );
             })()}
 
-            {/* Referenciador (M51) — admin only; linked after the loan is created */}
-            {esAdmin && !esEdicion && (
+            {/* Referenciador (M51 alta · M52 edición) */}
+            {cargandoReferencia ? (
+              <p className="text-xs text-slate-400">Consultando referenciador…</p>
+            ) : referenciaExistente ? (
+              // Read-only: the loan already has its single referenciador (P3).
+              // No change-referenciador, edit-rate or terminate/cancel here.
+              <div className="rounded-2xl border border-slate-100 bg-white p-4">
+                <p className="text-sm font-medium text-slate-700 mb-2">Referenciador</p>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <span className="text-sm text-slate-800 font-medium">{referenciaExistente.referenciador_nombre}</span>
+                  <span className="text-sm text-slate-600">{referenciaExistente.tasa}%</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium capitalize ${
+                    referenciaExistente.estado === 'activa' ? 'bg-green-50 text-green-700'
+                    : referenciaExistente.estado === 'cancelada' ? 'bg-red-50 text-red-600'
+                    : 'bg-slate-100 text-slate-600'}`}>
+                    {referenciaExistente.estado}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    desde {new Date(referenciaExistente.fecha_inicio.slice(0, 10) + 'T00:00:00')
+                      .toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  </span>
+                </div>
+              </div>
+            ) : esAdmin ? (
               <SelectorReferenciador
                 valor={seleccionRef}
                 onCambio={(v) => { setSeleccionRef(v); setError(null); }}
                 deshabilitado={cargando}
               />
-            )}
+            ) : null}
 
             {/* Notas */}
             <div>

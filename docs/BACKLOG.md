@@ -791,7 +791,11 @@ Si no cumple → se parte. No se negocia.
   referencia → selector (admin) y al guardar `crearReferencia`; con referencia → solo lectura;
   409 → mensaje y recarga. Sin editar ni cancelar.
 - **EARS:** los de M50 aplicados al préstamo.
-- **Estado:** ⬜
+- **Estado:** ✅ (2026-09-16) — en `esEdicion` consulta `GET /api/referencias?prestamo_id=` al
+  cargar; con referencia → bloque solo lectura (nombre, tasa %, estado, desde) y ningún
+  selector; sin referencia y admin → selector, y al Actualizar se crea la referencia; 409 →
+  aviso con el mensaje del backend y recarga de la referencia existente; no admin → nada.
+  Gate `ui prestamos` 7/7. 1 archivo.
 
 ### M53 · El backend deja de escribir las columnas deprecadas
 - **Módulo:** inversionistas · **Tipo:** `logic` · **Depende de:** M49 ✅
