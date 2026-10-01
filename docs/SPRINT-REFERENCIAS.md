@@ -482,6 +482,8 @@ Claude Code **solo prepara** la lista y el ambiente local. No marca esta tarea c
 - [ ] Todo lo anterior en 375 px desde el celular.
 - [ ] `npm run test:e2e --prefix frontend` en verde (18 tests). Si alguna pantalla nueva lo amerita, proponer agregarla al spec.
 
+**Estado:** ✅ Aprobada por Sebastian el 2026-10-01 (prueba humana local: ligado desde inversión, préstamo nuevo y existente, auto-referencia bloqueada, 409 por duplicado, estados solo hacia adelante, detalle por origen, 375 y 1440).
+
 ---
 
 ## 9. Formato del reporte al cerrar cada sesión

@@ -817,7 +817,7 @@ Si no cumple → se parte. No se negocia.
 ### M54 · ✋ Prueba humana (Sebastian, en dev)
 - **Tipo:** humana · **Depende de:** M53 · Claude solo prepara la lista; la marca Sebastian.
 - Checklist completo en `docs/SPRINT-REFERENCIAS.md` §8.
-- **Estado:** ⬜
+- **Estado:** ✅ Aprobada por Sebastian el 2026-10-01 (prueba humana local: ligado desde inversión, préstamo nuevo y existente, auto-referencia bloqueada, 409 por duplicado, estados solo hacia adelante, detalle por origen, 375 y 1440).
 
 ## Conteo
 
